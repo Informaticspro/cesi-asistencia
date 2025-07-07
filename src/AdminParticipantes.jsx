@@ -5,10 +5,10 @@ import { QRCodeCanvas } from "qrcode.react";
 
 function AdminParticipantes() {
   const [participantes, setParticipantes] = useState([]);
-  const [editando, setEditando] = useState(null); // cédula original que se está editando
-  const [formData, setFormData] = useState({ nombre: "", cedula: "", correo: "" });
+  const [editando, setEditando] = useState(null);
+  const [formData, setFormData] = useState({ nombre: "", apellido: "", cedula: "", correo: "" });
   const [loading, setLoading] = useState(false);
-  const [mensaje, setMensaje] = useState(null); // { tipo: "error"|"success", texto: string }
+  const [mensaje, setMensaje] = useState(null);
 
   const cargarParticipantes = async () => {
     setLoading(true);
@@ -26,9 +26,7 @@ function AdminParticipantes() {
     cargarParticipantes();
   }, []);
 
-  const validarEmail = (email) => {
-    return /\S+@\S+\.\S+/.test(email);
-  };
+  const validarEmail = (email) => /\S+@\S+\.\S+/.test(email);
 
   const eliminarParticipante = async (cedula) => {
     if (!confirm("¿Seguro que deseas eliminar este participante?")) return;
@@ -45,7 +43,12 @@ function AdminParticipantes() {
 
   const comenzarEdicion = (p) => {
     setEditando(p.cedula);
-    setFormData({ nombre: p.nombre, cedula: p.cedula, correo: p.correo });
+    setFormData({
+      nombre: p.nombre,
+      apellido: p.apellido || "",
+      cedula: p.cedula,
+      correo: p.correo,
+    });
     setMensaje(null);
   };
 
@@ -57,6 +60,10 @@ function AdminParticipantes() {
   const guardarCambios = async () => {
     if (!formData.nombre.trim()) {
       setMensaje({ tipo: "error", texto: "El nombre no puede estar vacío" });
+      return;
+    }
+    if (!formData.apellido.trim()) {
+      setMensaje({ tipo: "error", texto: "El apellido no puede estar vacío" });
       return;
     }
     if (!formData.cedula.trim()) {
@@ -77,11 +84,12 @@ function AdminParticipantes() {
       .from("participantes")
       .update({
         nombre: formData.nombre.trim(),
+        apellido: formData.apellido.trim(),
         cedula: formData.cedula.trim(),
         correo: formData.correo.trim(),
-        qr_code: formData.cedula.trim(), // sincronizar qr_code con cédula actualizada
+        qr_code: formData.cedula.trim(),
       })
-      .eq("cedula", editando); // filtramos por la cédula original
+      .eq("cedula", editando);
 
     setLoading(false);
 
@@ -115,10 +123,15 @@ function AdminParticipantes() {
 
       {loading && <p>Cargando...</p>}
 
-      <table border="1" cellPadding="8" style={{ width: "100%", borderCollapse: "collapse" }}>
+      <table
+        border="1"
+        cellPadding="8"
+        style={{ width: "100%", borderCollapse: "collapse" }}
+      >
         <thead>
-          <tr style={{ backgroundColor: "#f0f0f0" }}>
+          <tr style={{ backgroundColor: "#fff", color: "#000" }}>
             <th>Nombre</th>
+            <th>Apellido</th>
             <th>Cédula</th>
             <th>Correo</th>
             <th>QR Code</th>
@@ -137,6 +150,17 @@ function AdminParticipantes() {
                   />
                 ) : (
                   p.nombre
+                )}
+              </td>
+              <td>
+                {editando === p.cedula ? (
+                  <input
+                    value={formData.apellido}
+                    onChange={(e) => setFormData({ ...formData, apellido: e.target.value })}
+                    disabled={loading}
+                  />
+                ) : (
+                  p.apellido || ""
                 )}
               </td>
               <td>
@@ -186,7 +210,11 @@ function AdminParticipantes() {
                     <button onClick={guardarCambios} disabled={loading}>
                       Guardar
                     </button>
-                    <button onClick={cancelarEdicion} disabled={loading} style={{ marginLeft: "0.5rem" }}>
+                    <button
+                      onClick={cancelarEdicion}
+                      disabled={loading}
+                      style={{ marginLeft: "0.5rem" }}
+                    >
                       Cancelar
                     </button>
                   </>
@@ -209,7 +237,7 @@ function AdminParticipantes() {
           ))}
           {participantes.length === 0 && !loading && (
             <tr>
-              <td colSpan="5" style={{ textAlign: "center", padding: "1rem" }}>
+              <td colSpan="6" style={{ textAlign: "center", padding: "1rem" }}>
                 No hay participantes registrados.
               </td>
             </tr>
