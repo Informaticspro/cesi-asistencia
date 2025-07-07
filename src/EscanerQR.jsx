@@ -157,8 +157,8 @@ function EscanerQR() {
 
       {mostrarManual && <RegistroManual />}
 
-      {/* Confirmación visual */}
-      {{confirmacion && (
+{/* Confirmación visual */}
+{confirmacion && (
   <div
     style={{
       marginTop: "2rem",
