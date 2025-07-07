@@ -6,6 +6,8 @@ function Bienvenida({ onLogin }) {
   const [usuario, setUsuario] = useState("");
   const [contraseña, setContrasena] = useState("");
   const [error, setError] = useState(null);
+  const [mostrarContrasena, setMostrarContrasena] = useState(false);
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -15,23 +17,23 @@ function Bienvenida({ onLogin }) {
     console.log("Usuario ingresado:", usuario);
     console.log("Contraseña ingresada:", contraseña);
 
-    const { data, error: queryError } = await supabase
+    const { data, error } = await supabase
       .from("usuarios")
       .select("*")
-      .eq("usuario", usuario)
+      .ilike("usuario", usuario.trim())
       .single();
 
-    if (queryError || !data) {
+    console.log("Respuesta de Supabase:", data, error);
+
+    if (error || !data) {
       setError("Usuario no encontrado");
       return;
     }
 
-    console.log("Respuesta de Supabase:", data);
-
-    if (data["contraseña"] === contraseña.trim()) {
+    if (data["contraseña"] === contraseña) {
       setError(null);
       onLogin(true);
-      navigate("/");
+      navigate("/"); // Te lleva a la página principal
     } else {
       setError("Contraseña incorrecta");
     }
@@ -63,12 +65,22 @@ function Bienvenida({ onLogin }) {
         <div style={{ marginBottom: "1rem", textAlign: "left" }}>
           <label>Contraseña:</label>
           <input
-            type="password"
+            type={mostrarContrasena ? "text" : "password"}
             value={contraseña}
             onChange={(e) => setContrasena(e.target.value)}
             required
             style={{ width: "100%", padding: "0.5rem" }}
           />
+          <div style={{ marginTop: "0.5rem" }}>
+            <label>
+              <input
+                type="checkbox"
+                checked={mostrarContrasena}
+                onChange={() => setMostrarContrasena(!mostrarContrasena)}
+              />{" "}
+              Mostrar contraseña
+            </label>
+          </div>
         </div>
         {error && <div style={{ color: "red", marginBottom: "1rem" }}>{error}</div>}
         <button type="submit" style={{ padding: "0.5rem 1rem" }}>
@@ -79,7 +91,6 @@ function Bienvenida({ onLogin }) {
       <hr style={{ margin: "2rem 0" }} />
 
       <p>¿Eres participante y aún no estás registrado?</p>
-
       <Link to="/registrar" style={{ textDecoration: "none" }}>
         <button
           type="button"
