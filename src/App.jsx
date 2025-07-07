@@ -1,21 +1,11 @@
 import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from "react-router-dom";
 
 import Bienvenida from "./Bienvenida";
 import EscanerQR from "./EscanerQR";
 import RegistrarParticipante from "./RegistrarParticipante";
 import AdminParticipantes from "./AdminParticipantes";
 import MiFooter from "./MiFooter";
-
-function Home() {
-  return (
-    <div style={{ padding: "1rem" }}>
-      <h1>Registro de Asistencia CESI 2025</h1>
-
-      <EscanerQR />
-    </div>
-  );
-}
 
 function App() {
   const [autorizado, setAutorizado] = useState(false);
@@ -25,18 +15,37 @@ function App() {
       <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
         <div style={{ flex: 1 }}>
           <Routes>
-            <Route path="/" element={<Bienvenida onLogin={setAutorizado} />} />
+            {/* Página de inicio: bienvenida o panel principal */}
             <Route
-              path="/registrar"
-              element={<RegistrarParticipante />}
+              path="/"
+              element={
+                autorizado ? (
+                  <div style={{ padding: "1rem" }}>
+                    <h1>Registro de Asistencia CESI 2025</h1>
+
+                    <Link to="/registrar">
+                      <button style={{ marginRight: "10px" }}>Registrar Participante</button>
+                    </Link>
+
+                    <Link to="/admin-participantes">
+                      <button style={{ marginRight: "10px" }}>Administrar Participantes</button>
+                    </Link>
+
+                    <EscanerQR />
+                  </div>
+                ) : (
+                  <Bienvenida onLogin={setAutorizado} />
+                )
+              }
             />
+
+            {/* Ruta pública para registrar participantes */}
+            <Route path="/registrar" element={<RegistrarParticipante />} />
+
+            {/* Ruta protegida: solo si está autorizado */}
             <Route
               path="/admin-participantes"
               element={autorizado ? <AdminParticipantes /> : <Navigate to="/" />}
-            />
-            <Route
-              path="/escaner"
-              element={autorizado ? <Home /> : <Navigate to="/" />}
             />
           </Routes>
         </div>

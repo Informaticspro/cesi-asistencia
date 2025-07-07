@@ -1,29 +1,37 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "./supabaseClient";
 
 function Bienvenida({ onLogin }) {
   const [usuario, setUsuario] = useState("");
-  const [contrasena, setContrasena] = useState("");
+  const [contraseña, setContrasena] = useState("");
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { data, error } = await supabase
+    console.log("handleSubmit ejecutado");
+    console.log("Usuario ingresado:", usuario);
+    console.log("Contraseña ingresada:", contraseña);
+
+    const { data, error: queryError } = await supabase
       .from("usuarios")
-      .select("usuario, contraseña")
+      .select("*")
       .eq("usuario", usuario)
       .single();
 
-    if (error || !data) {
+    if (queryError || !data) {
       setError("Usuario no encontrado");
       return;
     }
 
-    if (data["contraseña"] === contrasena) {
+    console.log("Respuesta de Supabase:", data);
+
+    if (data["contraseña"] === contraseña.trim()) {
       setError(null);
       onLogin(true);
+      navigate("/");
     } else {
       setError("Contraseña incorrecta");
     }
@@ -56,7 +64,7 @@ function Bienvenida({ onLogin }) {
           <label>Contraseña:</label>
           <input
             type="password"
-            value={contrasena}
+            value={contraseña}
             onChange={(e) => setContrasena(e.target.value)}
             required
             style={{ width: "100%", padding: "0.5rem" }}
@@ -70,24 +78,24 @@ function Bienvenida({ onLogin }) {
 
       <hr style={{ margin: "2rem 0" }} />
 
-<p>¿Eres participante y aún no estás registrado?</p>
+      <p>¿Eres participante y aún no estás registrado?</p>
 
-<Link to="/registrar" style={{ textDecoration: "none" }}>
-  <button
-    type="button"
-    style={{
-      marginTop: "0.5rem",
-      padding: "0.5rem 1rem",
-      backgroundColor: "#007bff",
-      color: "#fff",
-      border: "none",
-      borderRadius: "4px",
-      cursor: "pointer",
-    }}
-  >
-    Quiero registrarme como participante
-  </button>
-</Link>
+      <Link to="/registrar" style={{ textDecoration: "none" }}>
+        <button
+          type="button"
+          style={{
+            marginTop: "0.5rem",
+            padding: "0.5rem 1rem",
+            backgroundColor: "#007bff",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          Quiero registrarme como participante
+        </button>
+      </Link>
     </div>
   );
 }
