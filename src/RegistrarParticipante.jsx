@@ -5,6 +5,7 @@ import { QRCodeCanvas } from "qrcode.react";
 
 function RegistrarParticipante() {
   const [nombre, setNombre] = useState("");
+  const [apellido, setApellido] = useState("");       // <-- Nuevo campo
   const [cedula, setCedula] = useState("");
   const [correo, setCorreo] = useState("");
   const [qrValue, setQrValue] = useState("");
@@ -12,7 +13,7 @@ function RegistrarParticipante() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!nombre || !cedula || !correo) {
+    if (!nombre || !apellido || !cedula || !correo) {
       alert("⚠️ Todos los campos son obligatorios");
       return;
     }
@@ -38,9 +39,10 @@ function RegistrarParticipante() {
     const { data, error } = await supabase.from("participantes").insert([
       {
         nombre,
+        apellido,          // <-- Guardamos apellido
         cedula,
         correo,
-        qr_code: cedula,  // <-- Aquí guardamos el qr_code igual a la cédula
+        qr_code: cedula,   // QR igual a la cédula
       },
     ]);
 
@@ -50,8 +52,9 @@ function RegistrarParticipante() {
     } else {
       setQrValue(cedula); // Generar QR con la cédula
       alert("✅ Participante registrado exitosamente");
-      // Limpiar formulario si quieres:
+      // Limpiar formulario
       setNombre("");
+      setApellido("");
       setCedula("");
       setCorreo("");
     }
@@ -67,6 +70,14 @@ function RegistrarParticipante() {
             type="text"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
+          />
+        </div>
+        <div>
+          <label>Apellido:</label><br />
+          <input
+            type="text"
+            value={apellido}
+            onChange={(e) => setApellido(e.target.value)}
           />
         </div>
         <div>
