@@ -39,6 +39,67 @@ function App() {
       </Routes>
     </Router>
   );
+  function Footer() {
+  return (
+    <footer style={{
+      marginTop: "2rem",
+      padding: "1rem",
+      textAlign: "center",
+      fontSize: "14px",
+      color: "#666",
+      borderTop: "1px solid #ddd"
+    }}>
+      © 2025 Informatics ProServices J.A. Todos los derechos reservados. Desarrollado por Informatics ProServices J.A.
+    </footer>
+  );
+}
+
+function Footer() {
+  return (
+    <footer
+      style={{
+        marginTop: "2rem",
+        padding: "1rem",
+        textAlign: "center",
+        fontSize: "14px",
+        color: "#666",
+        borderTop: "1px solid #ddd",
+        backgroundColor: "#f9f9f9",
+      }}
+    >
+      © 2025 Informatics ProServices J.A. Todos los derechos reservados. Desarrollado por{" "}
+      <a
+        href="https://tuweb.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ color: "#666", textDecoration: "underline" }}
+      >
+        Informatics ProServices J.A.
+      </a>
+    </footer>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+        <div style={{ flex: 1 }}>
+          <Routes>
+            {/* Página principal */}
+            <Route path="/" element={<Home />} />
+            {/* Registrar participantes */}
+            <Route path="/registrar" element={<RegistrarParticipante />} />
+            {/* Administrar participantes */}
+            <Route path="/admin-participantes" element={<AdminParticipantes />} />
+          </Routes>
+        </div>
+
+        <Footer />
+      </div>
+    </Router>
+  );
+}
 }
 
 export default App;
