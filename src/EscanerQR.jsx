@@ -7,12 +7,23 @@ function EscanerQR() {
   const html5QrCodeRef = useRef(null);
   const scanningRef = useRef(false);
   const [scannerActivo, setScannerActivo] = useState(false);
-  const [mostrarManual, setMostrarManual] = useState(false); // controla visibilidad del formulario manual
+  const [mostrarManual, setMostrarManual] = useState(false);
 
   const iniciarScanner = async () => {
     if (scannerActivo) return;
 
     const qrRegionId = "reader";
+
+    setScannerActivo(true);
+    setMostrarManual(false); // Ocultar manual mientras escanea
+
+    // Esperar a que el div con id="reader" se haya renderizado
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const readerElement = document.getElementById(qrRegionId);
+    if (!readerElement) {
+      console.error("❌ El elemento #reader no existe.");
+      return;
+    }
 
     if (!html5QrCodeRef.current) {
       html5QrCodeRef.current = new Html5Qrcode(qrRegionId);
@@ -39,8 +50,6 @@ function EscanerQR() {
           }
         }
       );
-      setScannerActivo(true);
-      setMostrarManual(false); // ocultamos registro manual al abrir cámara
     } catch (err) {
       console.error("Error iniciando escáner", err);
     }
@@ -56,10 +65,9 @@ function EscanerQR() {
   };
 
   const registrarAsistencia = async (cedula) => {
-    const hoy = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-    const hora = new Date().toISOString();              // ISO completo timestamp
+    const hoy = new Date().toISOString().split("T")[0];
+    const hora = new Date().toISOString();
 
-    // Verificar si ya registró asistencia hoy
     const { data: yaAsistio, error: errSelect } = await supabase
       .from("asistencias")
       .select("*")
@@ -68,17 +76,16 @@ function EscanerQR() {
 
     if (errSelect) {
       alert("❌ Error al consultar asistencia.");
-      scanningRef.current = false; // permitir nuevo escaneo
+      scanningRef.current = false;
       return;
     }
 
     if (yaAsistio.length > 0) {
       alert("⚠️ Ya registró asistencia hoy.");
-      scanningRef.current = false; // permitir nuevo escaneo
+      scanningRef.current = false;
       return;
     }
 
-    // Insertar nueva asistencia
     const { error } = await supabase.from("asistencias").insert([
       {
         cedula,
@@ -93,7 +100,7 @@ function EscanerQR() {
       alert("✅ Asistencia registrada.");
     }
 
-    scanningRef.current = false; // permitir nuevo escaneo
+    scanningRef.current = false;
   };
 
   return (
@@ -120,7 +127,6 @@ function EscanerQR() {
         </button>
       )}
 
-      {/* Botón siempre visible para mostrar/ocultar registro manual */}
       <button
         className="btn btn-secondary"
         onClick={() => {
@@ -131,12 +137,10 @@ function EscanerQR() {
         {mostrarManual ? "Ocultar registro manual" : "Registrar asistencia manual"}
       </button>
 
-      {/* Mostrar cámara solo si está activo */}
       {scannerActivo && (
         <div id="reader" style={{ width: "300px", marginTop: "1rem" }}></div>
       )}
 
-      {/* Mostrar formulario manual solo si mostrarManual es true */}
       {mostrarManual && <RegistroManual />}
     </div>
   );
