@@ -8,6 +8,13 @@ function EscanerQR() {
   const scanningRef = useRef(false);
   const [scannerActivo, setScannerActivo] = useState(false);
   const [mostrarManual, setMostrarManual] = useState(false);
+  const [datosParticipante, setDatosParticipante] = useState(null);
+  const [confirmacion, setConfirmacion] = useState(null); // mensaje visual
+
+  const reproducirSonido = (tipo) => {
+    const audio = new Audio(tipo === "success" ? "/success.mp3" : "/error.mp3");
+    audio.play();
+  };
 
   const iniciarScanner = async () => {
     if (scannerActivo) return;
@@ -15,9 +22,8 @@ function EscanerQR() {
     const qrRegionId = "reader";
 
     setScannerActivo(true);
-    setMostrarManual(false); // Ocultar manual mientras escanea
+    setMostrarManual(false);
 
-    // Esperar a que el div con id="reader" se haya renderizado
     await new Promise((resolve) => setTimeout(resolve, 100));
     const readerElement = document.getElementById(qrRegionId);
     if (!readerElement) {
@@ -32,10 +38,7 @@ function EscanerQR() {
     try {
       await html5QrCodeRef.current.start(
         { facingMode: "environment" },
-        {
-          fps: 10,
-          qrbox: 250,
-        },
+        { fps: 10, qrbox: 250 },
         async (decodedText) => {
           if (scanningRef.current) return;
           scanningRef.current = true;
@@ -46,7 +49,7 @@ function EscanerQR() {
           try {
             await detenerScanner();
           } catch (err) {
-            console.warn("Error al detener el escáner:", err.message);
+            console.warn("Error al detener escáner:", err.message);
           }
         }
       );
@@ -68,6 +71,7 @@ function EscanerQR() {
     const hoy = new Date().toISOString().split("T")[0];
     const hora = new Date().toISOString();
 
+    // 1. Verificar si ya registró
     const { data: yaAsistio, error: errSelect } = await supabase
       .from("asistencias")
       .select("*")
@@ -75,29 +79,47 @@ function EscanerQR() {
       .eq("fecha", hoy);
 
     if (errSelect) {
-      alert("❌ Error al consultar asistencia.");
+      setConfirmacion({ tipo: "error", mensaje: "❌ Error consultando asistencia" });
+      reproducirSonido("error");
       scanningRef.current = false;
       return;
     }
 
     if (yaAsistio.length > 0) {
-      alert("⚠️ Ya registró asistencia hoy.");
+      setConfirmacion({ tipo: "error", mensaje: "⚠️ Ya registró asistencia hoy" });
+      reproducirSonido("error");
       scanningRef.current = false;
       return;
     }
 
+    // 2. Buscar datos del participante
+    const { data: participante, error: errorParticipante } = await supabase
+      .from("participantes")
+      .select("nombre, apellido, cedula")
+      .eq("cedula", cedula)
+      .single();
+
+    if (errorParticipante || !participante) {
+      setConfirmacion({ tipo: "error", mensaje: "❌ Participante no encontrado" });
+      setDatosParticipante(null);
+      reproducirSonido("error");
+      scanningRef.current = false;
+      return;
+    }
+
+    // 3. Insertar asistencia
     const { error } = await supabase.from("asistencias").insert([
-      {
-        cedula,
-        fecha: hoy,
-        hora,
-      },
+      { cedula, fecha: hoy, hora }
     ]);
 
     if (error) {
-      alert("❌ Error al registrar asistencia.");
+      setConfirmacion({ tipo: "error", mensaje: "❌ Error al registrar asistencia" });
+      setDatosParticipante(null);
+      reproducirSonido("error");
     } else {
-      alert("✅ Asistencia registrada.");
+      setDatosParticipante(participante);
+      setConfirmacion({ tipo: "success", mensaje: "✅ Asistencia registrada" });
+      reproducirSonido("success");
     }
 
     scanningRef.current = false;
@@ -108,21 +130,13 @@ function EscanerQR() {
       <h2>Escanear QR</h2>
 
       {!scannerActivo && (
-        <button
-          onClick={iniciarScanner}
-          className="btn btn-primary"
-          style={{ marginRight: "10px" }}
-        >
+        <button onClick={iniciarScanner} className="btn btn-primary" style={{ marginRight: "10px" }}>
           📷 Iniciar escáner
         </button>
       )}
 
       {scannerActivo && (
-        <button
-          onClick={detenerScanner}
-          className="btn btn-danger"
-          style={{ marginRight: "10px" }}
-        >
+        <button onClick={detenerScanner} className="btn btn-danger" style={{ marginRight: "10px" }}>
           🛑 Detener escáner
         </button>
       )}
@@ -142,6 +156,37 @@ function EscanerQR() {
       )}
 
       {mostrarManual && <RegistroManual />}
+
+      {/* Confirmación visual */}
+      {{confirmacion && (
+  <div
+    style={{
+      marginTop: "2rem",
+      padding: "1.5rem",
+      borderRadius: "10px",
+      backgroundColor: confirmacion.tipo === "success" ? "#e6ffed" : "#ffe6e6",
+      color: confirmacion.tipo === "success" ? "#155724" : "#721c24",
+      border: `2px solid ${confirmacion.tipo === "success" ? "#28a745" : "#dc3545"}`,
+      textAlign: "center",
+      fontSize: "18px",
+      maxWidth: "400px",
+      marginLeft: "auto",
+      marginRight: "auto",
+      boxShadow: "0 0 8px rgba(0,0,0,0.1)"
+    }}
+  >
+    <div style={{ fontWeight: "bold", fontSize: "20px", marginBottom: "0.5rem" }}>
+      {confirmacion.mensaje}
+    </div>
+    {datosParticipante && (
+      <div>
+        <div><strong>Nombre:</strong> {datosParticipante.nombre}</div>
+        <div><strong>Apellido:</strong> {datosParticipante.apellido}</div>
+        <div><strong>Cédula:</strong> {datosParticipante.cedula}</div>
+      </div>
+    )}
+  </div>
+)}
     </div>
   );
 }
