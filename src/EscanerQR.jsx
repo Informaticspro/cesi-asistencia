@@ -13,19 +13,17 @@ function EscanerQR() {
 
   const reproducirSonido = (tipo) => {
     const audio = new Audio(tipo === "success" ? "/success.mp3" : "/error.mp3");
-    audio.play().catch(() => {}); // Silencia errores si el audio no puede reproducirse
+    audio.play().catch(() => {});
   };
 
   const iniciarScanner = async () => {
     if (scannerActivo) return;
 
     const qrRegionId = "reader";
-
     setScannerActivo(true);
     setMostrarManual(false);
 
     await new Promise((resolve) => setTimeout(resolve, 100));
-
     const readerElement = document.getElementById(qrRegionId);
     if (!readerElement) {
       console.error("❌ El elemento #reader no existe.");
@@ -43,11 +41,8 @@ function EscanerQR() {
         async (decodedText) => {
           if (scanningRef.current) return;
           scanningRef.current = true;
-
           console.log("QR leído:", decodedText);
           await registrarAsistencia(decodedText);
-
-          // Espera 2 segundos antes de permitir otro escaneo
           setTimeout(() => {
             scanningRef.current = false;
           }, 2000);
@@ -118,78 +113,99 @@ function EscanerQR() {
   };
 
   return (
-    <div style={{ padding: "1rem", maxWidth: "500px", margin: "0 auto" }}>
-      <h2 style={{ textAlign: "center" }}>Escanear QR</h2>
-
+    <div
+      style={{
+        padding: "1rem",
+        maxWidth: "100%",
+        margin: "0 auto",
+        height: scannerActivo ? "90vh" : "auto",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: scannerActivo ? "center" : "flex-start",
+        backgroundColor: scannerActivo ? "#000" : "transparent",
+        color: scannerActivo ? "#fff" : "#000",
+        transition: "all 0.3s ease-in-out",
+      }}
+    >
       {!scannerActivo && (
-        <button
-          onClick={iniciarScanner}
-          sstyle={{
-             width: "90vw",               // usa el 90% del ancho del viewport
-              maxWidth: "400px",           // pero no más grande que 400px
-              aspectRatio: "1 / 1",        // cuadrado
-              margin: "1rem auto",
-               borderRadius: "12px",
+        <>
+          <h2 style={{ textAlign: "center" }}>Escanear QR</h2>
+
+          {/* ✅ Botón original que te gustaba */}
+          <button
+            onClick={iniciarScanner}
+            style={{
+              backgroundColor: "#007bff",
+              color: "#fff",
+              padding: "0.75rem 1.5rem",
+              fontSize: "16px",
+              borderRadius: "8px",
+              border: "none",
+              cursor: "pointer",
+              marginBottom: "1rem",
+              width: "100%",
+              maxWidth: "400px",
+            }}
+          >
+            📷 Iniciar escáner
+          </button>
+
+          <button
+            onClick={() => {
+              setMostrarManual((prev) => !prev);
+              if (scannerActivo) detenerScanner();
+            }}
+            style={{
+              width: "100%",
+              padding: "0.75rem",
+              marginBottom: "1rem",
+              backgroundColor: "#6c757d",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "16px",
+              cursor: "pointer",
+              maxWidth: "400px",
+            }}
+          >
+            {mostrarManual ? "Ocultar registro manual" : "Registrar asistencia manual"}
+          </button>
+        </>
+      )}
+
+      {scannerActivo && (
+        <>
+          <button
+            onClick={detenerScanner}
+            style={{
+              width: "100%",
+              padding: "0.75rem",
+              marginBottom: "0.5rem",
+              backgroundColor: "#dc3545",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "16px",
+              cursor: "pointer",
+              maxWidth: "400px",
+            }}
+          >
+            🛑 Detener escáner
+          </button>
+
+          <div
+            id="reader"
+            style={{
+              width: "100%",
+              maxWidth: "500px",
+              aspectRatio: "1 / 1",
+              borderRadius: "12px",
               overflow: "hidden",
-                boxShadow: "0 0 12px rgba(0,0,0,0.2)",
-}}
-        >
-          📷 Iniciar escáner
-        </button>
-      )}
-
-      {scannerActivo && (
-        <button
-          onClick={detenerScanner}
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            marginBottom: "0.5rem",
-            backgroundColor: "#dc3545",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "16px",
-            cursor: "pointer",
-          }}
-        >
-          🛑 Detener escáner
-        </button>
-      )}
-
-      <button
-        onClick={() => {
-          setMostrarManual((prev) => !prev);
-          if (scannerActivo) detenerScanner();
-        }}
-        style={{
-          width: "100%",
-          padding: "0.75rem",
-          marginBottom: "1rem",
-          backgroundColor: "#6c757d",
-          color: "white",
-          border: "none",
-          borderRadius: "8px",
-          fontSize: "16px",
-          cursor: "pointer",
-        }}
-      >
-        {mostrarManual ? "Ocultar registro manual" : "Registrar asistencia manual"}
-      </button>
-
-      {scannerActivo && (
-        <div
-          id="reader"
-          style={{
-            width: "100%",
-            maxWidth: "360px",
-            margin: "1rem auto",
-            aspectRatio: "1 / 1",
-            borderRadius: "12px",
-            overflow: "hidden",
-            boxShadow: "0 0 12px rgba(0,0,0,0.2)",
-          }}
-        ></div>
+              boxShadow: "0 0 12px rgba(255,255,255,0.3)",
+            }}
+          ></div>
+        </>
       )}
 
       {mostrarManual && <RegistroManual />}
@@ -204,6 +220,7 @@ function EscanerQR() {
             borderRadius: "10px",
             textAlign: "center",
             fontSize: "16px",
+            maxWidth: "400px",
           }}
         >
           <strong>{confirmacion.mensaje}</strong>
