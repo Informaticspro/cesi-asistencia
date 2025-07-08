@@ -39,7 +39,10 @@ function EscanerQR() {
     try {
       await html5QrCodeRef.current.start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 300, height: 300 } },
+        { fps: 10, qrbox: (viewfinderWidth, viewfinderHeight) => {
+  const size = Math.min(viewfinderWidth, viewfinderHeight) * 0.6;
+  return { width: size, height: size };
+    } },
         async (decodedText) => {
           if (scanningRef.current) return;
           scanningRef.current = true;
@@ -139,8 +142,8 @@ function EscanerQR() {
             marginBottom: "0.5rem",
             backgroundColor: "#0d6efd",
             color: "white",
-            border: "4px solid rgba(0,0,0,0.2)",
-            borderRadius: "24px",
+            border: "none",
+            borderRadius: "8px",
             fontSize: "16px",
             cursor: "pointer",
           }}
