@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { supabase } from "./supabaseClient";
 import RegistroManual from "./RegistroManual";
@@ -6,6 +6,7 @@ import RegistroManual from "./RegistroManual";
 function EscanerQR() {
   const html5QrCodeRef = useRef(null);
   const scanningRef = useRef(false);
+  const lectorRef = useRef(null); // 👈 Ref para centrar el lector
   const [scannerActivo, setScannerActivo] = useState(false);
   const [mostrarManual, setMostrarManual] = useState(false);
   const [datosParticipante, setDatosParticipante] = useState(null);
@@ -13,17 +14,18 @@ function EscanerQR() {
 
   const reproducirSonido = (tipo) => {
     const audio = new Audio(tipo === "success" ? "/success.mp3" : "/error.mp3");
-    audio.play().catch(() => {});
+    audio.play().catch(() => {}); // Silencia errores si no puede reproducirse
   };
 
   const iniciarScanner = async () => {
     if (scannerActivo) return;
 
-    const qrRegionId = "reader";
     setScannerActivo(true);
     setMostrarManual(false);
 
     await new Promise((resolve) => setTimeout(resolve, 100));
+
+    const qrRegionId = "reader";
     const readerElement = document.getElementById(qrRegionId);
     if (!readerElement) {
       console.error("❌ El elemento #reader no existe.");
@@ -41,8 +43,11 @@ function EscanerQR() {
         async (decodedText) => {
           if (scanningRef.current) return;
           scanningRef.current = true;
+
           console.log("QR leído:", decodedText);
           await registrarAsistencia(decodedText);
+
+          // Esperar 2 segundos antes de volver a permitir escaneo
           setTimeout(() => {
             scanningRef.current = false;
           }, 2000);
@@ -112,100 +117,91 @@ function EscanerQR() {
     }
   };
 
+  // 👇 Centra el lector automáticamente cuando se activa
+  useEffect(() => {
+    if (scannerActivo && lectorRef.current) {
+      setTimeout(() => {
+        lectorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300); // Espera para asegurar que esté montado
+    }
+  }, [scannerActivo]);
+
   return (
-    <div
-      style={{
-        padding: "1rem",
-        maxWidth: "100%",
-        margin: "0 auto",
-        height: scannerActivo ? "90vh" : "auto",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: scannerActivo ? "center" : "flex-start",
-        backgroundColor: scannerActivo ? "#000" : "transparent",
-        color: scannerActivo ? "#fff" : "#000",
-        transition: "all 0.3s ease-in-out",
-      }}
-    >
+    <div style={{ padding: "1rem", maxWidth: "500px", margin: "0 auto" }}>
+      <h2 style={{ textAlign: "center" }}>Escanear QR</h2>
+
       {!scannerActivo && (
-        <>
-          <h2 style={{ textAlign: "center" }}>Escanear QR</h2>
-
-          {/* ✅ Botón original que te gustaba */}
-          <button
-            onClick={iniciarScanner}
-            style={{
-              backgroundColor: "#007bff",
-              color: "#fff",
-              padding: "0.75rem 1.5rem",
-              fontSize: "16px",
-              borderRadius: "8px",
-              border: "none",
-              cursor: "pointer",
-              marginBottom: "1rem",
-              width: "100%",
-              maxWidth: "400px",
-            }}
-          >
-            📷 Iniciar escáner
-          </button>
-
-          <button
-            onClick={() => {
-              setMostrarManual((prev) => !prev);
-              if (scannerActivo) detenerScanner();
-            }}
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              marginBottom: "1rem",
-              backgroundColor: "#6c757d",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              fontSize: "16px",
-              cursor: "pointer",
-              maxWidth: "400px",
-            }}
-          >
-            {mostrarManual ? "Ocultar registro manual" : "Registrar asistencia manual"}
-          </button>
-        </>
+        <button
+          onClick={iniciarScanner}
+          style={{
+            width: "100%",
+            padding: "0.75rem",
+            marginBottom: "0.5rem",
+            backgroundColor: "#0d6efd",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            fontSize: "16px",
+            cursor: "pointer",
+          }}
+        >
+          📷 Iniciar escáner
+        </button>
       )}
 
       {scannerActivo && (
-        <>
-          <button
-            onClick={detenerScanner}
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              marginBottom: "0.5rem",
-              backgroundColor: "#dc3545",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              fontSize: "16px",
-              cursor: "pointer",
-              maxWidth: "400px",
-            }}
-          >
-            🛑 Detener escáner
-          </button>
+        <button
+          onClick={detenerScanner}
+          style={{
+            width: "100%",
+            padding: "0.75rem",
+            marginBottom: "0.5rem",
+            backgroundColor: "#dc3545",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            fontSize: "16px",
+            cursor: "pointer",
+          }}
+        >
+          🛑 Detener escáner
+        </button>
+      )}
 
-          <div
-            id="reader"
-            style={{
-              width: "100%",
-              maxWidth: "500px",
-              aspectRatio: "1 / 1",
-              borderRadius: "12px",
-              overflow: "hidden",
-              boxShadow: "0 0 12px rgba(255,255,255,0.3)",
-            }}
-          ></div>
-        </>
+      <button
+        onClick={() => {
+          setMostrarManual((prev) => !prev);
+          if (scannerActivo) detenerScanner();
+        }}
+        style={{
+          width: "100%",
+          padding: "0.75rem",
+          marginBottom: "1rem",
+          backgroundColor: "#6c757d",
+          color: "white",
+          border: "none",
+          borderRadius: "8px",
+          fontSize: "16px",
+          cursor: "pointer",
+        }}
+      >
+        {mostrarManual ? "Ocultar registro manual" : "Registrar asistencia manual"}
+      </button>
+
+      {scannerActivo && (
+        <div
+          id="reader"
+          ref={lectorRef} // 👈 Este ref centra el lector
+          style={{
+            width: "100%",
+            maxWidth: "360px",
+            margin: "1rem auto",
+            aspectRatio: "1 / 1",
+            borderRadius: "12px",
+            overflow: "hidden",
+            boxShadow: "0 0 12px rgba(0,0,0,0.2)",
+          }}
+        ></div>
       )}
 
       {mostrarManual && <RegistroManual />}
@@ -220,7 +216,6 @@ function EscanerQR() {
             borderRadius: "10px",
             textAlign: "center",
             fontSize: "16px",
-            maxWidth: "400px",
           }}
         >
           <strong>{confirmacion.mensaje}</strong>
