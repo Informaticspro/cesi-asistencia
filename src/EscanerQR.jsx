@@ -139,8 +139,8 @@ function EscanerQR() {
             marginBottom: "0.5rem",
             backgroundColor: "#0d6efd",
             color: "white",
-            border: "none",
-            borderRadius: "8px",
+            border: "4px solid rgba(0,0,0,0.2)",
+            borderRadius: "24px",
             fontSize: "16px",
             cursor: "pointer",
           }}
