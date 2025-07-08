@@ -5,69 +5,65 @@ import RegistroManual from "./RegistroManual";
 
 function EscanerQR() {
   const html5QrCodeRef = useRef(null);
+  const scanningRef = useRef(false);
   const [scannerActivo, setScannerActivo] = useState(false);
   const [mostrarManual, setMostrarManual] = useState(false);
   const [datosParticipante, setDatosParticipante] = useState(null);
   const [confirmacion, setConfirmacion] = useState(null);
-  const scanningRef = useRef(false);
 
   const reproducirSonido = (tipo) => {
     const audio = new Audio(tipo === "success" ? "/success.mp3" : "/error.mp3");
-    audio.play().catch((e) => console.log("🔇 Error al reproducir sonido:", e));
+    audio.play().catch(() => {}); // Silencia errores si el audio no puede reproducirse
   };
 
   const iniciarScanner = async () => {
-  if (scannerActivo) return;
+    if (scannerActivo) return;
 
-  setScannerActivo(true);
-  setMostrarManual(false);
-  setDatosParticipante(null);
-  setConfirmacion(null);
+    const qrRegionId = "reader";
 
-  await new Promise((res) => setTimeout(res, 100)); // Esperar a que se monte el div
+    setScannerActivo(true);
+    setMostrarManual(false);
 
-  const readerElement = document.getElementById("reader");
-  if (!readerElement) {
-    console.error("❌ No se encontró el elemento #reader");
-    alert("Error: No se encontró el lector QR en el DOM.");
-    setScannerActivo(false);
-    return;
-  }
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
-  if (!html5QrCodeRef.current) {
-    html5QrCodeRef.current = new Html5Qrcode("reader");
-  }
+    const readerElement = document.getElementById(qrRegionId);
+    if (!readerElement) {
+      console.error("❌ El elemento #reader no existe.");
+      return;
+    }
 
-  try {
-    await html5QrCodeRef.current.start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: 250 },
-      async (decodedText) => {
-        if (scanningRef.current) return;
-        scanningRef.current = true;
+    if (!html5QrCodeRef.current) {
+      html5QrCodeRef.current = new Html5Qrcode(qrRegionId);
+    }
 
-        console.log("QR leído:", decodedText);
-        await registrarAsistencia(decodedText);
+    try {
+      await html5QrCodeRef.current.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        async (decodedText) => {
+          if (scanningRef.current) return;
+          scanningRef.current = true;
 
-        setTimeout(() => {
-          setConfirmacion(null);
-          setDatosParticipante(null);
-          scanningRef.current = false;
-        }, 3000);
-      }
-    );
-  } catch (err) {
-    console.error("❌ Error al iniciar el escáner:", err);
-    alert("No se pudo acceder a la cámara. Revisa los permisos del navegador.");
-    setScannerActivo(false);
-  }
-};
+          console.log("QR leído:", decodedText);
+          await registrarAsistencia(decodedText);
+
+          // Espera 2 segundos antes de permitir otro escaneo
+          setTimeout(() => {
+            scanningRef.current = false;
+          }, 2000);
+        }
+      );
+    } catch (err) {
+      console.error("Error iniciando escáner", err);
+    }
+  };
 
   const detenerScanner = async () => {
     if (html5QrCodeRef.current && scannerActivo) {
       await html5QrCodeRef.current.stop();
       await html5QrCodeRef.current.clear();
       setScannerActivo(false);
+      scanningRef.current = false;
     }
   };
 
@@ -122,33 +118,80 @@ function EscanerQR() {
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "1rem auto", padding: "1rem" }}>
-      <h2>Escanear QR</h2>
+    <div style={{ padding: "1rem", maxWidth: "500px", margin: "0 auto" }}>
+      <h2 style={{ textAlign: "center" }}>Escanear QR</h2>
 
       {!scannerActivo && (
-        <button onClick={iniciarScanner} className="btn btn-primary" style={{ marginRight: "10px" }}>
+        <button
+          onClick={iniciarScanner}
+          style={{
+            width: "100%",
+            padding: "0.75rem",
+            marginBottom: "0.5rem",
+            backgroundColor: "#28a745",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            fontSize: "16px",
+            cursor: "pointer",
+          }}
+        >
           📷 Iniciar escáner
         </button>
       )}
 
       {scannerActivo && (
-        <button onClick={detenerScanner} className="btn btn-danger" style={{ marginRight: "10px" }}>
+        <button
+          onClick={detenerScanner}
+          style={{
+            width: "100%",
+            padding: "0.75rem",
+            marginBottom: "0.5rem",
+            backgroundColor: "#dc3545",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            fontSize: "16px",
+            cursor: "pointer",
+          }}
+        >
           🛑 Detener escáner
         </button>
       )}
 
       <button
-        className="btn btn-secondary"
         onClick={() => {
           setMostrarManual((prev) => !prev);
           if (scannerActivo) detenerScanner();
+        }}
+        style={{
+          width: "100%",
+          padding: "0.75rem",
+          marginBottom: "1rem",
+          backgroundColor: "#6c757d",
+          color: "white",
+          border: "none",
+          borderRadius: "8px",
+          fontSize: "16px",
+          cursor: "pointer",
         }}
       >
         {mostrarManual ? "Ocultar registro manual" : "Registrar asistencia manual"}
       </button>
 
       {scannerActivo && (
-        <div id="reader" style={{ width: "300px", marginTop: "1rem" }}></div>
+        <div
+          id="reader"
+          style={{
+            width: "100%",
+            maxWidth: "360px",
+            margin: "1rem auto",
+            aspectRatio: "1 / 1",
+            borderRadius: "12px",
+            overflow: "hidden",
+            boxShadow: "0 0 12px rgba(0,0,0,0.2)",
+          }}
+        ></div>
       )}
 
       {mostrarManual && <RegistroManual />}
@@ -157,28 +200,17 @@ function EscanerQR() {
         <div
           style={{
             marginTop: "1rem",
-            padding: "1.5rem",
+            padding: "1rem",
+            backgroundColor: confirmacion.tipo === "success" ? "#d1e7dd" : "#f8d7da",
+            color: confirmacion.tipo === "success" ? "#0f5132" : "#842029",
             borderRadius: "10px",
-            backgroundColor: confirmacion.tipo === "success" ? "#e6ffed" : "#ffe6e6",
-            color: confirmacion.tipo === "success" ? "#155724" : "#721c24",
-            border: `2px solid ${confirmacion.tipo === "success" ? "#28a745" : "#dc3545"}`,
             textAlign: "center",
-            fontSize: "18px",
-            position: "fixed",
-            bottom: "1rem",
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 9999,
-            width: "90%",
-            maxWidth: "400px",
-            boxShadow: "0 0 8px rgba(0,0,0,0.1)"
+            fontSize: "16px",
           }}
         >
-          <div style={{ fontWeight: "bold", fontSize: "20px", marginBottom: "0.5rem" }}>
-            {confirmacion.mensaje}
-          </div>
+          <strong>{confirmacion.mensaje}</strong>
           {datosParticipante && (
-            <div>
+            <div style={{ marginTop: "0.5rem" }}>
               <div><strong>Nombre:</strong> {datosParticipante.nombre}</div>
               <div><strong>Apellido:</strong> {datosParticipante.apellido}</div>
               <div><strong>Cédula:</strong> {datosParticipante.cedula}</div>
