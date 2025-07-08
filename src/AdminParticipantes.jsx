@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
 import { Link } from "react-router-dom";
-import { QRCodeCanvas } from "qrcode.react";
 
 function AdminParticipantes() {
   const [participantes, setParticipantes] = useState([]);
@@ -9,6 +8,7 @@ function AdminParticipantes() {
   const [formData, setFormData] = useState({ nombre: "", apellido: "", cedula: "", correo: "" });
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState(null);
+  const [busqueda, setBusqueda] = useState("");
 
   const cargarParticipantes = async () => {
     setLoading(true);
@@ -58,26 +58,11 @@ function AdminParticipantes() {
   };
 
   const guardarCambios = async () => {
-    if (!formData.nombre.trim()) {
-      setMensaje({ tipo: "error", texto: "El nombre no puede estar vacío" });
-      return;
-    }
-    if (!formData.apellido.trim()) {
-      setMensaje({ tipo: "error", texto: "El apellido no puede estar vacío" });
-      return;
-    }
-    if (!formData.cedula.trim()) {
-      setMensaje({ tipo: "error", texto: "La cédula no puede estar vacía" });
-      return;
-    }
-    if (!formData.correo.trim()) {
-      setMensaje({ tipo: "error", texto: "El correo no puede estar vacío" });
-      return;
-    }
-    if (!validarEmail(formData.correo)) {
-      setMensaje({ tipo: "error", texto: "El correo no tiene un formato válido" });
-      return;
-    }
+    if (!formData.nombre.trim()) return setMensaje({ tipo: "error", texto: "El nombre no puede estar vacío" });
+    if (!formData.apellido.trim()) return setMensaje({ tipo: "error", texto: "El apellido no puede estar vacío" });
+    if (!formData.cedula.trim()) return setMensaje({ tipo: "error", texto: "La cédula no puede estar vacía" });
+    if (!formData.correo.trim()) return setMensaje({ tipo: "error", texto: "El correo no puede estar vacío" });
+    if (!validarEmail(formData.correo)) return setMensaje({ tipo: "error", texto: "El correo no tiene un formato válido" });
 
     setLoading(true);
     const { error } = await supabase
@@ -87,10 +72,9 @@ function AdminParticipantes() {
         apellido: formData.apellido.trim(),
         cedula: formData.cedula.trim(),
         correo: formData.correo.trim(),
-        qr_code: formData.cedula.trim(),
+        qr_code: `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(formData.cedula.trim())}`,
       })
       .eq("cedula", editando);
-
     setLoading(false);
 
     if (error) {
@@ -102,10 +86,35 @@ function AdminParticipantes() {
     }
   };
 
+  const participantesFiltrados = participantes.filter((p) => {
+    const termino = busqueda.toLowerCase();
+    return (
+      p.nombre?.toLowerCase().includes(termino) ||
+      p.apellido?.toLowerCase().includes(termino) ||
+      p.cedula?.toLowerCase().includes(termino) ||
+      p.correo?.toLowerCase().includes(termino)
+    );
+  });
+
   return (
     <div style={{ maxWidth: 700, margin: "auto", padding: "1rem" }}>
       <h2>Administrar Participantes</h2>
       <Link to="/">← Volver al inicio</Link>
+
+      <input
+        type="text"
+        placeholder="Buscar por nombre, apellido, cédula o correo..."
+        value={busqueda}
+        onChange={(e) => setBusqueda(e.target.value)}
+        style={{
+          width: "100%",
+          padding: "0.5rem",
+          margin: "1rem 0",
+          fontSize: "16px",
+          borderRadius: "6px",
+          border: "1px solid #ccc",
+        }}
+      />
 
       {mensaje && (
         <div
@@ -123,11 +132,7 @@ function AdminParticipantes() {
 
       {loading && <p>Cargando...</p>}
 
-      <table
-        border="1"
-        cellPadding="8"
-        style={{ width: "100%", borderCollapse: "collapse" }}
-      >
+      <table border="1" cellPadding="8" style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr style={{ backgroundColor: "#fff", color: "#000" }}>
             <th>Nombre</th>
@@ -139,7 +144,7 @@ function AdminParticipantes() {
           </tr>
         </thead>
         <tbody>
-          {participantes.map((p) => (
+          {participantesFiltrados.map((p) => (
             <tr key={p.cedula}>
               <td>
                 {editando === p.cedula ? (
@@ -198,23 +203,28 @@ function AdminParticipantes() {
                 )}
               </td>
               <td>
-                {p.qr_code ? (
-                  <QRCodeCanvas value={p.qr_code} size={64} />
-                ) : (
-                  "No disponible"
-                )}
-              </td>
+                  {p.qr_code ? (
+             <div
+                 style={{
+                  backgroundColor: "white",
+                 padding: 4,
+                 borderRadius: 4,
+                   display: "inline-block",
+                  }}
+    >
+                <img src={p.qr_code} alt="QR Code" width={64} height={64} />
+               </div>
+                 ) : (
+                 "No disponible"
+                   )}
+                    </td>
               <td>
                 {editando === p.cedula ? (
                   <>
                     <button onClick={guardarCambios} disabled={loading}>
                       Guardar
                     </button>
-                    <button
-                      onClick={cancelarEdicion}
-                      disabled={loading}
-                      style={{ marginLeft: "0.5rem" }}
-                    >
+                    <button onClick={cancelarEdicion} disabled={loading} style={{ marginLeft: "0.5rem" }}>
                       Cancelar
                     </button>
                   </>
@@ -223,11 +233,7 @@ function AdminParticipantes() {
                     <button onClick={() => comenzarEdicion(p)} disabled={loading}>
                       Editar
                     </button>
-                    <button
-                      onClick={() => eliminarParticipante(p.cedula)}
-                      disabled={loading}
-                      style={{ marginLeft: "0.5rem" }}
-                    >
+                    <button onClick={() => eliminarParticipante(p.cedula)} disabled={loading} style={{ marginLeft: "0.5rem" }}>
                       Eliminar
                     </button>
                   </>
@@ -235,10 +241,10 @@ function AdminParticipantes() {
               </td>
             </tr>
           ))}
-          {participantes.length === 0 && !loading && (
+          {participantesFiltrados.length === 0 && !loading && (
             <tr>
               <td colSpan="6" style={{ textAlign: "center", padding: "1rem" }}>
-                No hay participantes registrados.
+                No se encontraron participantes.
               </td>
             </tr>
           )}

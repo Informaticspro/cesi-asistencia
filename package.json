@@ -11,12 +11,17 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.50.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.1.0",
+    "express": "^5.1.0",
     "html5-qrcode": "^2.3.8",
+    "node-fetch": "^3.3.2",
     "qrcode.react": "^4.2.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-qr-code": "^2.0.16",
-    "react-router-dom": "^7.6.3"
+    "react-router-dom": "^7.6.3",
+    "resend": "^4.6.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
@@ -27,6 +32,20 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.2.0",
+    "supabase": "^2.30.4",
     "vite": "^7.0.0"
-  }
+  },
+  "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
+  "main": "eslint.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Informaticspro/cesi-asistencia.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Informaticspro/cesi-asistencia/issues"
+  },
+  "homepage": "https://github.com/Informaticspro/cesi-asistencia#readme"
 }
