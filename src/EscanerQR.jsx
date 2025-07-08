@@ -124,17 +124,15 @@ function EscanerQR() {
       {!scannerActivo && (
         <button
           onClick={iniciarScanner}
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            marginBottom: "0.5rem",
-            backgroundColor: "#28a745",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "16px",
-            cursor: "pointer",
-          }}
+          sstyle={{
+             width: "90vw",               // usa el 90% del ancho del viewport
+              maxWidth: "400px",           // pero no más grande que 400px
+              aspectRatio: "1 / 1",        // cuadrado
+              margin: "1rem auto",
+               borderRadius: "12px",
+              overflow: "hidden",
+                boxShadow: "0 0 12px rgba(0,0,0,0.2)",
+}}
         >
           📷 Iniciar escáner
         </button>
