@@ -40,8 +40,9 @@ function EscanerQR() {
       await html5QrCodeRef.current.start(
         { facingMode: "environment" },
         { fps: 10, qrbox: (viewfinderWidth, viewfinderHeight) => {
-  const size = Math.min(viewfinderWidth, viewfinderHeight) * 0.6;
-  return { width: size, height: size };
+        const minSize = Math.min(viewfinderWidth, viewfinderHeight);
+        const size = Math.floor(minSize * 0.8); // 60% del lado más pequeño
+        return { width: size, height: size };
     } },
         async (decodedText) => {
           if (scanningRef.current) return;
