@@ -44,7 +44,7 @@ function App() {
       timeout = setTimeout(() => {
         alert("Sesión cerrada por inactividad.");
         cerrarSesion();
-      }, 5 * 10 * 1000); // 5 minutos de inactividad
+      }, 15 * 60 * 1000); // 15 minutos de inactividad
     }
   };
 
