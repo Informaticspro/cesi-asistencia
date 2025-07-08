@@ -32,7 +32,10 @@ function Bienvenida({ onLogin }) {
 
     if (data["contraseña"] === contraseña) {
       setError(null);
-      onLogin(true);
+
+      // ✅ Cambio aquí: pasamos también el nombre de usuario
+      onLogin(true, data.usuario);
+
       navigate("/"); // Te lleva a la página principal
     } else {
       setError("Contraseña incorrecta");
