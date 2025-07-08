@@ -35,32 +35,39 @@ function App() {
     }
   }, []);
 
-  useEffect(() => {
-  let timeout;
+ useEffect(() => {
+  if (!autorizado) return;
 
-  const resetInactividadTimer = () => {
-    clearTimeout(timeout);
-    if (autorizado) {
-      timeout = setTimeout(() => {
-        alert("Sesión cerrada por inactividad.");
-        cerrarSesion();
-      }, 15 * 60 * 1000); // 15 minutos de inactividad
-    }
+  let timeoutAdvertencia;
+  let timeoutCierre;
+
+  const mostrarAdvertencia = () => {
+    alert("⚠️ ¡Atención! Tu sesión se cerrará en 1 minutos por inactividad si no haces nada.");
   };
 
-  window.addEventListener("mousemove", resetInactividadTimer);
-  window.addEventListener("keydown", resetInactividadTimer);
-  window.addEventListener("click", resetInactividadTimer);
-  window.addEventListener("touchstart", resetInactividadTimer);
+  const cerrarPorInactividad = () => {
+    alert("❌ Sesión cerrada por inactividad.");
+    cerrarSesion();
+  };
 
-  resetInactividadTimer(); // inicializa por primera vez
+  const resetInactividadTimers = () => {
+    clearTimeout(timeoutAdvertencia);
+    clearTimeout(timeoutCierre);
+    timeoutAdvertencia = setTimeout(mostrarAdvertencia, 14 * 60 * 1000);
+    timeoutCierre = setTimeout(cerrarPorInactividad, 15 * 60 * 1000);
+  };
+
+  resetInactividadTimers();
+
+  const handleActivity = () => resetInactividadTimers();
+
+  const eventos = ["mousemove", "keydown", "click", "touchstart"];
+  eventos.forEach(e => window.addEventListener(e, handleActivity));
 
   return () => {
-    clearTimeout(timeout);
-    window.removeEventListener("mousemove", resetInactividadTimer);
-    window.removeEventListener("keydown", resetInactividadTimer);
-    window.removeEventListener("click", resetInactividadTimer);
-    window.removeEventListener("touchstart", resetInactividadTimer);
+    clearTimeout(timeoutAdvertencia);
+    clearTimeout(timeoutCierre);
+    eventos.forEach(e => window.removeEventListener(e, handleActivity));
   };
 }, [autorizado]);
 
