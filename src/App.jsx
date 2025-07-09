@@ -111,11 +111,30 @@ function App() {
                       boxShadow: "0 2px 5px rgba(0, 0, 0, 0.05)",
                     }}
                   >
-                    <h1 style={{ margin: 0 }}>Registro de Asistencia CESI 2025</h1>
+                    <h1 style={{
+                                margin: 0,
+                                padding: "12px 20px",
+                                backgroundColor: "#003366", // azul institucional oscuro
+                                 color: "#ffffff",
+                                borderRadius: "8px",
+                                textAlign: "center",
+                                boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)"
+                                  }     }>
+                                 Registro de Asistencia CESI 2025
+                                  </h1>
                     <div style={{ textAlign: "right" }}>
-                      <div style={{ fontSize: "14px", marginBottom: "0.3rem" }}>
-                        Sesión activa: <strong>{nombreUsuario}</strong>
-                      </div>
+                      <div style={{
+                      backgroundColor: "#f0f0f0",  // gris claro para que se vea en fondos blancos u oscuros
+                       padding: "10px 15px",
+                       borderRadius: "8px",
+                      display: "inline-block",
+                      fontWeight: "bold",
+                       marginTop: "10px",
+                       color: "#333",  // texto oscuro
+                       boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+}}>
+  Sesión activa: Jose Acosta
+</div>
                       <button
                         onClick={cerrarSesion}
                         style={{
