@@ -6,7 +6,8 @@ import RegistroManual from "./RegistroManual";
 function EscanerQR() {
   const html5QrCodeRef = useRef(null);
   const scanningRef = useRef(false);
-  const lectorRef = useRef(null); // 👈 Ref para centrar el lector
+  const lectorRef = useRef(null);
+  const timeoutRef = useRef(null);
   const [scannerActivo, setScannerActivo] = useState(false);
   const [mostrarManual, setMostrarManual] = useState(false);
   const [datosParticipante, setDatosParticipante] = useState(null);
@@ -14,7 +15,7 @@ function EscanerQR() {
 
   const reproducirSonido = (tipo) => {
     const audio = new Audio(tipo === "success" ? "/success.mp3" : "/error.mp3");
-    audio.play().catch(() => {}); // Silencia errores si no puede reproducirse
+    audio.play().catch(() => {});
   };
 
   const iniciarScanner = async () => {
@@ -22,6 +23,7 @@ function EscanerQR() {
 
     setScannerActivo(true);
     setMostrarManual(false);
+    setConfirmacion(null);
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -39,105 +41,111 @@ function EscanerQR() {
     try {
       await html5QrCodeRef.current.start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: (viewfinderWidth, viewfinderHeight) => {
-        const minSize = Math.min(viewfinderWidth, viewfinderHeight);
-        const size = Math.floor(minSize * 0.8); // 60% del lado más pequeño
-        return { width: size, height: size };
-    } },
+        {
+          fps: 10,
+          qrbox: (vw, vh) => {
+            const size = Math.floor(Math.min(vw, vh) * 0.8);
+            return { width: size, height: size };
+          },
+        },
         async (decodedText) => {
           if (scanningRef.current) return;
           scanningRef.current = true;
 
-          console.log("QR leído:", decodedText);
           await registrarAsistencia(decodedText);
 
-          // Esperar 2 segundos antes de volver a permitir escaneo
           setTimeout(() => {
             scanningRef.current = false;
           }, 2000);
         }
       );
+
+      // ⏱️ Establecer tiempo límite de 20 segundos
+      timeoutRef.current = setTimeout(() => {
+        detenerScanner(true);
+      }, 20000);
     } catch (err) {
       console.error("Error iniciando escáner", err);
     }
   };
 
-  const detenerScanner = async () => {
+  const detenerScanner = async (auto = false) => {
     if (html5QrCodeRef.current && scannerActivo) {
-      await html5QrCodeRef.current.stop();
-      await html5QrCodeRef.current.clear();
+      try {
+        await html5QrCodeRef.current.stop();
+        await html5QrCodeRef.current.clear();
+      } catch (err) {
+        console.warn("No se pudo detener el escáner:", err);
+      }
       setScannerActivo(false);
       scanningRef.current = false;
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (auto) {
+        setConfirmacion({
+          tipo: "error",
+          mensaje: "⏱️ El escáner se cerró automáticamente por inactividad.",
+        });
+      }
     }
   };
 
   const registrarAsistencia = async (cedula) => {
-  const ahora = new Date();
-  const hoy = ahora.toISOString().split("T")[0]; // "YYYY-MM-DD"
-  const hora = ahora.toLocaleTimeString("es-CO", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false, // formato 24 horas
-  });
+    const hoy = new Date().toISOString().split("T")[0];
+    const hora = new Date().toISOString();
 
-  const { data: yaAsistio, error: errSelect } = await supabase
-    .from("asistencias")
-    .select("*")
-    .eq("cedula", cedula)
-    .eq("fecha", hoy);
+    const { data: yaAsistio, error: errSelect } = await supabase
+      .from("asistencias")
+      .select("*")
+      .eq("cedula", cedula)
+      .eq("fecha", hoy);
 
-  if (errSelect) {
-    setConfirmacion({ tipo: "error", mensaje: "❌ Error consultando asistencia" });
-    reproducirSonido("error");
-    return;
-  }
+    if (errSelect) {
+      setConfirmacion({ tipo: "error", mensaje: "❌ Error consultando asistencia" });
+      reproducirSonido("error");
+      return;
+    }
 
-  if (yaAsistio.length > 0) {
-    setConfirmacion({ tipo: "error", mensaje: "⚠️ Ya registró asistencia hoy" });
-    reproducirSonido("error");
-    return;
-  }
+    if (yaAsistio.length > 0) {
+      setConfirmacion({ tipo: "error", mensaje: "⚠️ Ya registró asistencia hoy" });
+      reproducirSonido("error");
+      return;
+    }
 
-  const { data: participante, error: errorParticipante } = await supabase
-    .from("participantes")
-    .select("nombre, apellido, cedula")
-    .eq("cedula", cedula)
-    .single();
+    const { data: participante, error: errorParticipante } = await supabase
+      .from("participantes")
+      .select("nombre, apellido, cedula")
+      .eq("cedula", cedula)
+      .single();
 
-  if (errorParticipante || !participante) {
-    setConfirmacion({ tipo: "error", mensaje: "❌ Participante no encontrado" });
-    setDatosParticipante(null);
-    reproducirSonido("error");
-    return;
-  }
+    if (errorParticipante || !participante) {
+      setConfirmacion({ tipo: "error", mensaje: "❌ Participante no encontrado" });
+      setDatosParticipante(null);
+      reproducirSonido("error");
+      return;
+    }
 
-  const { error } = await supabase.from("asistencias").insert([
-    {
-      cedula,
-      fecha: hoy,
-      hora: hora, // ✅ ahora solo la hora local como string
-    },
-  ]);
+    const { error } = await supabase.from("asistencias").insert([
+      { cedula, fecha: hoy, hora },
+    ]);
 
-  if (error) {
-    setConfirmacion({ tipo: "error", mensaje: "❌ Error al registrar asistencia" });
-    setDatosParticipante(null);
-    reproducirSonido("error");
-  } else {
-    setDatosParticipante(participante);
-    setConfirmacion({ tipo: "success", mensaje: "✅ Asistencia registrada" });
-    reproducirSonido("success");
-  }
-};
+    if (error) {
+      setConfirmacion({ tipo: "error", mensaje: "❌ Error al registrar asistencia" });
+      setDatosParticipante(null);
+      reproducirSonido("error");
+    } else {
+      setDatosParticipante(participante);
+      setConfirmacion({ tipo: "success", mensaje: "✅ Asistencia registrada" });
+      reproducirSonido("success");
+    }
+  };
 
-  // 👇 Centra el lector automáticamente cuando se activa
   useEffect(() => {
     if (scannerActivo && lectorRef.current) {
       setTimeout(() => {
         lectorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-      }, 300); // Espera para asegurar que esté montado
+      }, 300);
     }
+    return () => clearTimeout(timeoutRef.current);
   }, [scannerActivo]);
 
   return (
@@ -165,7 +173,7 @@ function EscanerQR() {
 
       {scannerActivo && (
         <button
-          onClick={detenerScanner}
+          onClick={() => detenerScanner(false)}
           style={{
             width: "100%",
             padding: "0.75rem",
@@ -185,7 +193,7 @@ function EscanerQR() {
       <button
         onClick={() => {
           setMostrarManual((prev) => !prev);
-          if (scannerActivo) detenerScanner();
+          if (scannerActivo) detenerScanner(false);
         }}
         style={{
           width: "100%",
@@ -205,7 +213,7 @@ function EscanerQR() {
       {scannerActivo && (
         <div
           id="reader"
-          ref={lectorRef} // 👈 Este ref centra el lector
+          ref={lectorRef}
           style={{
             width: "100%",
             maxWidth: "360px",
