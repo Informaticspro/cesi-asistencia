@@ -36,178 +36,194 @@ function Bienvenida({ onLogin }) {
   return (
     <div
       style={{
-        maxWidth: "400px",
-        margin: "2rem auto",
-        padding: "2rem 1rem",
-        border: "1px solid #ccc",
-        borderRadius: "12px",
-        backgroundColor: "#ffffff",  // fondo blanco fijo
-        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-        textAlign: "center",
-        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-        color: "#000000",            // texto negro fijo
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+        width: "100vw",
+        backgroundColor: "#1c1c1c", // fondo oscuro completo
       }}
     >
-      <h2
+      <div
         style={{
-          color: "#28a745",           // verde para título
-          marginBottom: "1.5rem",
-          backgroundColor: "#ffffff", // fondo blanco fijo
-          padding: "0.3rem",
-          borderRadius: "4px",
-          display: "inline-block",
+          maxWidth: "400px",
+          width: "90%",
+          padding: "2rem 1rem",
+          border: "1px solid #ccc",
+          borderRadius: "12px",
+          backgroundColor: "#ffffff",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+          textAlign: "center",
+          fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+          color: "#000000",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
         }}
       >
-        Bienvenido a CESI 2025
-      </h2>
+        <h2
+          style={{
+            color: "#28a745",
+            marginBottom: "1.5rem",
+            backgroundColor: "#ffffff",
+            padding: "0.3rem",
+            borderRadius: "4px",
+            display: "inline-block",
+          }}
+        >
+          Bienvenido a CESI 2025
+        </h2>
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "1rem", textAlign: "left" }}>
-          <label
-            style={{
-              fontWeight: "bold",
-              backgroundColor: "#ffffff", // fondo blanco fijo
-              padding: "0.2rem 0.3rem",
-              display: "inline-block",
-              borderRadius: "4px",
-              color: "#000000",           // texto negro fijo
-            }}
-          >
-            Usuario:
-          </label>
-          <input
-            type="text"
-            value={usuario}
-            onChange={(e) => setUsuario(e.target.value)}
-            required
-            style={{
-              width: "80%",
-              padding: "0.6rem",
-              borderRadius: "6px",
-              border: "1px solid #ccc",
-              marginTop: "0.25rem",
-              backgroundColor: "#ffffff", // fondo blanco fijo
-              color: "#000000",           // texto negro fijo
-              fontSize: "1rem",
-            }}
-          />
-        </div>
-        <div style={{ marginBottom: "1rem", textAlign: "left" }}>
-          <label
-            style={{
-              fontWeight: "bold",
-              backgroundColor: "#ffffff",
-              padding: "0.2rem 0.3rem",
-              display: "inline-block",
-              borderRadius: "4px",
-              color: "#000000",
-            }}
-          >
-            Contraseña:
-          </label>
-          <input
-            type={mostrarContrasena ? "text" : "password"}
-            value={contraseña}
-            onChange={(e) => setContrasena(e.target.value)}
-            required
-            style={{
-              width: "80%",
-              padding: "0.6rem",
-              borderRadius: "6px",
-              border: "1px solid #ccc",
-              marginTop: "0.25rem",
-              backgroundColor: "#ffffff",
-              color: "#000000",
-              fontSize: "1rem",
-            }}
-          />
-          <div style={{ marginTop: "0.5rem" }}>
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: "1rem", textAlign: "left" }}>
             <label
               style={{
-                fontSize: "0.9rem",
+                fontWeight: "bold",
                 backgroundColor: "#ffffff",
-                padding: "0.2rem 0.4rem",
-                borderRadius: "4px",
+                padding: "0.2rem 0.3rem",
                 display: "inline-block",
+                borderRadius: "4px",
                 color: "#000000",
               }}
             >
-              <input
-                type="checkbox"
-                checked={mostrarContrasena}
-                onChange={() => setMostrarContrasena(!mostrarContrasena)}
-                style={{ marginRight: "0.3rem" }}
-              />
-              Mostrar contraseña
+              Usuario:
             </label>
+            <input
+              type="text"
+              value={usuario}
+              onChange={(e) => setUsuario(e.target.value)}
+              required
+              style={{
+                width: "80%",
+                padding: "0.6rem",
+                borderRadius: "6px",
+                border: "1px solid #ccc",
+                marginTop: "0.25rem",
+                backgroundColor: "#ffffff",
+                color: "#000000",
+                fontSize: "1rem",
+              }}
+            />
           </div>
-        </div>
+          <div style={{ marginBottom: "1rem", textAlign: "left" }}>
+            <label
+              style={{
+                fontWeight: "bold",
+                backgroundColor: "#ffffff",
+                padding: "0.2rem 0.3rem",
+                display: "inline-block",
+                borderRadius: "4px",
+                color: "#000000",
+              }}
+            >
+              Contraseña:
+            </label>
+            <input
+              type={mostrarContrasena ? "text" : "password"}
+              value={contraseña}
+              onChange={(e) => setContrasena(e.target.value)}
+              required
+              style={{
+                width: "80%",
+                padding: "0.6rem",
+                borderRadius: "6px",
+                border: "1px solid #ccc",
+                marginTop: "0.25rem",
+                backgroundColor: "#ffffff",
+                color: "#000000",
+                fontSize: "1rem",
+              }}
+            />
+            <div style={{ marginTop: "0.5rem" }}>
+              <label
+                style={{
+                  fontSize: "0.9rem",
+                  backgroundColor: "#ffffff",
+                  padding: "0.2rem 0.4rem",
+                  borderRadius: "4px",
+                  display: "inline-block",
+                  color: "#000000",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={mostrarContrasena}
+                  onChange={() => setMostrarContrasena(!mostrarContrasena)}
+                  style={{ marginRight: "0.3rem" }}
+                />
+                Mostrar contraseña
+              </label>
+            </div>
+          </div>
 
-        {error && (
-          <div
+          {error && (
+            <div
+              style={{
+                color: "#dc3545",
+                marginBottom: "1rem",
+                fontSize: "0.9rem",
+                backgroundColor: "#ffffff",
+                padding: "0.4rem",
+                borderRadius: "4px",
+                border: "1px solid #dc3545",
+              }}
+            >
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
             style={{
-              color: "#dc3545",          // rojo error
-              marginBottom: "1rem",
-              fontSize: "0.9rem",
-              backgroundColor: "#ffffff",
-              padding: "0.4rem",
-              borderRadius: "4px",
-              border: "1px solid #dc3545",
+              width: "100%",
+              padding: "0.6rem 1.5rem",
+              backgroundColor: "#28a745",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "6px",
+              fontWeight: "bold",
+              cursor: "pointer",
+              fontSize: "1rem",
             }}
           >
-            {error}
-          </div>
-        )}
+            Ingresar
+          </button>
+        </form>
 
-        <button
-          type="submit"
+        <hr style={{ margin: "2rem 0", borderColor: "#ccc" }} />
+
+        <p
           style={{
-            padding: "0.6rem 1.5rem",
-            backgroundColor: "#28a745",
-            color: "#ffffff",
-            border: "none",
-            borderRadius: "6px",
-            fontWeight: "bold",
-            cursor: "pointer",
-            fontSize: "1rem",
+            fontSize: "0.95rem",
+            marginBottom: "0.5rem",
+            backgroundColor: "#ffffff",
+            padding: "0.2rem 0.4rem",
+            display: "inline-block",
+            borderRadius: "4px",
+            color: "#000000",
           }}
         >
-          Ingresar
-        </button>
-      </form>
-
-      <hr style={{ margin: "2rem 0", borderColor: "#ccc" }} />
-
-      <p
-        style={{
-          fontSize: "0.95rem",
-          marginBottom: "0.5rem",
-          backgroundColor: "#ffffff",
-          padding: "0.2rem 0.4rem",
-          display: "inline-block",
-          borderRadius: "4px",
-          color: "#000000",
-        }}
-      >
-        ¿Eres participante y aún no estás registrado?
-      </p>
-      <Link to="/registrar" style={{ textDecoration: "none" }}>
-        <button
-          type="button"
-          style={{
-            padding: "0.6rem 1.2rem",
-            backgroundColor: "#007bff",
-            color: "#ffffff",
-            border: "none",
-            borderRadius: "6px",
-            fontWeight: "bold",
-            cursor: "pointer",
-            fontSize: "1rem",
-          }}
-        >
-          Registro de Participantes
-        </button>
-      </Link>
+          ¿Eres participante y aún no estás registrado?
+        </p>
+        <Link to="/registrar" style={{ textDecoration: "none" }}>
+          <button
+            type="button"
+            style={{
+              width: "100%",
+              padding: "0.6rem 1.2rem",
+              backgroundColor: "#007bff",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "6px",
+              fontWeight: "bold",
+              cursor: "pointer",
+              fontSize: "1rem",
+            }}
+          >
+            Registro de Participantes
+          </button>
+        </Link>
+      </div>
     </div>
   );
 }

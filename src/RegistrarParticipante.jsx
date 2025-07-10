@@ -121,7 +121,7 @@ function RegistrarParticipante() {
           fontWeight: "700",
         }}
       >
-        Registrar Participante
+       Registro de participantes CESI 2025
       </h2>
 
       {mensaje && (
