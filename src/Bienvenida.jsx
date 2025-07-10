@@ -205,7 +205,7 @@ function Bienvenida({ onLogin }) {
             fontSize: "1rem",
           }}
         >
-          Quiero registrarme como participante
+          Registro de Participantes
         </button>
       </Link>
     </div>
