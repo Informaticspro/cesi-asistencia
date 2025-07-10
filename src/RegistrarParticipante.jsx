@@ -8,6 +8,8 @@ function RegistrarParticipante() {
   const [apellido, setApellido] = useState("");
   const [cedula, setCedula] = useState("");
   const [correo, setCorreo] = useState("");
+  const [sexo, setSexo] = useState("");
+  const [categoria, setCategoria] = useState("");
   const [mensaje, setMensaje] = useState(null);
   const [loading, setLoading] = useState(false);
   const [qrVisible, setQrVisible] = useState(false);
@@ -18,7 +20,7 @@ function RegistrarParticipante() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!nombre || !apellido || !cedula || !correo) {
+    if (!nombre || !apellido || !cedula || !correo || !sexo || !categoria) {
       setMensaje({ tipo: "error", texto: "⚠️ Todos los campos son obligatorios" });
       return;
     }
@@ -52,6 +54,8 @@ function RegistrarParticipante() {
         apellido,
         cedula,
         correo,
+        sexo,
+        categoria,
         qr_code: cedula,
       },
     ]);
@@ -75,6 +79,8 @@ function RegistrarParticipante() {
     setApellido("");
     setCedula("");
     setCorreo("");
+    setSexo("");
+    setCategoria("");
     setMensaje(null);
   };
 
@@ -125,12 +131,8 @@ function RegistrarParticipante() {
             marginBottom: "1.2rem",
             borderRadius: 6,
             color: mensaje.tipo === "error" ? "#fff" : "#155724",
-            backgroundColor:
-              mensaje.tipo === "error" ? "#d32f2f" : "#c8e6c9",
-            border:
-              mensaje.tipo === "error"
-                ? "1px solid #f44336"
-                : "1px solid #4caf50",
+            backgroundColor: mensaje.tipo === "error" ? "#d32f2f" : "#c8e6c9",
+            border: mensaje.tipo === "error" ? "1px solid #f44336" : "1px solid #4caf50",
             fontWeight: "600",
             textAlign: "center",
             boxShadow: "0 0 8px rgba(0,0,0,0.05)",
@@ -204,6 +206,51 @@ function RegistrarParticipante() {
           }}
           disabled={qrVisible}
         />
+
+        {/* Campos nuevos para Sexo y Categoría */}
+        <select
+          value={sexo}
+          onChange={(e) => setSexo(e.target.value)}
+          disabled={qrVisible}
+          style={{
+            padding: "0.7rem",
+            fontSize: 16,
+            borderRadius: 6,
+            border: "2px solid #004d40",
+            outlineColor: "#1565c0",
+            fontWeight: "600",
+          }}
+        >
+          <option value="" disabled>
+            Sexo
+          </option>
+          <option value="Hombre">Hombre</option>
+          <option value="Mujer">Mujer</option>
+        </select>
+
+        <select
+          value={categoria}
+          onChange={(e) => setCategoria(e.target.value)}
+          disabled={qrVisible}
+          style={{
+            padding: "0.7rem",
+            fontSize: 16,
+            borderRadius: 6,
+            border: "2px solid #004d40",
+            outlineColor: "#1565c0",
+            fontWeight: "600",
+          }}
+        >
+          <option value="" disabled>
+            Categoría
+          </option>
+          <option value="Estudiante">Estudiante</option>
+          <option value="Docente">Docente</option>
+          <option value="Funcionario">Funcionario</option>
+          <option value="Invitado">Invitado</option>
+          <option value="Egresado">Egresado</option>
+        </select>
+
         <button
           type="submit"
           disabled={loading || qrVisible}
@@ -213,16 +260,11 @@ function RegistrarParticipante() {
             fontWeight: "700",
             borderRadius: 8,
             border: "none",
-            backgroundColor:
-              loading || qrVisible ? "#9e9e9e" : "#1565c0",
+            backgroundColor: loading || qrVisible ? "#9e9e9e" : "#1565c0",
             color: "#fff",
-            cursor:
-              loading || qrVisible ? "not-allowed" : "pointer",
+            cursor: loading || qrVisible ? "not-allowed" : "pointer",
             marginTop: 10,
-            boxShadow:
-              loading || qrVisible
-                ? "none"
-                : "0 4px 10px rgba(21,101,192,0.5)",
+            boxShadow: loading || qrVisible ? "none" : "0 4px 10px rgba(21,101,192,0.5)",
             transition: "background-color 0.3s ease",
           }}
         >

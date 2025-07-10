@@ -6,33 +6,46 @@ import RegistroManual from "./RegistroManual";
 function EscanerQR() {
   const html5QrCodeRef = useRef(null);
   const scanningRef = useRef(false);
-  const timeoutRef = useRef(null); // 👈 Para detener escáner a los 20 segundos
   const lectorRef = useRef(null);
-
   const [scannerActivo, setScannerActivo] = useState(false);
   const [mostrarManual, setMostrarManual] = useState(false);
   const [datosParticipante, setDatosParticipante] = useState(null);
   const [confirmacion, setConfirmacion] = useState(null);
+  const inactivityTimer = useRef(null);
+  const warningTimer = useRef(null);
 
   const reproducirSonido = (tipo) => {
     const audio = new Audio(tipo === "success" ? "/success.mp3" : "/error.mp3");
     audio.play().catch(() => {});
   };
 
-  const detenerScanner = async () => {
-    try {
-      if (html5QrCodeRef.current && scannerActivo) {
-        await html5QrCodeRef.current.stop();
-        await html5QrCodeRef.current.clear();
-        html5QrCodeRef.current = null;
-      }
-    } catch (err) {
-      console.error("❌ Error al detener escáner:", err);
-    } finally {
-      clearTimeout(timeoutRef.current);
-      setScannerActivo(false);
-      scanningRef.current = false;
-    }
+  const clearTimers = () => {
+    if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+    if (warningTimer.current) clearTimeout(warningTimer.current);
+  };
+
+  const resetInactivityTimer = () => {
+    clearTimers();
+
+    warningTimer.current = setTimeout(() => {
+      setConfirmacion({
+        tipo: "error",
+        mensaje: "⚠️ Atención: La cámara se cerrará en 20 segundos por inactividad.",
+      });
+    }, 40000); // 40 segundos - alerta previa
+
+    inactivityTimer.current = setTimeout(() => {
+      detenerScanner();
+      setConfirmacion({
+        tipo: "error",
+        mensaje: "⏰ Cámara cerrada por inactividad. La página se recargará.",
+      });
+      setDatosParticipante(null);
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
+    }, 60000); // 60 segundos - cierre e recarga
   };
 
   const iniciarScanner = async () => {
@@ -40,7 +53,8 @@ function EscanerQR() {
 
     setScannerActivo(true);
     setMostrarManual(false);
-    await new Promise((r) => setTimeout(r, 100));
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     const qrRegionId = "reader";
     const readerElement = document.getElementById(qrRegionId);
@@ -58,36 +72,48 @@ function EscanerQR() {
         { facingMode: "environment" },
         {
           fps: 10,
-          qrbox: (w, h) => {
-            const s = Math.floor(Math.min(w, h) * 0.8);
-            return { width: s, height: s };
+          qrbox: (viewfinderWidth, viewfinderHeight) => {
+            const minSize = Math.min(viewfinderWidth, viewfinderHeight);
+            const size = Math.floor(minSize * 0.8);
+            return { width: size, height: size };
           },
         },
         async (decodedText) => {
           if (scanningRef.current) return;
           scanningRef.current = true;
+
           console.log("QR leído:", decodedText);
           await registrarAsistencia(decodedText);
-          setTimeout(() => (scanningRef.current = false), 2000);
+
+          resetInactivityTimer(); // Reiniciar el timer por actividad
+
+          setTimeout(() => {
+            scanningRef.current = false;
+          }, 2000);
         }
       );
 
-      // ⏱️ Cierra escáner tras 20 segundos
-      timeoutRef.current = setTimeout(async () => {
-        await detenerScanner();
-        setConfirmacion({
-          tipo: "error",
-          mensaje: "⏱️ El escáner se cerró automáticamente después de 20 segundos.",
-        });
-      }, 20000);
+      resetInactivityTimer(); // Iniciar contador al arrancar escáner
+
     } catch (err) {
       console.error("Error iniciando escáner", err);
     }
   };
 
+  const detenerScanner = async () => {
+    clearTimers();
+
+    if (html5QrCodeRef.current && scannerActivo) {
+      await html5QrCodeRef.current.stop();
+      await html5QrCodeRef.current.clear();
+      setScannerActivo(false);
+      scanningRef.current = false;
+    }
+  };
+
   const registrarAsistencia = async (cedula) => {
     const hoy = new Date().toISOString().split("T")[0];
-    const hora = new Date().toISOString();
+    const hora = new Date().toLocaleTimeString("es-ES", { hour12: false });
 
     const { data: yaAsistio, error: errSelect } = await supabase
       .from("asistencias")
@@ -120,7 +146,13 @@ function EscanerQR() {
       return;
     }
 
-    const { error } = await supabase.from("asistencias").insert([{ cedula, fecha: hoy, hora }]);
+    const { error } = await supabase.from("asistencias").insert([
+      {
+        cedula,
+        fecha: hoy,
+        hora,
+      },
+    ]);
 
     if (error) {
       setConfirmacion({ tipo: "error", mensaje: "❌ Error al registrar asistencia" });
@@ -139,10 +171,12 @@ function EscanerQR() {
         lectorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
       }, 300);
     }
-    return () => {
-      clearTimeout(timeoutRef.current);
-    };
   }, [scannerActivo]);
+
+  useEffect(() => {
+    // limpiar timers al desmontar
+    return () => clearTimers();
+  }, []);
 
   return (
     <div style={{ padding: "1rem", maxWidth: "500px", margin: "0 auto" }}>
