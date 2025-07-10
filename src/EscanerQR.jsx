@@ -72,54 +72,64 @@ function EscanerQR() {
   };
 
   const registrarAsistencia = async (cedula) => {
-    const hoy = new Date().toISOString().split("T")[0];
-    const hora = new Date().toISOString();
+  const ahora = new Date();
+  const hoy = ahora.toISOString().split("T")[0]; // "YYYY-MM-DD"
+  const hora = ahora.toLocaleTimeString("es-CO", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false, // formato 24 horas
+  });
 
-    const { data: yaAsistio, error: errSelect } = await supabase
-      .from("asistencias")
-      .select("*")
-      .eq("cedula", cedula)
-      .eq("fecha", hoy);
+  const { data: yaAsistio, error: errSelect } = await supabase
+    .from("asistencias")
+    .select("*")
+    .eq("cedula", cedula)
+    .eq("fecha", hoy);
 
-    if (errSelect) {
-      setConfirmacion({ tipo: "error", mensaje: "❌ Error consultando asistencia" });
-      reproducirSonido("error");
-      return;
-    }
+  if (errSelect) {
+    setConfirmacion({ tipo: "error", mensaje: "❌ Error consultando asistencia" });
+    reproducirSonido("error");
+    return;
+  }
 
-    if (yaAsistio.length > 0) {
-      setConfirmacion({ tipo: "error", mensaje: "⚠️ Ya registró asistencia hoy" });
-      reproducirSonido("error");
-      return;
-    }
+  if (yaAsistio.length > 0) {
+    setConfirmacion({ tipo: "error", mensaje: "⚠️ Ya registró asistencia hoy" });
+    reproducirSonido("error");
+    return;
+  }
 
-    const { data: participante, error: errorParticipante } = await supabase
-      .from("participantes")
-      .select("nombre, apellido, cedula")
-      .eq("cedula", cedula)
-      .single();
+  const { data: participante, error: errorParticipante } = await supabase
+    .from("participantes")
+    .select("nombre, apellido, cedula")
+    .eq("cedula", cedula)
+    .single();
 
-    if (errorParticipante || !participante) {
-      setConfirmacion({ tipo: "error", mensaje: "❌ Participante no encontrado" });
-      setDatosParticipante(null);
-      reproducirSonido("error");
-      return;
-    }
+  if (errorParticipante || !participante) {
+    setConfirmacion({ tipo: "error", mensaje: "❌ Participante no encontrado" });
+    setDatosParticipante(null);
+    reproducirSonido("error");
+    return;
+  }
 
-    const { error } = await supabase.from("asistencias").insert([
-      { cedula, fecha: hoy, hora }
-    ]);
+  const { error } = await supabase.from("asistencias").insert([
+    {
+      cedula,
+      fecha: hoy,
+      hora: hora, // ✅ ahora solo la hora local como string
+    },
+  ]);
 
-    if (error) {
-      setConfirmacion({ tipo: "error", mensaje: "❌ Error al registrar asistencia" });
-      setDatosParticipante(null);
-      reproducirSonido("error");
-    } else {
-      setDatosParticipante(participante);
-      setConfirmacion({ tipo: "success", mensaje: "✅ Asistencia registrada" });
-      reproducirSonido("success");
-    }
-  };
+  if (error) {
+    setConfirmacion({ tipo: "error", mensaje: "❌ Error al registrar asistencia" });
+    setDatosParticipante(null);
+    reproducirSonido("error");
+  } else {
+    setDatosParticipante(participante);
+    setConfirmacion({ tipo: "success", mensaje: "✅ Asistencia registrada" });
+    reproducirSonido("success");
+  }
+};
 
   // 👇 Centra el lector automáticamente cuando se activa
   useEffect(() => {
