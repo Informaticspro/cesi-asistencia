@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "./supabaseClient";
+import ActualizacionesEvento from "./ActualizacionesEvento";
 
 function Bienvenida({ onLogin }) {
   const [usuario, setUsuario] = useState("");
@@ -190,6 +191,7 @@ function Bienvenida({ onLogin }) {
           </button>
         </form>
 
+       
         <hr style={{ margin: "2rem 0", borderColor: "#ccc" }} />
 
         <p
@@ -224,6 +226,9 @@ function Bienvenida({ onLogin }) {
           </button>
         </Link>
       </div>
+       {/* Aquí insertamos el componente ActualizacionesEvento */}
+        <ActualizacionesEvento />
+
     </div>
   );
 }

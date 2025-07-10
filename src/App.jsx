@@ -13,11 +13,59 @@ import EscanerQR from "./EscanerQR";
 import RegistrarParticipante from "./RegistrarParticipante";
 import AdminParticipantes from "./AdminParticipantes";
 import MiFooter from "./MiFooter";
+import AgregarActualizacion from "./AgregarActualizacion"; // <- ✅ ya lo tienes importado
+import logoUnachi from "./assets/logo_unachi.png";
+import logoCongreso from "./assets/logo_congreso.png";
 
 function AppWrapper() {
+  // Detecta si es móvil para ajustar tamaño de logos
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 480);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Estilos base para logos
+  const logoBaseStyle = {
+    position: "fixed",
+    top: 15,
+    opacity: 0.5,
+    pointerEvents: "none",
+    userSelect: "none",
+    zIndex: 9999,
+  };
+
   return (
     <Router>
-      <App />
+      {/* Logos fijos arriba */}
+      <div style={{ width: "100%", position: "fixed", top: 0, left: 0, zIndex: 1000 }}>
+        <img
+          src={logoUnachi}
+          alt="Logo UNACHI"
+          style={{
+            ...logoBaseStyle,
+            left: 15,
+            height: isMobile ? 30 : 50,
+          }}
+        />
+        <img
+          src={logoCongreso}
+          alt="Logo Congreso"
+          style={{
+            ...logoBaseStyle,
+            right: 15,
+            height: isMobile ? 30 : 50,
+          }}
+        />
+      </div>
+
+      {/* Contenido app con padding top para que no quede tapado por logos */}
+      <div style={{ paddingTop: isMobile ? 60 : 80 }}>
+        <App />
+      </div>
     </Router>
   );
 }
@@ -43,7 +91,9 @@ function App() {
     let timeoutCierre;
 
     const mostrarAdvertencia = () => {
-      alert("⚠️ ¡Atención! Tu sesión se cerrará en 1 minutos por inactividad si no haces nada.");
+      alert(
+        "⚠️ ¡Atención! Tu sesión se cerrará en 1 minutos por inactividad si no haces nada."
+      );
     };
 
     const cerrarPorInactividad = () => {
@@ -63,12 +113,12 @@ function App() {
     const handleActivity = () => resetInactividadTimers();
 
     const eventos = ["mousemove", "keydown", "click", "touchstart"];
-    eventos.forEach(e => window.addEventListener(e, handleActivity));
+    eventos.forEach((e) => window.addEventListener(e, handleActivity));
 
     return () => {
       clearTimeout(timeoutAdvertencia);
       clearTimeout(timeoutCierre);
-      eventos.forEach(e => window.removeEventListener(e, handleActivity));
+      eventos.forEach((e) => window.removeEventListener(e, handleActivity));
     };
   }, [autorizado]);
 
@@ -165,6 +215,11 @@ function App() {
                     <button style={{ marginRight: "10px" }}>Administrar Participantes</button>
                   </Link>
 
+                  {/* ✅ Botón nuevo */}
+                  <Link to="/agregar-actualizacion">
+                    <button style={{ marginRight: "10px" }}>Agregar Actualización</button>
+                  </Link>
+
                   <EscanerQR />
                 </div>
               ) : (
@@ -203,6 +258,12 @@ function App() {
             element={autorizado ? <AdminParticipantes /> : <Navigate to="/" />}
           />
           <Route path="/buscar-qr" element={<BuscarQR />} />
+
+          {/* ✅ Ruta nueva protegida */}
+          <Route
+            path="/agregar-actualizacion"
+            element={autorizado ? <AgregarActualizacion /> : <Navigate to="/" />}
+          />
         </Routes>
       </div>
       <MiFooter />
