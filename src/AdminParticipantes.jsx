@@ -59,33 +59,34 @@ function AdminParticipantes() {
   };
 
   const guardarCambios = async () => {
-    if (!formData.nombre.trim()) return setMensaje({ tipo: "error", texto: "El nombre no puede estar vacío" });
-    if (!formData.apellido.trim()) return setMensaje({ tipo: "error", texto: "El apellido no puede estar vacío" });
-    if (!formData.cedula.trim()) return setMensaje({ tipo: "error", texto: "La cédula no puede estar vacía" });
-    if (!formData.correo.trim()) return setMensaje({ tipo: "error", texto: "El correo no puede estar vacío" });
-    if (!validarEmail(formData.correo)) return setMensaje({ tipo: "error", texto: "El correo no tiene un formato válido" });
+  if (!formData.nombre.trim()) return setMensaje({ tipo: "error", texto: "El nombre no puede estar vacío" });
+  if (!formData.apellido.trim()) return setMensaje({ tipo: "error", texto: "El apellido no puede estar vacío" });
+  if (!formData.cedula.trim()) return setMensaje({ tipo: "error", texto: "La cédula no puede estar vacía" });
+  if (!formData.correo.trim()) return setMensaje({ tipo: "error", texto: "El correo no puede estar vacío" });
+  if (!validarEmail(formData.correo)) return setMensaje({ tipo: "error", texto: "El correo no tiene un formato válido" });
 
-    setLoading(true);
-    const { error } = await supabase
-      .from("participantes")
-      .update({
-        nombre: formData.nombre.trim(),
-        apellido: formData.apellido.trim(),
-        cedula: formData.cedula.trim(),
-        correo: formData.correo.trim(),
-        qr_code: formData.cedula.trim(), // guardamos solo la cédula para QR dinámico
-      })
-      .eq("cedula", editando);
-    setLoading(false);
+  setLoading(true);
+  const { error } = await supabase
+    .from("participantes")
+    .update({
+      nombre: formData.nombre.trim(),
+      apellido: formData.apellido.trim(),
+      cedula: formData.cedula.trim(),
+      correo: formData.correo.trim(),
+      qr_code: formData.cedula.trim(), // guardamos solo la cédula para QR dinámico
+    })
+    .eq("cedula", editando);
 
-    if (error) {
-      setMensaje({ tipo: "error", texto: "❌ Error al actualizar participante" });
-    } else {
-      setMensaje({ tipo: "success", texto: "Participante actualizado correctamente" });
-      setEditando(null);
-      cargarParticipantes();
-    }
-  };
+  setLoading(false);
+
+  if (error) {
+    setMensaje({ tipo: "error", texto: "❌ Error al actualizar participante" });
+  } else {
+    setMensaje({ tipo: "success", texto: "Participante actualizado correctamente" });
+    setEditando(null);
+    cargarParticipantes();
+  }
+};
 
   const participantesFiltrados = participantes.filter((p) => {
     const termino = busqueda.toLowerCase();
@@ -203,6 +204,7 @@ function AdminParticipantes() {
                   p.correo
                 )}
               </td>
+
               <td style={{ textAlign: "center", backgroundColor: "#fff", padding: 8, borderRadius: 6 }}>
   {p.qr_code ? (
     <QRCodeCanvas
@@ -218,6 +220,7 @@ function AdminParticipantes() {
     "No disponible"
   )}
 </td>
+
               <td>
                 {editando === p.cedula ? (
                   <>
