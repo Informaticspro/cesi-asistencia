@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
 import { Link } from "react-router-dom";
+import { QRCodeCanvas } from "qrcode.react";
 
 function AdminParticipantes() {
   const [participantes, setParticipantes] = useState([]);
@@ -72,7 +73,7 @@ function AdminParticipantes() {
         apellido: formData.apellido.trim(),
         cedula: formData.cedula.trim(),
         correo: formData.correo.trim(),
-        qr_code: `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(formData.cedula.trim())}`,
+        qr_code: formData.cedula.trim(), // Guardamos solo la cédula para QR dinámico
       })
       .eq("cedula", editando);
     setLoading(false);
@@ -134,7 +135,7 @@ function AdminParticipantes() {
 
       <table border="1" cellPadding="8" style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
-          <tr style={{ backgroundColor: "#fff", color: "#000" }}>
+          <tr style={{ backgroundColor: "#004d40", color: "white" }}>
             <th>Nombre</th>
             <th>Apellido</th>
             <th>Cédula</th>
@@ -202,22 +203,21 @@ function AdminParticipantes() {
                   p.correo
                 )}
               </td>
-              <td>
-                  {p.qr_code ? (
-             <div
-                 style={{
-                  backgroundColor: "white",
-                 padding: 4,
-                 borderRadius: 4,
-                   display: "inline-block",
-                  }}
-    >
-                <img src={p.qr_code} alt="QR Code" width={64} height={64} />
-               </div>
-                 ) : (
-                 "No disponible"
-                   )}
-                    </td>
+              <td style={{ textAlign: "center" }}>
+                {/* Generar QR dinámicamente con valor de p.qr_code (que es la cédula) */}
+                {p.qr_code ? (
+                  <QRCodeCanvas
+                    value={p.qr_code}
+                    size={64}
+                    bgColor="#fff"
+                    fgColor="#004d40"
+                    level="H"
+                    includeMargin={false}
+                  />
+                ) : (
+                  "No disponible"
+                )}
+              </td>
               <td>
                 {editando === p.cedula ? (
                   <>
