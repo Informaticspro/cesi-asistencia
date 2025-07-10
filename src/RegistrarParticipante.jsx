@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { QRCodeCanvas } from "qrcode.react";
+import { Link, useNavigate } from "react-router-dom"; // <-- importar useNavigate
 import { supabase } from "./supabaseClient";
-import { Link } from "react-router-dom";
 
 function RegistrarParticipante() {
   const [nombre, setNombre] = useState("");
@@ -9,36 +10,10 @@ function RegistrarParticipante() {
   const [correo, setCorreo] = useState("");
   const [mensaje, setMensaje] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [qrVisible, setQrVisible] = useState(false);
 
-  // Función para enviar correo llamando al backend local
-  async function enviarCorreoConQR(participante) {
-    // Aquí generamos la URL del QR (igual que Google Sheets)
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(participante.cedula)}`;
-
-    try {
-      const res = await fetch("http://localhost:4000/api/enviarQR", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nombre: participante.nombre,
-          apellido: participante.apellido,
-          correo: participante.correo,
-          qrUrl,
-        }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Error al enviar correo");
-      }
-
-      return true;
-    } catch (error) {
-      console.error("Error en enviarCorreoConQR:", error);
-      return false;
-    }
-  }
+  const qrRef = useRef(null);
+  const navigate = useNavigate(); // <-- inicializar useNavigate
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -51,7 +26,6 @@ function RegistrarParticipante() {
     setLoading(true);
     setMensaje(null);
 
-    // Verificar si ya existe participante
     const { data: existente, error: errorExistente } = await supabase
       .from("participantes")
       .select("*")
@@ -65,18 +39,20 @@ function RegistrarParticipante() {
 
     if (existente.length > 0) {
       setLoading(false);
-      setMensaje({ tipo: "error", texto: "⚠️ Ya existe un participante con esa cédula o correo." });
+      setMensaje({
+        tipo: "error",
+        texto: "⚠️ Ya existe un participante con esa cédula o correo.",
+      });
       return;
     }
 
-    // Insertar participante en Supabase
-    const { data, error } = await supabase.from("participantes").insert([
+    const { error } = await supabase.from("participantes").insert([
       {
         nombre,
         apellido,
         cedula,
         correo,
-        qr_code: cedula, // Guardamos cédula para generar QR después
+        qr_code: cedula,
       },
     ]);
 
@@ -86,62 +62,289 @@ function RegistrarParticipante() {
       return;
     }
 
-    // Llamar backend para enviar correo con QR
-    const correoEnviado = await enviarCorreoConQR({ nombre, apellido, correo, cedula });
-
-    if (correoEnviado) {
-      setMensaje({ tipo: "success", texto: "✅ Participante registrado y correo enviado con QR" });
-    } else {
-      setMensaje({ tipo: "error", texto: "❌ Participante registrado, pero error al enviar correo" });
-    }
-
+    setMensaje({
+      tipo: "success",
+      texto: "✅ Participante registrado exitosamente",
+    });
     setLoading(false);
+    setQrVisible(true);
+  };
 
-    // Limpiar formulario
+  const resetFormulario = () => {
     setNombre("");
     setApellido("");
     setCedula("");
     setCorreo("");
+    setMensaje(null);
+  };
+
+  const descargarQR = () => {
+    const canvas = qrRef.current.querySelector("canvas");
+    if (!canvas) return;
+    const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+
+    const downloadLink = document.createElement("a");
+    downloadLink.href = pngUrl;
+    downloadLink.download = `codigo_qr_${cedula}.png`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+
+    setQrVisible(false);
+    resetFormulario();
+    navigate("/"); // <-- redirigir al inicio tras descargar
   };
 
   return (
-    <div style={{ maxWidth: 500, margin: "auto", padding: "1rem" }}>
-      <h2>Registrar Participante</h2>
+    <div
+      style={{
+        maxWidth: 420,
+        margin: "2rem auto",
+        padding: "2rem",
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        borderRadius: 12,
+        backgroundColor: "#f5f5f5",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+      }}
+    >
+      <h2
+        style={{
+          textAlign: "center",
+          marginBottom: 20,
+          color: "#004d40",
+          fontWeight: "700",
+        }}
+      >
+        Registrar Participante
+      </h2>
 
       {mensaje && (
         <div
           style={{
-            padding: "0.5rem 1rem",
-            marginBottom: "1rem",
-            borderRadius: 4,
-            color: mensaje.tipo === "error" ? "white" : "green",
-            backgroundColor: mensaje.tipo === "error" ? "#d9534f" : "#5cb85c",
+            padding: "0.75rem 1rem",
+            marginBottom: "1.2rem",
+            borderRadius: 6,
+            color: mensaje.tipo === "error" ? "#fff" : "#155724",
+            backgroundColor:
+              mensaje.tipo === "error" ? "#d32f2f" : "#c8e6c9",
+            border:
+              mensaje.tipo === "error"
+                ? "1px solid #f44336"
+                : "1px solid #4caf50",
+            fontWeight: "600",
+            textAlign: "center",
+            boxShadow: "0 0 8px rgba(0,0,0,0.05)",
           }}
         >
           {mensaje.texto}
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
-        <label>Nombre:</label>
-        <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} />
-
-        <label>Apellido:</label>
-        <input type="text" value={apellido} onChange={(e) => setApellido(e.target.value)} />
-
-        <label>Cédula:</label>
-        <input type="text" value={cedula} onChange={(e) => setCedula(e.target.value)} />
-
-        <label>Correo:</label>
-        <input type="email" value={correo} onChange={(e) => setCorreo(e.target.value)} />
-
-        <button type="submit" disabled={loading} style={{ marginTop: 10 }}>
-          {loading ? "Registrando..." : "Registrar y enviar QR"}
+      <form
+        onSubmit={handleSubmit}
+        style={{ display: "flex", flexDirection: "column", gap: "14px" }}
+      >
+        <input
+          type="text"
+          placeholder="Nombre"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          style={{
+            padding: "0.7rem",
+            fontSize: 16,
+            borderRadius: 6,
+            border: "2px solid #004d40",
+            outlineColor: "#1565c0",
+            fontWeight: "600",
+          }}
+          disabled={qrVisible}
+        />
+        <input
+          type="text"
+          placeholder="Apellido"
+          value={apellido}
+          onChange={(e) => setApellido(e.target.value)}
+          style={{
+            padding: "0.7rem",
+            fontSize: 16,
+            borderRadius: 6,
+            border: "2px solid #004d40",
+            outlineColor: "#1565c0",
+            fontWeight: "600",
+          }}
+          disabled={qrVisible}
+        />
+        <input
+          type="text"
+          placeholder="Cédula"
+          value={cedula}
+          onChange={(e) => setCedula(e.target.value)}
+          style={{
+            padding: "0.7rem",
+            fontSize: 16,
+            borderRadius: 6,
+            border: "2px solid #004d40",
+            outlineColor: "#1565c0",
+            fontWeight: "600",
+          }}
+          disabled={qrVisible}
+        />
+        <input
+          type="email"
+          placeholder="Correo"
+          value={correo}
+          onChange={(e) => setCorreo(e.target.value)}
+          style={{
+            padding: "0.7rem",
+            fontSize: 16,
+            borderRadius: 6,
+            border: "2px solid #004d40",
+            outlineColor: "#1565c0",
+            fontWeight: "600",
+          }}
+          disabled={qrVisible}
+        />
+        <button
+          type="submit"
+          disabled={loading || qrVisible}
+          style={{
+            padding: "0.85rem",
+            fontSize: 16,
+            fontWeight: "700",
+            borderRadius: 8,
+            border: "none",
+            backgroundColor:
+              loading || qrVisible ? "#9e9e9e" : "#1565c0",
+            color: "#fff",
+            cursor:
+              loading || qrVisible ? "not-allowed" : "pointer",
+            marginTop: 10,
+            boxShadow:
+              loading || qrVisible
+                ? "none"
+                : "0 4px 10px rgba(21,101,192,0.5)",
+            transition: "background-color 0.3s ease",
+          }}
+        >
+          {loading ? "Registrando..." : "Registrar y mostrar QR"}
         </button>
       </form>
 
-      <br />
-      <Link to="/">⬅️ Volver al inicio</Link>
+      <div style={{ marginTop: 20, textAlign: "center" }}>
+        <Link
+          to="/"
+          style={{
+            color: "#d32f2f",
+            textDecoration: "none",
+            fontWeight: "700",
+            fontSize: 16,
+          }}
+          onMouseEnter={(e) => (e.target.style.textDecoration = "underline")}
+          onMouseLeave={(e) => (e.target.style.textDecoration = "none")}
+        >
+          ⬅️ Volver al inicio
+        </Link>
+      </div>
+
+      {qrVisible && (
+        <div
+          onClick={() => {
+            setQrVisible(false);
+            resetFormulario();
+            navigate("/"); // <-- redirigir al inicio al cerrar modal clic en fondo
+          }}
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.6)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: "#fff",
+              padding: 30,
+              borderRadius: 12,
+              boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
+              textAlign: "center",
+              maxWidth: 320,
+              border: "3px solid #004d40",
+            }}
+          >
+            <h3
+              style={{
+                marginBottom: 20,
+                color: "#004d40",
+                fontWeight: "700",
+                fontSize: 22,
+              }}
+            >
+              Tu código QR
+            </h3>
+
+            <div ref={qrRef} style={{ marginBottom: 15 }}>
+              <QRCodeCanvas
+                value={cedula}
+                size={256}
+                bgColor="#ffffff"
+                fgColor="#004d40"
+                level="H"
+                includeMargin={true}
+              />
+            </div>
+
+            <button
+              onClick={descargarQR}
+              style={{
+                marginBottom: 15,
+                padding: "0.6rem 1.2rem",
+                backgroundColor: "#004d40",
+                color: "white",
+                border: "none",
+                borderRadius: 8,
+                cursor: "pointer",
+                fontWeight: "700",
+                fontSize: 16,
+                boxShadow: "0 4px 12px rgba(0,77,64,0.7)",
+                transition: "background-color 0.3s ease",
+              }}
+              onMouseEnter={(e) => (e.target.style.backgroundColor = "#00796b")}
+              onMouseLeave={(e) => (e.target.style.backgroundColor = "#004d40")}
+            >
+              Descargar QR
+            </button>
+
+            <button
+              onClick={() => {
+                setQrVisible(false);
+                resetFormulario();
+                navigate("/"); // <-- redirigir al inicio al cerrar modal con botón
+              }}
+              style={{
+                padding: "0.6rem 1.2rem",
+                backgroundColor: "#d32f2f",
+                color: "white",
+                border: "none",
+                borderRadius: 8,
+                cursor: "pointer",
+                fontWeight: "700",
+                fontSize: 16,
+                boxShadow: "0 4px 12px rgba(211,47,47,0.7)",
+                transition: "background-color 0.3s ease",
+                marginTop: 10,
+              }}
+              onMouseEnter={(e) => (e.target.style.backgroundColor = "#b71c1c")}
+              onMouseLeave={(e) => (e.target.style.backgroundColor = "#d32f2f")}
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

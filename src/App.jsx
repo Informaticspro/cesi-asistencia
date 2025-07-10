@@ -8,6 +8,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import Bienvenida from "./Bienvenida";
+import BuscarQR from "./BuscarQR";
 import EscanerQR from "./EscanerQR";
 import RegistrarParticipante from "./RegistrarParticipante";
 import AdminParticipantes from "./AdminParticipantes";
@@ -35,42 +36,41 @@ function App() {
     }
   }, []);
 
- useEffect(() => {
-  if (!autorizado) return;
+  useEffect(() => {
+    if (!autorizado) return;
 
-  let timeoutAdvertencia;
-  let timeoutCierre;
+    let timeoutAdvertencia;
+    let timeoutCierre;
 
-  const mostrarAdvertencia = () => {
-    alert("⚠️ ¡Atención! Tu sesión se cerrará en 1 minutos por inactividad si no haces nada.");
-  };
+    const mostrarAdvertencia = () => {
+      alert("⚠️ ¡Atención! Tu sesión se cerrará en 1 minutos por inactividad si no haces nada.");
+    };
 
-  const cerrarPorInactividad = () => {
-    alert("❌ Sesión cerrada por inactividad.");
-    cerrarSesion();
-  };
+    const cerrarPorInactividad = () => {
+      alert("❌ Sesión cerrada por inactividad.");
+      cerrarSesion();
+    };
 
-  const resetInactividadTimers = () => {
-    clearTimeout(timeoutAdvertencia);
-    clearTimeout(timeoutCierre);
-    timeoutAdvertencia = setTimeout(mostrarAdvertencia, 14 * 60 * 1000);
-    timeoutCierre = setTimeout(cerrarPorInactividad, 15 * 60 * 1000);
-  };
+    const resetInactividadTimers = () => {
+      clearTimeout(timeoutAdvertencia);
+      clearTimeout(timeoutCierre);
+      timeoutAdvertencia = setTimeout(mostrarAdvertencia, 14 * 60 * 1000);
+      timeoutCierre = setTimeout(cerrarPorInactividad, 15 * 60 * 1000);
+    };
 
-  resetInactividadTimers();
+    resetInactividadTimers();
 
-  const handleActivity = () => resetInactividadTimers();
+    const handleActivity = () => resetInactividadTimers();
 
-  const eventos = ["mousemove", "keydown", "click", "touchstart"];
-  eventos.forEach(e => window.addEventListener(e, handleActivity));
+    const eventos = ["mousemove", "keydown", "click", "touchstart"];
+    eventos.forEach(e => window.addEventListener(e, handleActivity));
 
-  return () => {
-    clearTimeout(timeoutAdvertencia);
-    clearTimeout(timeoutCierre);
-    eventos.forEach(e => window.removeEventListener(e, handleActivity));
-  };
-}, [autorizado]);
-
+    return () => {
+      clearTimeout(timeoutAdvertencia);
+      clearTimeout(timeoutCierre);
+      eventos.forEach(e => window.removeEventListener(e, handleActivity));
+    };
+  }, [autorizado]);
 
   const handleLogin = (isAuth, usuario) => {
     setAutorizado(isAuth);
@@ -102,39 +102,42 @@ function App() {
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      bbackgroundColor: "#343a40",
-                        
-                      color: "#fff", // agrégalo dentro del mismo style
+                      backgroundColor: "#343a40",
+                      color: "#fff",
                       padding: "0.8rem 1rem",
                       borderRadius: "8px",
                       marginBottom: "1.5rem",
                       boxShadow: "0 2px 5px rgba(0, 0, 0, 0.05)",
                     }}
                   >
-                    <h1 style={{
-                                margin: 0,
-                                padding: "12px 20px",
-                                backgroundColor: "#003366", // azul institucional oscuro
-                                 color: "#ffffff",
-                                borderRadius: "8px",
-                                textAlign: "center",
-                                boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)"
-                                  }     }>
-                                 Registro de Asistencia CESI 2025
-                                  </h1>
+                    <h1
+                      style={{
+                        margin: 0,
+                        padding: "12px 20px",
+                        backgroundColor: "#003366",
+                        color: "#ffffff",
+                        borderRadius: "8px",
+                        textAlign: "center",
+                        boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)",
+                      }}
+                    >
+                      Registro de Asistencia CESI 2025
+                    </h1>
                     <div style={{ textAlign: "right" }}>
-                      <div style={{
-                      backgroundColor: "#f0f0f0",  // gris claro para que se vea en fondos blancos u oscuros
-                       padding: "10px 15px",
-                       borderRadius: "8px",
-                      display: "inline-block",
-                      fontWeight: "bold",
-                       marginTop: "10px",
-                       color: "#333",  // texto oscuro
-                       boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
-}}>
-  Sesión activa: Jose Acosta
-</div>
+                      <div
+                        style={{
+                          backgroundColor: "#f0f0f0",
+                          padding: "10px 15px",
+                          borderRadius: "8px",
+                          display: "inline-block",
+                          fontWeight: "bold",
+                          marginTop: "10px",
+                          color: "#333",
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                        }}
+                      >
+                        Sesión activa: {nombreUsuario}
+                      </div>
                       <button
                         onClick={cerrarSesion}
                         style={{
@@ -145,6 +148,7 @@ function App() {
                           border: "none",
                           borderRadius: "4px",
                           cursor: "pointer",
+                          marginLeft: "0.5rem",
                         }}
                       >
                         Cerrar sesión
@@ -164,7 +168,31 @@ function App() {
                   <EscanerQR />
                 </div>
               ) : (
-                <Bienvenida onLogin={handleLogin} />
+                <div>
+                  <Bienvenida onLogin={handleLogin} />
+                  <div style={{ textAlign: "center", marginTop: "1rem" }}>
+                    <Link to="/buscar-qr">
+                      <button
+                        style={{
+                          padding: "0.7rem 1.2rem",
+                          fontSize: "16px",
+                          fontWeight: "bold",
+                          borderRadius: "8px",
+                          backgroundColor: "#00796b",
+                          color: "white",
+                          border: "none",
+                          cursor: "pointer",
+                          boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+                          transition: "background-color 0.3s",
+                        }}
+                        onMouseEnter={(e) => (e.target.style.backgroundColor = "#004d40")}
+                        onMouseLeave={(e) => (e.target.style.backgroundColor = "#00796b")}
+                      >
+                        🔍 Buscar mi Código QR
+                      </button>
+                    </Link>
+                  </div>
+                </div>
               )
             }
           />
@@ -174,6 +202,7 @@ function App() {
             path="/admin-participantes"
             element={autorizado ? <AdminParticipantes /> : <Navigate to="/" />}
           />
+          <Route path="/buscar-qr" element={<BuscarQR />} />
         </Routes>
       </div>
       <MiFooter />
