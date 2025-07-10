@@ -8,6 +8,7 @@ function EscanerQR() {
   const scanningRef = useRef(false);
   const lectorRef = useRef(null);
   const timeoutRef = useRef(null);
+
   const [scannerActivo, setScannerActivo] = useState(false);
   const [mostrarManual, setMostrarManual] = useState(false);
   const [datosParticipante, setDatosParticipante] = useState(null);
@@ -29,10 +30,7 @@ function EscanerQR() {
 
     const qrRegionId = "reader";
     const readerElement = document.getElementById(qrRegionId);
-    if (!readerElement) {
-      console.error("❌ El elemento #reader no existe.");
-      return;
-    }
+    if (!readerElement) return;
 
     if (!html5QrCodeRef.current) {
       html5QrCodeRef.current = new Html5Qrcode(qrRegionId);
@@ -43,15 +41,14 @@ function EscanerQR() {
         { facingMode: "environment" },
         {
           fps: 10,
-          qrbox: (vw, vh) => {
-            const size = Math.floor(Math.min(vw, vh) * 0.8);
+          qrbox: (w, h) => {
+            const size = Math.floor(Math.min(w, h) * 0.8);
             return { width: size, height: size };
           },
         },
         async (decodedText) => {
           if (scanningRef.current) return;
           scanningRef.current = true;
-
           await registrarAsistencia(decodedText);
 
           setTimeout(() => {
@@ -60,34 +57,38 @@ function EscanerQR() {
         }
       );
 
-      // ⏱️ Establecer tiempo límite de 20 segundos
-      timeoutRef.current = setTimeout(() => {
-        detenerScanner(true);
+      // ⏱️ Cerrar escáner a los 20 segundos
+      timeoutRef.current = setTimeout(async () => {
+        await detenerScanner();
+        setConfirmacion({
+          tipo: "error",
+          mensaje: "⏱️ El escáner se cerró automáticamente después de 20 segundos.",
+        });
       }, 20000);
+
     } catch (err) {
-      console.error("Error iniciando escáner", err);
+      console.error("Error iniciando escáner:", err);
     }
   };
 
-  const detenerScanner = async (auto = false) => {
-    if (html5QrCodeRef.current && scannerActivo) {
-      try {
+const detenerScanner = async () => {
+  if (scannerActivo) {
+    try {
+      if (html5QrCodeRef.current) {
         await html5QrCodeRef.current.stop();
         await html5QrCodeRef.current.clear();
-      } catch (err) {
-        console.warn("No se pudo detener el escáner:", err);
+        html5QrCodeRef.current = null;
       }
+    } catch (err) {
+      console.error("❌ Error al detener escáner:", err);
+    } finally {
+      // Siempre aseguramos el cierre visual y estado
       setScannerActivo(false);
       scanningRef.current = false;
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      if (auto) {
-        setConfirmacion({
-          tipo: "error",
-          mensaje: "⏱️ El escáner se cerró automáticamente por inactividad.",
-        });
-      }
+      clearTimeout(timeoutRef.current);
     }
-  };
+  }
+};
 
   const registrarAsistencia = async (cedula) => {
     const hoy = new Date().toISOString().split("T")[0];
@@ -140,51 +141,34 @@ function EscanerQR() {
   };
 
   useEffect(() => {
+    return () => {
+      detenerScanner();
+    };
+  }, []);
+
+  useEffect(() => {
     if (scannerActivo && lectorRef.current) {
       setTimeout(() => {
         lectorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
       }, 300);
     }
-    return () => clearTimeout(timeoutRef.current);
   }, [scannerActivo]);
 
   return (
     <div style={{ padding: "1rem", maxWidth: "500px", margin: "0 auto" }}>
       <h2 style={{ textAlign: "center" }}>Escanear QR</h2>
 
-      {!scannerActivo && (
+      {!scannerActivo ? (
         <button
           onClick={iniciarScanner}
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            marginBottom: "0.5rem",
-            backgroundColor: "#0d6efd",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "16px",
-            cursor: "pointer",
-          }}
+          style={botonEstilo("#0d6efd")}
         >
           📷 Iniciar escáner
         </button>
-      )}
-
-      {scannerActivo && (
+      ) : (
         <button
-          onClick={() => detenerScanner(false)}
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            marginBottom: "0.5rem",
-            backgroundColor: "#dc3545",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "16px",
-            cursor: "pointer",
-          }}
+          onClick={detenerScanner}
+          style={botonEstilo("#dc3545")}
         >
           🛑 Detener escáner
         </button>
@@ -193,19 +177,9 @@ function EscanerQR() {
       <button
         onClick={() => {
           setMostrarManual((prev) => !prev);
-          if (scannerActivo) detenerScanner(false);
+          if (scannerActivo) detenerScanner();
         }}
-        style={{
-          width: "100%",
-          padding: "0.75rem",
-          marginBottom: "1rem",
-          backgroundColor: "#6c757d",
-          color: "white",
-          border: "none",
-          borderRadius: "8px",
-          fontSize: "16px",
-          cursor: "pointer",
-        }}
+        style={botonEstilo("#6c757d")}
       >
         {mostrarManual ? "Ocultar registro manual" : "Registrar asistencia manual"}
       </button>
@@ -252,6 +226,20 @@ function EscanerQR() {
       )}
     </div>
   );
+}
+
+function botonEstilo(color) {
+  return {
+    width: "100%",
+    padding: "0.75rem",
+    marginBottom: "0.5rem",
+    backgroundColor: color,
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "16px",
+    cursor: "pointer",
+  };
 }
 
 export default EscanerQR;
