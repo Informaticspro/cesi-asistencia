@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "./supabaseClient";
 
 function AdminActualizaciones() {
-  const navigate = useNavigate(); // ✅ Esto debe ir dentro de la función del componente
+  const navigate = useNavigate();
 
   const [actualizaciones, setActualizaciones] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -40,7 +40,7 @@ function AdminActualizaciones() {
     setEditandoId(actualizacion.id);
     setFormData({
       titulo: actualizacion.titulo,
-      contenido: actualizacion.contenido,
+      contenido: actualizacion.contenido || "",
       imagen_url: actualizacion.imagen_url || "",
       fecha: actualizacion.fecha.slice(0, 10),
     });
@@ -59,21 +59,32 @@ function AdminActualizaciones() {
   };
 
   const guardarActualizacion = async () => {
+    console.log("Contenido actual para guardar:", formData.contenido);
+
     if (!formData.titulo.trim()) return setError("El título es obligatorio");
     if (!formData.contenido.trim()) return setError("El contenido es obligatorio");
     if (!formData.fecha) return setError("La fecha es obligatoria");
 
     setLoading(true);
+    setError(null);
+
+    const datosAGuardar = {
+      titulo: formData.titulo.trim(),
+      contenido: formData.contenido.trim(),
+      imagen_url: formData.imagen_url.trim(),
+      fecha: formData.fecha,
+    };
+
     let error;
 
     if (editandoId) {
       const { error: err } = await supabase
         .from("actualizaciones")
-        .update(formData)
+        .update(datosAGuardar)
         .eq("id", editandoId);
       error = err;
     } else {
-      const { error: err } = await supabase.from("actualizaciones").insert([formData]);
+      const { error: err } = await supabase.from("actualizaciones").insert([datosAGuardar]);
       error = err;
     }
 
@@ -96,15 +107,16 @@ function AdminActualizaciones() {
   };
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      backgroundColor: "#121212",
-      color: "#fff",
-      padding: "2rem",
-      fontFamily: "Arial, sans-serif"
-    }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#121212",
+        color: "#fff",
+        padding: "2rem",
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
       <div style={{ maxWidth: 800, margin: "auto" }}>
-        {/* ✅ Botón Volver */}
         <button
           onClick={() => navigate("/")}
           style={{
@@ -126,31 +138,37 @@ function AdminActualizaciones() {
         </h2>
 
         {error && (
-          <div style={{
-            backgroundColor: "#ffcccc",
-            color: "#a30000",
-            padding: "1rem",
-            borderRadius: "8px",
-            marginBottom: "1rem"
-          }}>
+          <div
+            style={{
+              backgroundColor: "#ffcccc",
+              color: "#a30000",
+              padding: "1rem",
+              borderRadius: "8px",
+              marginBottom: "1rem",
+            }}
+          >
             {error}
           </div>
         )}
 
-        {/* Formulario */}
-        <div style={{
-          backgroundColor: "#1e1e1e",
-          padding: "1.5rem",
-          borderRadius: "10px",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-          marginBottom: "2rem"
-        }}>
+        <div
+          style={{
+            backgroundColor: "#1e1e1e",
+            padding: "1.5rem",
+            borderRadius: "10px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+            marginBottom: "2rem",
+          }}
+        >
           <label>
             Título:<br />
             <input
               type="text"
               value={formData.titulo}
-              onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
+              onChange={(e) => {
+                setFormData({ ...formData, titulo: e.target.value });
+                setError(null);
+              }}
               style={inputStyle}
               disabled={loading}
             />
@@ -160,7 +178,10 @@ function AdminActualizaciones() {
             Contenido:<br />
             <textarea
               value={formData.contenido}
-              onChange={(e) => setFormData({ ...formData, contenido: e.target.value })}
+              onChange={(e) => {
+                setFormData({ ...formData, contenido: e.target.value });
+                setError(null);
+              }}
               rows={4}
               style={inputStyle}
               disabled={loading}
@@ -191,50 +212,52 @@ function AdminActualizaciones() {
           </label>
 
           <div style={{ marginTop: "1rem" }}>
-            <button
-              onClick={guardarActualizacion}
-              disabled={loading}
-              style={buttonGreen}
-            >
+            <button onClick={guardarActualizacion} disabled={loading} style={buttonGreen}>
               {editandoId ? "Actualizar" : "Crear"} Actualización
             </button>
             {editandoId && (
-              <button
-                onClick={cancelarEdicion}
-                disabled={loading}
-                style={buttonGray}
-              >
+              <button onClick={cancelarEdicion} disabled={loading} style={buttonGray}>
                 Cancelar
               </button>
             )}
           </div>
         </div>
 
-        {/* Tabla de actualizaciones */}
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr style={{ backgroundColor: "#00796b", color: "white" }}>
               <th style={thStyle}>Título</th>
               <th style={thStyle}>Fecha</th>
+              <th style={thStyle}>Imagen</th>
               <th style={thStyle}>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {actualizaciones.map(({ id, titulo, fecha }) => (
+            {actualizaciones.map(({ id, titulo, fecha, imagen_url }) => (
               <tr key={id} style={{ borderBottom: "1px solid #444" }}>
                 <td style={tdStyle}>{titulo}</td>
                 <td style={tdStyle}>{new Date(fecha).toLocaleDateString()}</td>
                 <td style={tdStyle}>
+                  {imagen_url ? (
+                    <a href={imagen_url} target="_blank" rel="noopener noreferrer">
+                      <img
+                        src={imagen_url}
+                        alt="miniatura"
+                        style={{ width: "80px", height: "auto", borderRadius: "4px" }}
+                      />
+                    </a>
+                  ) : (
+                    <span style={{ color: "#aaa" }}>Sin imagen</span>
+                  )}
+                </td>
+                <td style={tdStyle}>
                   <button
-                    onClick={() => comenzarEdicion({ id, titulo, fecha })}
+                    onClick={() => comenzarEdicion(actualizaciones.find((a) => a.id === id))}
                     style={buttonGreenSmall}
                   >
                     Editar
                   </button>
-                  <button
-                    onClick={() => eliminarActualizacion(id)}
-                    style={buttonRedSmall}
-                  >
+                  <button onClick={() => eliminarActualizacion(id)} style={buttonRedSmall}>
                     Eliminar
                   </button>
                 </td>
@@ -242,7 +265,7 @@ function AdminActualizaciones() {
             ))}
             {actualizaciones.length === 0 && !loading && (
               <tr>
-                <td colSpan={3} style={{ textAlign: "center", padding: "1rem", color: "#aaa" }}>
+                <td colSpan={4} style={{ textAlign: "center", padding: "1rem", color: "#aaa" }}>
                   No hay actualizaciones registradas.
                 </td>
               </tr>
@@ -267,12 +290,12 @@ const inputStyle = {
 const thStyle = {
   padding: "0.8rem",
   textAlign: "left",
-  fontWeight: "bold"
+  fontWeight: "bold",
 };
 
 const tdStyle = {
   padding: "0.8rem",
-  color: "#eee"
+  color: "#eee",
 };
 
 const buttonGreen = {
@@ -283,7 +306,7 @@ const buttonGreen = {
   borderRadius: "6px",
   cursor: "pointer",
   marginRight: "1rem",
-  fontWeight: "bold"
+  fontWeight: "bold",
 };
 
 const buttonGray = {
@@ -293,7 +316,7 @@ const buttonGray = {
   border: "none",
   borderRadius: "6px",
   cursor: "pointer",
-  fontWeight: "bold"
+  fontWeight: "bold",
 };
 
 const buttonGreenSmall = {
@@ -303,7 +326,7 @@ const buttonGreenSmall = {
   border: "none",
   borderRadius: "4px",
   marginRight: "0.5rem",
-  cursor: "pointer"
+  cursor: "pointer",
 };
 
 const buttonRedSmall = {
@@ -312,7 +335,7 @@ const buttonRedSmall = {
   padding: "0.4rem 0.8rem",
   border: "none",
   borderRadius: "4px",
-  cursor: "pointer"
+  cursor: "pointer",
 };
 
 export default AdminActualizaciones;

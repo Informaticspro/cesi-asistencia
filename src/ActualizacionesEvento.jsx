@@ -10,12 +10,13 @@ function ActualizacionesEvento() {
     async function fetchActualizaciones() {
       setLoading(true);
       const { data, error } = await supabase
-        .from("actualizaciones")
+        .from("actualizaciones")  // <--- corregido aquí
         .select("*")
         .order("fecha", { ascending: false });
 
       if (error) {
         setError("Error al cargar actualizaciones");
+        console.error("Error Supabase:", error);
       } else {
         setActualizaciones(data);
       }

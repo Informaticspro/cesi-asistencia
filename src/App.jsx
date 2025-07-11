@@ -13,7 +13,8 @@ import EscanerQR from "./EscanerQR";
 import RegistrarParticipante from "./RegistrarParticipante";
 import AdminParticipantes from "./AdminParticipantes";
 import MiFooter from "./MiFooter";
-import AgregarActualizacion from "./AgregarActualizacion"; // <- ✅ ya lo tienes importado
+import AgregarActualizacion from "./AgregarActualizacion";
+import AsistenciaHoy from "./AsistenciaHoy"; // componente que muestra la tabla de asistencia del día
 import logoUnachi from "./assets/logo_unachi.png";
 import logoCongreso from "./assets/logo_congreso.png";
 
@@ -41,7 +42,9 @@ function AppWrapper() {
   return (
     <Router>
       {/* Logos fijos arriba */}
-      <div style={{ width: "100%", position: "fixed", top: 0, left: 0, zIndex: 1000 }}>
+      <div
+        style={{ width: "100%", position: "fixed", top: 0, left: 0, zIndex: 1000 }}
+      >
         <img
           src={logoUnachi}
           alt="Logo UNACHI"
@@ -84,6 +87,7 @@ function App() {
     }
   }, []);
 
+  // Inactividad (desconexión automática)
   useEffect(() => {
     if (!autorizado) return;
 
@@ -92,7 +96,7 @@ function App() {
 
     const mostrarAdvertencia = () => {
       alert(
-        "⚠️ ¡Atención! Tu sesión se cerrará en 1 minutos por inactividad si no haces nada."
+        "⚠️ ¡Atención! Tu sesión se cerrará en 1 minuto por inactividad si no haces nada."
       );
     };
 
@@ -215,12 +219,28 @@ function App() {
                     <button style={{ marginRight: "10px" }}>Administrar Participantes</button>
                   </Link>
 
-                  {/* ✅ Botón nuevo */}
+                  {/* Botón nuevo */}
                   <Link to="/agregar-actualizacion">
                     <button style={{ marginRight: "10px" }}>Agregar Actualización</button>
                   </Link>
 
                   <EscanerQR />
+
+                  {/* ------------------- ASISTENCIA HOY ------------------ */}
+                  <div
+                    style={{
+                      marginTop: "2rem",
+                      maxHeight: 320,
+                      overflowY: "auto",
+                      borderRadius: "10px",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+                      backgroundColor: "#1e1e1e",
+                      padding: "1rem",
+                    }}
+                  >
+                    <AsistenciaHoy />
+                  </div>
+                  {/* ----------------------------------------------------- */}
                 </div>
               ) : (
                 <div>
@@ -259,7 +279,7 @@ function App() {
           />
           <Route path="/buscar-qr" element={<BuscarQR />} />
 
-          {/* ✅ Ruta nueva protegida */}
+          {/* Ruta nueva protegida */}
           <Route
             path="/agregar-actualizacion"
             element={autorizado ? <AgregarActualizacion /> : <Navigate to="/" />}
