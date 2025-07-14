@@ -17,6 +17,7 @@ import AgregarActualizacion from "./AgregarActualizacion";
 import AsistenciaHoy from "./AsistenciaHoy"; // componente que muestra la tabla de asistencia del día
 import logoUnachi from "./assets/logo_unachi.png";
 import logoCongreso from "./assets/logo_congreso.png";
+import Noticias from "./Noticias";
 
 function AppWrapper() {
   // Detecta si es móvil para ajustar tamaño de logos
@@ -72,6 +73,8 @@ function AppWrapper() {
     </Router>
   );
 }
+
+
 
 function App() {
   const [autorizado, setAutorizado] = useState(false);
@@ -284,6 +287,7 @@ function App() {
             path="/agregar-actualizacion"
             element={autorizado ? <AgregarActualizacion /> : <Navigate to="/" />}
           />
+          <Route path="/noticias" element={<Noticias />} />
         </Routes>
       </div>
       <MiFooter />
