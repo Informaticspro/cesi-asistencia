@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "./supabaseClient";
 import ActualizacionesEvento from "./ActualizacionesEvento";
@@ -8,8 +8,16 @@ function Bienvenida({ onLogin }) {
   const [contraseña, setContrasena] = useState("");
   const [error, setError] = useState(null);
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 480);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,30 +42,90 @@ function Bienvenida({ onLogin }) {
   };
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#1c1c1c", color: "#fff", display: "flex", flexDirection: "column" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#1c1c1c",
+        color: "#fff",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       {/* Header con logos */}
-      <div style={{ position: "relative", padding: "1rem", paddingTop: "3.5rem", minHeight: "9opx"}}>
-        <img src="/logo_unachi.png" alt="Logo UNACHI" style={{ position: "absolute", top: 10, left: 10, height: "50px" }} />
-        <img src="/logo_congreso.png" alt="Logo Congreso" style={{ position: "absolute", top: 10, right: 10, height: "50px" }} />
-        <h1 style={{ textAlign: "center", fontSize: "2rem", fontWeight: "bold", marginTop: "1rem" }}>Bienvenido al CESI 2025</h1>
-        <p style={{ textAlign: "center", fontSize: "1rem", color: "#ccc" }}>
+      <div
+        style={{
+          position: "relative",
+          padding: "1rem",
+          paddingTop: isMobile ? "5rem" : "3.5rem", // MÁS ESPACIO EN MÓVIL PARA NO TAPAR EL TÍTULO
+          minHeight: "90px",
+        }}
+      >
+        <img
+          src="/logo_unachi.png"
+          alt="Logo UNACHI"
+          style={{
+            position: "absolute",
+            top: isMobile ? 20 : 10,
+            left: 10,
+            height: isMobile ? 30 : 50,
+            zIndex: 10,
+          }}
+        />
+        <img
+          src="/logo_congreso.png"
+          alt="Logo Congreso"
+          style={{
+            position: "absolute",
+            top: isMobile ? 20 : 10,
+            right: 10,
+            height: isMobile ? 30 : 50,
+            zIndex: 10,
+          }}
+        />
+        <h1
+          style={{
+            textAlign: "center",
+            fontSize: "2rem",
+            fontWeight: "bold",
+            marginTop: "1rem",
+            position: "relative",
+            zIndex: 15, // PARA QUE EL TÍTULO QUDE ENCIMA DE LOS LOGOS
+          }}
+        >
+          Bienvenido al CESI 2025
+        </h1>
+        <p
+          style={{
+            textAlign: "center",
+            fontSize: "1rem",
+            color: "#ccc",
+            position: "relative",
+            zIndex: 15,
+          }}
+        >
           Inicia sesión o regístrate para participar
         </p>
       </div>
 
       {/* Caja de login centrada */}
-      <div style={{
-        maxWidth: "400px",
-        width: "90%",
-        margin: "2rem auto",
-        backgroundColor: "#2c2c2c",
-        borderRadius: "12px",
-        padding: "2rem",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
-      }}>
+      <div
+        style={{
+          maxWidth: "400px",
+          width: "90%",
+          margin: "2rem auto",
+          backgroundColor: "#2c2c2c",
+          borderRadius: "12px",
+          padding: "2rem",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+        }}
+      >
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: "1rem" }}>
-            <label style={{ display: "block", marginBottom: "0.3rem", fontWeight: "bold" }}>Usuario</label>
+            <label
+              style={{ display: "block", marginBottom: "0.3rem", fontWeight: "bold" }}
+            >
+              Usuario
+            </label>
             <input
               type="text"
               value={usuario}
@@ -75,7 +143,11 @@ function Bienvenida({ onLogin }) {
           </div>
 
           <div style={{ marginBottom: "1rem" }}>
-            <label style={{ display: "block", marginBottom: "0.3rem", fontWeight: "bold" }}>Contraseña</label>
+            <label
+              style={{ display: "block", marginBottom: "0.3rem", fontWeight: "bold" }}
+            >
+              Contraseña
+            </label>
             <input
               type={mostrarContrasena ? "text" : "password"}
               value={contraseña}
@@ -102,15 +174,17 @@ function Bienvenida({ onLogin }) {
           </div>
 
           {error && (
-            <div style={{
-              backgroundColor: "#dc3545",
-              color: "#fff",
-              padding: "0.6rem",
-              borderRadius: "6px",
-              marginBottom: "1rem",
-              fontSize: "0.9rem",
-              textAlign: "center"
-            }}>
+            <div
+              style={{
+                backgroundColor: "#dc3545",
+                color: "#fff",
+                padding: "0.6rem",
+                borderRadius: "6px",
+                marginBottom: "1rem",
+                fontSize: "0.9rem",
+                textAlign: "center",
+              }}
+            >
               {error}
             </div>
           )}
@@ -126,7 +200,7 @@ function Bienvenida({ onLogin }) {
               fontWeight: "bold",
               fontSize: "1rem",
               cursor: "pointer",
-              marginBottom: "1rem"
+              marginBottom: "1rem",
             }}
           >
             Ingresar
@@ -147,7 +221,7 @@ function Bienvenida({ onLogin }) {
               fontWeight: "bold",
               fontSize: "1rem",
               color: "#fff",
-              cursor: "pointer"
+              cursor: "pointer",
             }}
           >
             Registro de Participantes
@@ -157,7 +231,9 @@ function Bienvenida({ onLogin }) {
 
       {/* Sección de Actualizaciones */}
       <div style={{ backgroundColor: "#2a2a2a", padding: "1rem 2rem" }}>
-        <h2 style={{ textAlign: "center", fontSize: "1.5rem", marginBottom: "1rem" }}>Noticias del Evento</h2>
+        <h2 style={{ textAlign: "center", fontSize: "1.5rem", marginBottom: "1rem" }}>
+          Noticias del Evento
+        </h2>
         <ActualizacionesEvento />
       </div>
     </div>
