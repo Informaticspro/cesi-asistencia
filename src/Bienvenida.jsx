@@ -72,14 +72,14 @@ function Bienvenida({ onLogin }) {
           }}
         />
         <img
-          src="/logo_congreso.png"
+          src="/Logo2025.jpeg"
           alt="Logo Congreso"
           style={{
             position: "absolute",
             top: isMobile ? 20 : 10,
             right: 10,
             height: isMobile ? 30 : 50,
-            zIndex: 10,
+            zIndex: 15,
           }}
         />
         <h1
