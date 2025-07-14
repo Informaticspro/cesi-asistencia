@@ -79,7 +79,7 @@ function Bienvenida({ onLogin }) {
             top: isMobile ? 20 : 10,
             right: 10,
             height: isMobile ? 30 : 50,
-            zIndex: 15,
+            zIndex: 10,
           }}
         />
         <h1
@@ -132,7 +132,7 @@ function Bienvenida({ onLogin }) {
               onChange={(e) => setUsuario(e.target.value)}
               required
               style={{
-                width: "100%",
+                width: "80%",
                 padding: "0.6rem",
                 borderRadius: "6px",
                 border: "1px solid #555",
@@ -154,7 +154,7 @@ function Bienvenida({ onLogin }) {
               onChange={(e) => setContrasena(e.target.value)}
               required
               style={{
-                width: "100%",
+                width: "80%",
                 padding: "0.6rem",
                 borderRadius: "6px",
                 border: "1px solid #555",

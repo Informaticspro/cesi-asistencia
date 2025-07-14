@@ -136,12 +136,13 @@ function App() {
     localStorage.setItem("usuario", usuario);
   };
 
-  const cerrarSesion = () => {
-    setAutorizado(false);
-    setNombreUsuario("");
-    localStorage.removeItem("autorizado");
-    localStorage.removeItem("usuario");
-    navigate("/"); // Redirige al login
+const cerrarSesion = () => {
+  setAutorizado(false);
+  setNombreUsuario("");
+  localStorage.removeItem("autorizado");
+  localStorage.removeItem("usuario");
+  navigate("/", { replace: true });
+  window.location.reload(); // 👈 fuerza recarga total para asegurar limpieza de estados
   };
 
   return (
