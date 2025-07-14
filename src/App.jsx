@@ -184,13 +184,14 @@ function App() {
                       <div
                         style={{
                           backgroundColor: "#f0f0f0",
-                          padding: "10px 15px",
+                          padding: "8px 13px",
                           borderRadius: "8px",
                           display: "inline-block",
                           fontWeight: "bold",
-                          marginTop: "10px",
+                          marginTop: "6px",
                           color: "#333",
                           boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                          fontSize: "0.6rem", // 👈 Esta línea achica solo el texto "Sesión activa"
                         }}
                       >
                         Sesión activa: {nombreUsuario}
@@ -199,7 +200,7 @@ function App() {
                         onClick={cerrarSesion}
                         style={{
                           padding: "0.4rem 0.8rem",
-                          fontSize: "14px",
+                          fontSize: "8px",
                           backgroundColor: "#dc3545",
                           color: "#fff",
                           border: "none",
