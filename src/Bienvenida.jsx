@@ -36,7 +36,7 @@ function Bienvenida({ onLogin }) {
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#1c1c1c", color: "#fff", display: "flex", flexDirection: "column" }}>
       {/* Header con logos */}
-      <div style={{ position: "relative", padding: "1rem" }}>
+      <div style={{ position: "relative", padding: "1rem", paddingTop: "3.5rem", minHeight: "9opx"}}>
         <img src="/logo_unachi.png" alt="Logo UNACHI" style={{ position: "absolute", top: 10, left: 10, height: "50px" }} />
         <img src="/logo_congreso.png" alt="Logo Congreso" style={{ position: "absolute", top: 10, right: 10, height: "50px" }} />
         <h1 style={{ textAlign: "center", fontSize: "2rem", fontWeight: "bold", marginTop: "1rem" }}>Bienvenido al CESI 2025</h1>
