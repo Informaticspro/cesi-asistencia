@@ -49,6 +49,8 @@ function Bienvenida({ onLogin }) {
         color: "#fff",
         display: "flex",
         flexDirection: "column",
+        overflowX: "hidden",  // <-- Evita scroll horizontal
+        maxWidth: "100vw",    // Evita que el ancho supere el viewport
       }}
     >
       {/* Header con logos */}
@@ -58,6 +60,7 @@ function Bienvenida({ onLogin }) {
           padding: "1rem",
           paddingTop: isMobile ? "5rem" : "3.5rem", // MÁS ESPACIO EN MÓVIL PARA NO TAPAR EL TÍTULO
           minHeight: "90px",
+          maxWidth: "100vw", // Evitar desborde horizontal
         }}
       >
         <img
@@ -69,6 +72,8 @@ function Bienvenida({ onLogin }) {
             left: 10,
             height: isMobile ? 30 : 50,
             zIndex: 10,
+            maxWidth: "100%",  // Imagen responsiva
+            objectFit: "contain",
           }}
         />
         <img
@@ -80,6 +85,8 @@ function Bienvenida({ onLogin }) {
             right: 10,
             height: isMobile ? 30 : 50,
             zIndex: 10,
+            maxWidth: "100%",
+            objectFit: "contain",
           }}
         />
         <h1
@@ -90,6 +97,9 @@ function Bienvenida({ onLogin }) {
             marginTop: "1rem",
             position: "relative",
             zIndex: 15, // PARA QUE EL TÍTULO QUDE ENCIMA DE LOS LOGOS
+            padding: "0 1rem", // Un poco de padding lateral para móviles
+            wordWrap: "break-word", // Que no desborde texto
+            maxWidth: "100%",
           }}
         >
           Bienvenido al CESI 2025
@@ -101,6 +111,9 @@ function Bienvenida({ onLogin }) {
             color: "#ccc",
             position: "relative",
             zIndex: 15,
+            padding: "0 1rem",
+            wordWrap: "break-word",
+            maxWidth: "100%",
           }}
         >
           Inicia sesión o regístrate para participar
@@ -117,6 +130,8 @@ function Bienvenida({ onLogin }) {
           borderRadius: "12px",
           padding: "2rem",
           boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+          overflowX: "hidden",
+          boxSizing: "border-box",
         }}
       >
         <form onSubmit={handleSubmit}>
@@ -132,12 +147,13 @@ function Bienvenida({ onLogin }) {
               onChange={(e) => setUsuario(e.target.value)}
               required
               style={{
-                width: "80%",
+                width: "100%", // Cambiado de 80% a 100% para que no provoque scroll horizontal
                 padding: "0.6rem",
                 borderRadius: "6px",
                 border: "1px solid #555",
                 backgroundColor: "#fff",
                 color: "#000",
+                boxSizing: "border-box",
               }}
             />
           </div>
@@ -154,12 +170,13 @@ function Bienvenida({ onLogin }) {
               onChange={(e) => setContrasena(e.target.value)}
               required
               style={{
-                width: "80%",
+                width: "100%", // Igual 100% para evitar desborde
                 padding: "0.6rem",
                 borderRadius: "6px",
                 border: "1px solid #555",
                 backgroundColor: "#fff",
                 color: "#000",
+                boxSizing: "border-box",
               }}
             />
             <label style={{ display: "block", marginTop: "0.5rem", fontSize: "0.9rem" }}>
@@ -183,6 +200,7 @@ function Bienvenida({ onLogin }) {
                 marginBottom: "1rem",
                 fontSize: "0.9rem",
                 textAlign: "center",
+                wordBreak: "break-word",
               }}
             >
               {error}
@@ -230,8 +248,22 @@ function Bienvenida({ onLogin }) {
       </div>
 
       {/* Sección de Actualizaciones */}
-      <div style={{ backgroundColor: "#2a2a2a", padding: "1rem 2rem" }}>
-        <h2 style={{ textAlign: "center", fontSize: "1.5rem", marginBottom: "1rem" }}>
+      <div
+        style={{
+          backgroundColor: "#2a2a2a",
+          padding: "1rem 2rem",
+          maxWidth: "100vw",   // Para que no se desborde
+          overflowX: "hidden", // Evita scroll horizontal
+        }}
+      >
+        <h2
+          style={{
+            textAlign: "center",
+            fontSize: "1.5rem",
+            marginBottom: "1rem",
+            wordWrap: "break-word",
+          }}
+        >
           Noticias del Evento
         </h2>
         <ActualizacionesEvento />

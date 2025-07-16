@@ -85,6 +85,11 @@ function EscanerQR() {
       );
 
       resetInactivityTimer();
+
+      // Aquí centramos el lector en pantalla al abrir la cámara
+      if (lectorRef.current) {
+        lectorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
     } catch (err) {
       console.error("Error iniciando escáner", err);
     }

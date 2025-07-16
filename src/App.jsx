@@ -239,7 +239,16 @@ function App() {
                     <button style={{ marginRight: "10px" }}>Agregar Actualización</button>
                   </Link>
 
-                  <EscanerQR />
+                  <div
+  style={{
+    marginTop: "2rem",
+    display: "flex",
+    justifyContent: "center", // centrado horizontal
+    alignItems: "center",     // centrado vertical (si aplica)
+  }}
+>
+  <EscanerQR />
+</div>
 
                   <div
                     style={{
