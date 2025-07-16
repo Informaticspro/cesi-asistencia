@@ -7,6 +7,8 @@ import {
   Link,
   useNavigate,
 } from "react-router-dom";
+import { supabase } from "./supabaseClient"; // 👈 IMPORTANTE
+
 import Bienvenida from "./Bienvenida";
 import BuscarQR from "./BuscarQR";
 import EscanerQR from "./EscanerQR";
@@ -14,14 +16,13 @@ import RegistrarParticipante from "./RegistrarParticipante";
 import AdminParticipantes from "./AdminParticipantes";
 import MiFooter from "./MiFooter";
 import AgregarActualizacion from "./AgregarActualizacion";
-import AsistenciaHoy from "./AsistenciaHoy"; // componente que muestra la tabla de asistencia del día
+import AsistenciaHoy from "./AsistenciaHoy";
 import logoUnachi from "./assets/logo_unachi.png";
 import logoCongreso from "./assets/logo_congreso.png";
 import Noticias from "./Noticias";
-import AdminUsuarios from "./AdminUsuarios"; // <-- Importamos el nuevo componente
+import AdminUsuarios from "./AdminUsuarios";
 
 function AppWrapper() {
-  // Detecta si es móvil para ajustar tamaño de logos
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -31,7 +32,6 @@ function AppWrapper() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Estilos base para logos
   const logoBaseStyle = {
     position: "fixed",
     top: 15,
@@ -43,10 +43,7 @@ function AppWrapper() {
 
   return (
     <Router>
-      {/* Logos fijos arriba */}
-      <div
-        style={{ width: "100%", position: "fixed", top: 0, left: 0, zIndex: 1000 }}
-      >
+      <div style={{ width: "100%", position: "fixed", top: 0, left: 0, zIndex: 1000 }}>
         <img
           src={logoUnachi}
           alt="Logo UNACHI"
@@ -66,8 +63,6 @@ function AppWrapper() {
           }}
         />
       </div>
-
-      {/* Contenido app con padding top para que no quede tapado por logos */}
       <div style={{ paddingTop: isMobile ? 60 : 80 }}>
         <App />
       </div>
@@ -89,7 +84,7 @@ function App() {
     }
   }, []);
 
-  // Inactividad (desconexión automática)
+  // ⏰ Inactividad (cerrar sesión automática)
   useEffect(() => {
     if (!autorizado) return;
 
@@ -117,7 +112,6 @@ function App() {
     resetInactividadTimers();
 
     const handleActivity = () => resetInactividadTimers();
-
     const eventos = ["mousemove", "keydown", "click", "touchstart"];
     eventos.forEach((e) => window.addEventListener(e, handleActivity));
 
@@ -127,6 +121,20 @@ function App() {
       eventos.forEach((e) => window.removeEventListener(e, handleActivity));
     };
   }, [autorizado]);
+
+  // 🛡️ Detectar cierre de sesión desde otra pestaña o expiración
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        alert("⚠️ Tu sesión ha expirado o ha sido cerrada. Por favor, inicia sesión nuevamente.");
+        cerrarSesion();
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   const handleLogin = (isAuth, usuario) => {
     setAutorizado(isAuth);
@@ -141,7 +149,7 @@ function App() {
     localStorage.removeItem("autorizado");
     localStorage.removeItem("usuario");
     navigate("/", { replace: true });
-    window.location.reload(); // 👈 fuerza recarga total para asegurar limpieza de estados
+    window.location.reload();
   };
 
   return (
@@ -153,7 +161,6 @@ function App() {
             element={
               autorizado ? (
                 <div style={{ padding: "1rem" }}>
-                  {/* CABECERA */}
                   <div
                     style={{
                       display: "flex",
@@ -170,17 +177,17 @@ function App() {
                     <h1
                       style={{
                         margin: 0,
-                            padding: "20px 30px",
+                        padding: "20px 30px",
                         backgroundColor: "#003366",
-                         color: "#ffffff",
-                           borderRadius: "12px",
-                         textAlign: "center",
-                          fontSize: "2rem", // Aumenta tamaño
-                            fontWeight: "bold",
-                          width: "100%", // Que ocupe todo horizontal
-                     maxWidth: "600px", // Para que no se pase
-                           marginInline: "auto", // Centrar horizontalmente
-                          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
+                        color: "#ffffff",
+                        borderRadius: "12px",
+                        textAlign: "center",
+                        fontSize: "2rem",
+                        fontWeight: "bold",
+                        width: "100%",
+                        maxWidth: "600px",
+                        marginInline: "auto",
+                        boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
                       }}
                     >
                       Registro de Asistencia CESI 2025
@@ -219,31 +226,37 @@ function App() {
                     </div>
                   </div>
 
-                  {/* BOTONES */}
                   <Link to="/registrar">
                     <button style={{ marginRight: "10px" }}>Registrar Participante</button>
                   </Link>
-
                   <Link to="/admin-participantes">
                     <button style={{ marginRight: "10px" }}>Administrar Participantes</button>
                   </Link>
-
-                  {/* Botón nuevo para administrar usuarios */}
                   <Link to="/admin-usuarios">
                     <button style={{ marginRight: "10px" }}>Administrar Usuarios</button>
                   </Link>
-
                   <Link to="/agregar-actualizacion">
                     <button style={{ marginRight: "10px" }}>Agregar Actualización</button>
                   </Link>
 
                   <EscanerQR />
 
-                  {/* ------------------- ASISTENCIA HOY ------------------ */}
-<div style={{ marginTop: "2rem" }}>
+                  <div
+                    style={{
+                      marginTop: "2rem",
+                      maxHeight: 320,
+                      overflowY: "auto",
+                      overflowX: "hidden",
+                      borderRadius: "10px",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+                      backgroundColor: "#1e1e1e",
+                      padding: "1rem",
+                      maxWidth: "100%",
+                      wordBreak: "break-word",
+                    }}
+                  >
                     <AsistenciaHoy />
                   </div>
-                  {/* ----------------------------------------------------- */}
                 </div>
               ) : (
                 <div>
@@ -281,8 +294,6 @@ function App() {
             element={autorizado ? <AdminParticipantes /> : <Navigate to="/" />}
           />
           <Route path="/buscar-qr" element={<BuscarQR />} />
-
-          {/* Ruta nueva protegida */}
           <Route
             path="/admin-usuarios"
             element={autorizado ? <AdminUsuarios /> : <Navigate to="/" />}
