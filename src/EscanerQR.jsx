@@ -3,6 +3,7 @@ import { Html5Qrcode } from "html5-qrcode";
 import { supabase } from "./supabaseClient";
 import RegistroManual from "./RegistroManual";
 
+
 function EscanerQR() {
   const html5QrCodeRef = useRef(null);
   const scanningRef = useRef(false);

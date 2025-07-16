@@ -18,6 +18,7 @@ import AsistenciaHoy from "./AsistenciaHoy"; // componente que muestra la tabla 
 import logoUnachi from "./assets/logo_unachi.png";
 import logoCongreso from "./assets/logo_congreso.png";
 import Noticias from "./Noticias";
+import AdminUsuarios from "./AdminUsuarios"; // <-- Importamos el nuevo componente
 
 function AppWrapper() {
   // Detecta si es móvil para ajustar tamaño de logos
@@ -73,8 +74,6 @@ function AppWrapper() {
     </Router>
   );
 }
-
-
 
 function App() {
   const [autorizado, setAutorizado] = useState(false);
@@ -136,13 +135,13 @@ function App() {
     localStorage.setItem("usuario", usuario);
   };
 
-const cerrarSesion = () => {
-  setAutorizado(false);
-  setNombreUsuario("");
-  localStorage.removeItem("autorizado");
-  localStorage.removeItem("usuario");
-  navigate("/", { replace: true });
-  window.location.reload(); // 👈 fuerza recarga total para asegurar limpieza de estados
+  const cerrarSesion = () => {
+    setAutorizado(false);
+    setNombreUsuario("");
+    localStorage.removeItem("autorizado");
+    localStorage.removeItem("usuario");
+    navigate("/", { replace: true });
+    window.location.reload(); // 👈 fuerza recarga total para asegurar limpieza de estados
   };
 
   return (
@@ -192,7 +191,7 @@ const cerrarSesion = () => {
                           marginTop: "6px",
                           color: "#333",
                           boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                          fontSize: "0.6rem", // 👈 Esta línea achica solo el texto "Sesión activa"
+                          fontSize: "0.6rem",
                         }}
                       >
                         Sesión activa: {nombreUsuario}
@@ -224,7 +223,11 @@ const cerrarSesion = () => {
                     <button style={{ marginRight: "10px" }}>Administrar Participantes</button>
                   </Link>
 
-                  {/* Botón nuevo */}
+                  {/* Botón nuevo para administrar usuarios */}
+                  <Link to="/admin-usuarios">
+                    <button style={{ marginRight: "10px" }}>Administrar Usuarios</button>
+                  </Link>
+
                   <Link to="/agregar-actualizacion">
                     <button style={{ marginRight: "10px" }}>Agregar Actualización</button>
                   </Link>
@@ -285,6 +288,10 @@ const cerrarSesion = () => {
           <Route path="/buscar-qr" element={<BuscarQR />} />
 
           {/* Ruta nueva protegida */}
+          <Route
+            path="/admin-usuarios"
+            element={autorizado ? <AdminUsuarios /> : <Navigate to="/" />}
+          />
           <Route
             path="/agregar-actualizacion"
             element={autorizado ? <AgregarActualizacion /> : <Navigate to="/" />}

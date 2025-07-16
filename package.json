@@ -12,7 +12,7 @@
   "dependencies": {
     "@capacitor/android": "^7.4.1",
     "@capacitor/cli": "^7.4.1",
-    "@capacitor/core": "^7.4.1",
+    "@capacitor/core": "^7.4.2",
     "@supabase/supabase-js": "^2.50.3",
     "cors": "^2.8.5",
     "dotenv": "^17.1.0",
