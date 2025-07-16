@@ -11,7 +11,7 @@ function MiFooter() {
         backgroundColor: "#f9f9f9",
       }}
     >
-      © CESI--2025 Todos los derechos reservados. Desarrollado por{" "}
+      © CESI--2025 Copyright© . Desarrollado por{" "}
       <a
         href="https://www.instagram.com/chiriqui_informaticspro/"
         target="_blank"

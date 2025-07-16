@@ -170,12 +170,17 @@ function App() {
                     <h1
                       style={{
                         margin: 0,
-                        padding: "12px 20px",
+                            padding: "20px 30px",
                         backgroundColor: "#003366",
-                        color: "#ffffff",
-                        borderRadius: "8px",
-                        textAlign: "center",
-                        boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)",
+                         color: "#ffffff",
+                           borderRadius: "12px",
+                         textAlign: "center",
+                          fontSize: "2rem", // Aumenta tamaño
+                            fontWeight: "bold",
+                          width: "100%", // Que ocupe todo horizontal
+                     maxWidth: "600px", // Para que no se pase
+                           marginInline: "auto", // Centrar horizontalmente
+                          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
                       }}
                     >
                       Registro de Asistencia CESI 2025
