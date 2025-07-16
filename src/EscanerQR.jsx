@@ -3,11 +3,11 @@ import { Html5Qrcode } from "html5-qrcode";
 import { supabase } from "./supabaseClient";
 import RegistroManual from "./RegistroManual";
 
-
 function EscanerQR() {
   const html5QrCodeRef = useRef(null);
   const scanningRef = useRef(false);
   const lectorRef = useRef(null);
+  const confirmacionRef = useRef(null);
   const [scannerActivo, setScannerActivo] = useState(false);
   const [mostrarManual, setMostrarManual] = useState(false);
   const [datosParticipante, setDatosParticipante] = useState(null);
@@ -33,7 +33,7 @@ function EscanerQR() {
         tipo: "error",
         mensaje: "⚠️ Atención: La cámara se cerrará en 20 segundos por inactividad.",
       });
-    }, 40000); // 40 segundos - alerta previa
+    }, 40000);
 
     inactivityTimer.current = setTimeout(() => {
       detenerScanner();
@@ -42,11 +42,8 @@ function EscanerQR() {
         mensaje: "⏰ Cámara cerrada por inactividad. La página se recargará.",
       });
       setDatosParticipante(null);
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 3000);
-    }, 60000); // 60 segundos - cierre e recarga
+      setTimeout(() => window.location.reload(), 3000);
+    }, 60000);
   };
 
   const iniciarScanner = async () => {
@@ -54,15 +51,11 @@ function EscanerQR() {
 
     setScannerActivo(true);
     setMostrarManual(false);
-
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     const qrRegionId = "reader";
     const readerElement = document.getElementById(qrRegionId);
-    if (!readerElement) {
-      console.error("❌ El elemento #reader no existe.");
-      return;
-    }
+    if (!readerElement) return;
 
     if (!html5QrCodeRef.current) {
       html5QrCodeRef.current = new Html5Qrcode(qrRegionId);
@@ -73,9 +66,8 @@ function EscanerQR() {
         { facingMode: "environment" },
         {
           fps: 10,
-          qrbox: (viewfinderWidth, viewfinderHeight) => {
-            const minSize = Math.min(viewfinderWidth, viewfinderHeight);
-            const size = Math.floor(minSize * 0.8);
+          qrbox: (w, h) => {
+            const size = Math.floor(Math.min(w, h) * 0.8);
             return { width: size, height: size };
           },
         },
@@ -83,10 +75,8 @@ function EscanerQR() {
           if (scanningRef.current) return;
           scanningRef.current = true;
 
-          console.log("QR leído:", decodedText);
           await registrarAsistencia(decodedText);
-
-          resetInactivityTimer(); // Reiniciar el timer por actividad
+          resetInactivityTimer();
 
           setTimeout(() => {
             scanningRef.current = false;
@@ -94,8 +84,7 @@ function EscanerQR() {
         }
       );
 
-      resetInactivityTimer(); // Iniciar contador al arrancar escáner
-
+      resetInactivityTimer();
     } catch (err) {
       console.error("Error iniciando escáner", err);
     }
@@ -103,7 +92,6 @@ function EscanerQR() {
 
   const detenerScanner = async () => {
     clearTimers();
-
     if (html5QrCodeRef.current && scannerActivo) {
       await html5QrCodeRef.current.stop();
       await html5QrCodeRef.current.clear();
@@ -123,13 +111,13 @@ function EscanerQR() {
       .eq("fecha", hoy);
 
     if (errSelect) {
-      setConfirmacion({ tipo: "error", mensaje: "❌ Error consultando asistencia" });
+      mostrarConfirmacion("error", "❌ Error consultando asistencia");
       reproducirSonido("error");
       return;
     }
 
     if (yaAsistio.length > 0) {
-      setConfirmacion({ tipo: "error", mensaje: "⚠️ Ya registró asistencia hoy" });
+      mostrarConfirmacion("error", "⚠️ Ya registró asistencia hoy");
       reproducirSonido("error");
       return;
     }
@@ -141,41 +129,46 @@ function EscanerQR() {
       .single();
 
     if (errorParticipante || !participante) {
-      setConfirmacion({ tipo: "error", mensaje: "❌ Participante no encontrado" });
+      mostrarConfirmacion("error", "❌ Participante no encontrado");
       setDatosParticipante(null);
       reproducirSonido("error");
       return;
     }
 
     const { error } = await supabase.from("asistencias").insert([
-      {
-        cedula,
-        fecha: hoy,
-        hora,
-      },
+      { cedula, fecha: hoy, hora },
     ]);
 
     if (error) {
-      setConfirmacion({ tipo: "error", mensaje: "❌ Error al registrar asistencia" });
+      mostrarConfirmacion("error", "❌ Error al registrar asistencia");
       setDatosParticipante(null);
       reproducirSonido("error");
     } else {
       setDatosParticipante(participante);
-      setConfirmacion({ tipo: "success", mensaje: "✅ Asistencia registrada" });
+      mostrarConfirmacion("success", "✅ Asistencia registrada");
       reproducirSonido("success");
     }
   };
 
-  useEffect(() => {
-    if (scannerActivo && lectorRef.current) {
-      setTimeout(() => {
+  const mostrarConfirmacion = (tipo, mensaje) => {
+    setConfirmacion({ tipo, mensaje });
+    setTimeout(() => {
+      if (confirmacionRef.current) {
+        confirmacionRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 200);
+
+    // Desaparecer después de 5 segundos y volver al lector
+    setTimeout(() => {
+      setConfirmacion(null);
+      setDatosParticipante(null);
+      if (lectorRef.current) {
         lectorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-      }, 300);
-    }
-  }, [scannerActivo]);
+      }
+    }, 5000);
+  };
 
   useEffect(() => {
-    // limpiar timers al desmontar
     return () => clearTimers();
   }, []);
 
@@ -184,39 +177,13 @@ function EscanerQR() {
       <h2 style={{ textAlign: "center" }}>Escanear QR</h2>
 
       {!scannerActivo && (
-        <button
-          onClick={iniciarScanner}
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            marginBottom: "0.5rem",
-            backgroundColor: "#0d6efd",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "16px",
-            cursor: "pointer",
-          }}
-        >
+        <button onClick={iniciarScanner} style={botonEstilo("#0d6efd")}>
           📷 Iniciar escáner
         </button>
       )}
 
       {scannerActivo && (
-        <button
-          onClick={detenerScanner}
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            marginBottom: "0.5rem",
-            backgroundColor: "#dc3545",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "16px",
-            cursor: "pointer",
-          }}
-        >
+        <button onClick={detenerScanner} style={botonEstilo("#dc3545")}>
           🛑 Detener escáner
         </button>
       )}
@@ -226,17 +193,7 @@ function EscanerQR() {
           setMostrarManual((prev) => !prev);
           if (scannerActivo) detenerScanner();
         }}
-        style={{
-          width: "100%",
-          padding: "0.75rem",
-          marginBottom: "1rem",
-          backgroundColor: "#6c757d",
-          color: "white",
-          border: "none",
-          borderRadius: "8px",
-          fontSize: "16px",
-          cursor: "pointer",
-        }}
+        style={botonEstilo("#6c757d")}
       >
         {mostrarManual ? "Ocultar registro manual" : "Registrar asistencia manual"}
       </button>
@@ -261,6 +218,7 @@ function EscanerQR() {
 
       {confirmacion && (
         <div
+          ref={confirmacionRef}
           style={{
             marginTop: "1rem",
             padding: "1rem",
@@ -289,6 +247,20 @@ function EscanerQR() {
       )}
     </div>
   );
+}
+
+function botonEstilo(color) {
+  return {
+    width: "100%",
+    padding: "0.75rem",
+    marginBottom: "0.5rem",
+    backgroundColor: color,
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "16px",
+    cursor: "pointer",
+  };
 }
 
 export default EscanerQR;
