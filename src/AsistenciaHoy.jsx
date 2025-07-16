@@ -11,20 +11,16 @@ function AsistenciaHoy() {
       setLoading(true);
       setError(null);
 
-      // Inicio y fin del día actual para filtrar solo hoy
       const inicioDia = new Date();
       inicioDia.setHours(0, 0, 0, 0);
       const finDia = new Date();
       finDia.setHours(23, 59, 59, 999);
 
-      // Convertimos a ISO string para el filtro
       const inicioIso = inicioDia.toISOString();
       const finIso = finDia.toISOString();
 
-      // Consulta a Supabase
       const { data, error } = await supabase
         .from("asistencias")
-        // Seleccionamos cedula, fecha, hora y la relación con participantes
         .select("cedula, fecha, hora, participantes(nombre, correo)")
         .gte("fecha", inicioIso)
         .lt("fecha", finIso)
@@ -54,7 +50,7 @@ function AsistenciaHoy() {
       <p>Total asistentes: {asistencias.length}</p>
       <div
         style={{
-          maxHeight: 280,
+          maxHeight: 200,
           overflowY: "auto",
           backgroundColor: "#222",
           borderRadius: "8px",
