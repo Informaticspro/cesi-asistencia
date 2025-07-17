@@ -238,7 +238,7 @@ function App() {
                   <Link to="/agregar-actualizacion">
                     <button style={{ marginRight: "10px" }}>Agregar Actualización</button>
                   </Link>
-
+                 
                   <div
   style={{
     marginTop: "2rem",
@@ -268,31 +268,58 @@ function App() {
                   </div>
                 </div>
               ) : (
-                <div>
-                  <Bienvenida onLogin={handleLogin} />
-                  <div style={{ textAlign: "center", marginTop: "1rem" }}>
-                    <Link to="/buscar-qr">
-                      <button
-                        style={{
-                          padding: "0.7rem 1.2rem",
-                          fontSize: "16px",
-                          fontWeight: "bold",
-                          borderRadius: "8px",
-                          backgroundColor: "#00796b",
-                          color: "white",
-                          border: "none",
-                          cursor: "pointer",
-                          boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
-                          transition: "background-color 0.3s",
-                        }}
-                        onMouseEnter={(e) => (e.target.style.backgroundColor = "#004d40")}
-                        onMouseLeave={(e) => (e.target.style.backgroundColor = "#00796b")}
-                      >
-                        🔍 Buscar mi Código QR
-                      </button>
-                    </Link>
-                  </div>
-                </div>
+             <div>
+  <Bienvenida onLogin={handleLogin} />
+
+  {/* NUEVO BOTÓN DE MÁS NOTICIAS */}
+  <div style={{ textAlign: "center", marginTop: "1rem" }}>
+    <Link to="/noticias">
+      <button
+        style={{
+          padding: "0.6rem 1.2rem",
+          fontSize: "15px",
+          fontWeight: "bold",
+          borderRadius: "8px",
+          backgroundColor: "#3366cc",
+          color: "white",
+          border: "none",
+          cursor: "pointer",
+          marginBottom: "1rem",
+          boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+          transition: "background-color 0.3s",
+        }}
+        onMouseEnter={(e) => (e.target.style.backgroundColor = "#003399")}
+        onMouseLeave={(e) => (e.target.style.backgroundColor = "#3366cc")}
+      >
+        📰 Más noticias del evento
+      </button>
+    </Link>
+  </div>
+
+  {/* BOTÓN BUSCAR QR */}
+  <div style={{ textAlign: "center", marginTop: "0.5rem" }}>
+    <Link to="/buscar-qr">
+      <button
+        style={{
+          padding: "0.7rem 1.2rem",
+          fontSize: "16px",
+          fontWeight: "bold",
+          borderRadius: "8px",
+          backgroundColor: "#00796b",
+          color: "white",
+          border: "none",
+          cursor: "pointer",
+          boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+          transition: "background-color 0.3s",
+        }}
+        onMouseEnter={(e) => (e.target.style.backgroundColor = "#004d40")}
+        onMouseLeave={(e) => (e.target.style.backgroundColor = "#00796b")}
+      >
+        🔍 Buscar mi Código QR
+      </button>
+    </Link>
+  </div>
+</div>
               )
             }
           />
