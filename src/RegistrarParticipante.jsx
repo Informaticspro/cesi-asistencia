@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { QRCodeCanvas } from "qrcode.react";
-import { Link, useNavigate } from "react-router-dom"; // <-- importar useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "./supabaseClient";
 
 function RegistrarParticipante() {
@@ -13,11 +13,47 @@ function RegistrarParticipante() {
   const [mensaje, setMensaje] = useState(null);
   const [loading, setLoading] = useState(false);
   const [qrVisible, setQrVisible] = useState(false);
-
+  const [sugerencias, setSugerencias] = useState([]);
+  const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
+  const cedulaInputRef = useRef(null);
+  
+  
   const qrRef = useRef(null);
-  const navigate = useNavigate(); // <-- inicializar useNavigate
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+   const yaSeleccionado = useRef(false); // 🔑 clave para evitar doble clic
+
+  useEffect(() => {
+    const buscarCedulas = async () => {
+      if (cedula.length < 3) {
+        setSugerencias([]);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("participantes_autorizados")
+        .select("cedula, nombre, apellido, correo")
+        .ilike("cedula", `${cedula}%`);
+
+      if (!error && data) {
+        setSugerencias(data);
+        setMostrarSugerencias(true);
+      }
+    };
+
+    buscarCedulas();
+  }, [cedula]);
+
+  const handleSeleccion = (participante) => {
+    setCedula(participante.cedula);
+    setNombre(participante.nombre);
+    setApellido(participante.apellido);
+    setCorreo(participante.correo);
+    setMostrarSugerencias(false);
+  };
+  
+  
+const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!nombre || !apellido || !cedula || !correo || !sexo || !categoria) {
@@ -66,6 +102,29 @@ function RegistrarParticipante() {
       return;
     }
 
+    const response = await fetch("http://localhost:3001/api/registro", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        nombre: `${nombre} ${apellido}`,
+        correo,
+        cedula,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      setMensaje({
+        tipo: "error",
+        texto: `❌ Falló el envío del correo: ${result.error || "error desconocido"}`,
+      });
+      setLoading(false);
+      return;
+    }
+
     setMensaje({
       tipo: "success",
       texto: "✅ Participante registrado exitosamente",
@@ -98,7 +157,7 @@ function RegistrarParticipante() {
 
     setQrVisible(false);
     resetFormulario();
-    navigate("/"); // <-- redirigir al inicio tras descargar
+    navigate("/");
   };
 
   return (
@@ -111,6 +170,7 @@ function RegistrarParticipante() {
         borderRadius: 12,
         backgroundColor: "#f5f5f5",
         boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+        position: "relative",
       }}
     >
       <h2
@@ -121,7 +181,7 @@ function RegistrarParticipante() {
           fontWeight: "700",
         }}
       >
-       Registro de participantes CESI 2025
+        Registro de participantes CESI 2025
       </h2>
 
       {mensaje && (
@@ -146,6 +206,68 @@ function RegistrarParticipante() {
         onSubmit={handleSubmit}
         style={{ display: "flex", flexDirection: "column", gap: "14px" }}
       >
+        <input
+          type="text"
+          placeholder="Cédula"
+          value={cedula}
+          onChange={(e) => setCedula(e.target.value)}
+          style={{
+            padding: "0.7rem",
+            fontSize: 16,
+            borderRadius: 6,
+            border: "2px solid #004d40",
+            outlineColor: "#1565c0",
+            fontWeight: "600",
+          }}
+          disabled={qrVisible}
+          autoComplete="off"
+          ref={cedulaInputRef}
+          onBlur={() => setTimeout(() => setMostrarSugerencias(false), 150)}
+        />
+
+        {mostrarSugerencias && sugerencias.length > 0 && (
+          <ul
+            style={{
+              listStyle: "none",
+              padding: "0.5rem",
+              border: "1px solid #ccc",
+              borderRadius: "6px",
+              backgroundColor: "#fff",
+              position: "absolute",
+              zIndex: 1000,
+              marginTop: "-8px",
+              maxHeight: "150px",
+              overflowY: "auto",
+            }}
+          >
+            {sugerencias.map((item) => (
+      <li
+        key={item.cedula}
+        onMouseDown={(e) => {
+          // Evitar que el blur se dispare antes de esta acción
+          e.preventDefault();
+          handleSeleccion(item);
+          // Cerrar lista con un pequeño delay
+          setTimeout(() => {
+            setMostrarSugerencias(false);
+          }, 0);
+        }}
+                style={{
+                  padding: "0.4rem 0.6rem",
+                  cursor: "pointer",
+                  borderBottom: "1px solid #eee",
+                  backgroundColor: "#fff",
+                  color: "#333",
+                }}
+                onMouseEnter={(e) => (e.target.style.backgroundColor = "#f0f0f0")}
+                onMouseLeave={(e) => (e.target.style.backgroundColor = "#fff")}
+              >
+                {item.cedula} - {item.nombre} {item.apellido}
+              </li>
+            ))}
+          </ul>
+        )}
+
         <input
           type="text"
           placeholder="Nombre"
@@ -177,21 +299,6 @@ function RegistrarParticipante() {
           disabled={qrVisible}
         />
         <input
-          type="text"
-          placeholder="Cédula"
-          value={cedula}
-          onChange={(e) => setCedula(e.target.value)}
-          style={{
-            padding: "0.7rem",
-            fontSize: 16,
-            borderRadius: 6,
-            border: "2px solid #004d40",
-            outlineColor: "#1565c0",
-            fontWeight: "600",
-          }}
-          disabled={qrVisible}
-        />
-        <input
           type="email"
           placeholder="Correo"
           value={correo}
@@ -207,7 +314,6 @@ function RegistrarParticipante() {
           disabled={qrVisible}
         />
 
-        {/* Campos nuevos para Sexo y Categoría */}
         <select
           value={sexo}
           onChange={(e) => setSexo(e.target.value)}
@@ -221,9 +327,7 @@ function RegistrarParticipante() {
             fontWeight: "600",
           }}
         >
-          <option value="" disabled>
-            Sexo
-          </option>
+          <option value="" disabled>Sexo</option>
           <option value="Hombre">Hombre</option>
           <option value="Mujer">Mujer</option>
         </select>
@@ -241,9 +345,7 @@ function RegistrarParticipante() {
             fontWeight: "600",
           }}
         >
-          <option value="" disabled>
-            Categoría
-          </option>
+          <option value="" disabled>Categoría</option>
           <option value="Estudiante">Estudiante</option>
           <option value="Docente">Docente</option>
           <option value="Funcionario">Funcionario</option>
@@ -271,7 +373,6 @@ function RegistrarParticipante() {
           {loading ? "Registrando..." : "Registrar y mostrar QR"}
         </button>
       </form>
-
       <div style={{ marginTop: 20, textAlign: "center" }}>
         <Link
           to="/"
@@ -293,7 +394,7 @@ function RegistrarParticipante() {
           onClick={() => {
             setQrVisible(false);
             resetFormulario();
-            navigate("/"); // <-- redirigir al inicio al cerrar modal clic en fondo
+            navigate("/");
           }}
           style={{
             position: "fixed",
@@ -364,7 +465,7 @@ function RegistrarParticipante() {
               onClick={() => {
                 setQrVisible(false);
                 resetFormulario();
-                navigate("/"); // <-- redirigir al inicio al cerrar modal con botón
+                navigate("/");
               }}
               style={{
                 padding: "0.6rem 1.2rem",
