@@ -113,6 +113,7 @@ try {
       correo,
       cedula,
     }),
+   
   });
 
   if (!response.ok) {
@@ -133,6 +134,7 @@ try {
     tipo: "error",
     texto: `❌ Error de conexión: ${error.message}`,
   });
+  
 } finally {
   setLoading(false);
 }
