@@ -102,9 +102,7 @@ const handleSubmit = async (e) => {
       return;
     }
 
-  const API_BASE_URL = "https://0bc2ef80-fd6f-43b6-8de1-8274a1e43039-00-2exbliab1nrqz.janeway.replit.dev";
-
-const response = await fetch(`${API_BASE_URL}/api/registro`, {
+const response = await fetch("https://cesi-servidor.onrender.com/api/registro", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
