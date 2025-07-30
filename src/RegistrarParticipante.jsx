@@ -102,17 +102,40 @@ const handleSubmit = async (e) => {
       return;
     }
 
-const response = await fetch("https://cesi-servidor.onrender.com/api/registro", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    nombre: `${nombre} ${apellido}`,
-    correo,
-    cedula,
-  }),
-});
+try {
+  const response = await fetch("https://cesi-servidor.onrender.com/api/registro", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      nombre: `${nombre} ${apellido}`,
+      correo,
+      cedula,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    setMensaje({
+      tipo: "error",
+      texto: `❌ Error en el servidor: ${errorData.error || "desconocido"}`,
+    });
+  } else {
+    setMensaje({
+      tipo: "success",
+      texto: "✅ Participante registrado exitosamente",
+    });
+    setQrVisible(true);
+  }
+} catch (error) {
+  setMensaje({
+    tipo: "error",
+    texto: `❌ Error de conexión: ${error.message}`,
+  });
+} finally {
+  setLoading(false);
+}
 
     const result = await response.json();
 
