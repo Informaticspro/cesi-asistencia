@@ -102,17 +102,19 @@ const handleSubmit = async (e) => {
       return;
     }
 
-    const response = await fetch("http://localhost:3001/api/registro", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        nombre: `${nombre} ${apellido}`,
-        correo,
-        cedula,
-      }),
-    });
+  const API_BASE_URL = "https://0bc2ef80-fd6f-43b6-8de1-8274a1e43039-00-2exbliab1nrqz.janeway.replit.dev";
+
+const response = await fetch(`${API_BASE_URL}/api/registro`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    nombre: `${nombre} ${apellido}`,
+    correo,
+    cedula,
+  }),
+});
 
     const result = await response.json();
 
