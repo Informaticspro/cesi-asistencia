@@ -54,109 +54,69 @@ function RegistrarParticipante() {
   
   
 const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  setLoading(true);
+  setMensaje(null); // Limpia mensajes anteriores
 
-    if (!nombre || !apellido || !cedula || !correo || !sexo || !categoria) {
-      setMensaje({ tipo: "error", texto: "⚠️ Todos los campos son obligatorios" });
-      return;
-    }
+  // Validación básica
+  if (!cedula || !nombre || !correo) {
+    setMensaje({ tipo: "error", texto: "❌ Todos los campos son obligatorios" });
+    setLoading(false);
+    return;
+  }
 
-    setLoading(true);
-    setMensaje(null);
-
-    const { data: existente, error: errorExistente } = await supabase
+  try {
+    // Verifica si el participante ya existe por cédula
+    const { data: existente, error } = await supabase
       .from("participantes")
       .select("*")
-      .or(`cedula.eq.${cedula},correo.eq.${correo}`);
+      .eq("cedula", cedula);
 
-    if (errorExistente) {
-      setLoading(false);
-      setMensaje({ tipo: "error", texto: "❌ Error al verificar duplicados" });
-      return;
-    }
+    if (error) throw error;
 
     if (existente.length > 0) {
+      setMensaje({ tipo: "error", texto: "❌ Participante ya registrado" });
       setLoading(false);
-      setMensaje({
-        tipo: "error",
-        texto: "⚠️ Ya existe un participante con esa cédula o correo.",
-      });
       return;
     }
 
-    const { error } = await supabase.from("participantes").insert([
-      {
-        nombre,
-        apellido,
-        cedula,
-        correo,
-        sexo,
-        categoria,
-        qr_code: cedula,
-      },
+    // Inserta participante en Supabase
+    const { data, error: insertError } = await supabase.from("participantes").insert([
+      { cedula, nombre, correo },
     ]);
 
-    if (error) {
-      setLoading(false);
-      setMensaje({ tipo: "error", texto: "❌ Error al registrar participante" });
-      return;
-    }
+    if (insertError) throw insertError;
 
-try {
-  const response = await fetch("https://cesi-servidor.onrender.com/api/registro", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      nombre: `${nombre} ${apellido}`,
-      correo,
-      cedula,
-    }),
-   
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    setMensaje({
-      tipo: "error",
-      texto: `❌ Error en el servidor: ${errorData.error || "desconocido"}`,
+    // Enviar QR al backend Express
+    const response = await fetch("https://cesi-servidor.onrender.com/api/registro", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cedula, nombre, correo }),
     });
-  } else {
-    setMensaje({
-      tipo: "success",
-      texto: "✅ Participante registrado exitosamente",
-    });
-    setQrVisible(true);
-  }
-} catch (error) {
-  setMensaje({
-    tipo: "error",
-    texto: `❌ Error de conexión: ${error.message}`,
-  });
-  
-} finally {
-  setLoading(false);
-}
-
-    const result = await response.json();
 
     if (!response.ok) {
+      const errorData = await response.json();
       setMensaje({
         tipo: "error",
-        texto: `❌ Falló el envío del correo: ${result.error || "error desconocido"}`,
+        texto: `❌ Error en el servidor: ${errorData.error || "desconocido"}`,
       });
-      setLoading(false);
-      return;
+    } else {
+      setMensaje({
+        tipo: "success",
+        texto: "✅ Participante registrado exitosamente",
+      });
+      setQrVisible(true);
     }
-
+  } catch (err) {
+    console.error(err);
     setMensaje({
-      tipo: "success",
-      texto: "✅ Participante registrado exitosamente",
+      tipo: "error",
+      texto: "❌ Ocurrió un error inesperado",
     });
-    setLoading(false);
-    setQrVisible(true);
-  };
+  }
+
+  setLoading(false);
+};
 
   const resetFormulario = () => {
     setNombre("");
