@@ -18,6 +18,24 @@ function AdminParticipantes() {
   const [mensaje, setMensaje] = useState(null);
   const [busqueda, setBusqueda] = useState("");
 
+  const boton = (color) => ({
+  marginRight: "4px",
+  padding: "6px 12px",
+  backgroundColor:
+    color === "green"
+      ? "#28a745"
+      : color === "red"
+      ? "#dc3545"
+      : color === "gray"
+      ? "#6c757d"
+      : "#007bff",
+  color: "#fff",
+  border: "none",
+  borderRadius: "4px",
+  cursor: "pointer",
+  fontSize: "0.85rem",
+});
+
   const cargarParticipantes = async () => {
     setLoading(true);
     // Ordenamos por nombre ASC directamente desde Supabase
@@ -129,239 +147,261 @@ function AdminParticipantes() {
   });
 
   return (
-    <div style={{ maxWidth: 900, margin: "auto", padding: "1rem" }}>
-      <h2>Administrar Participantes</h2>
-      <Link to="/">← Volver al inicio</Link>
+    <div
+                 style={{
+                      maxWidth: 900,
+                      width: "95vw",
+                      margin: "2rem auto",
+                      padding: "1rem",
+                   backgroundColor: "#1f1f1f",
+                     color: "#fff",
+                   borderRadius: "10px",
+                   boxShadow: "0 0 10px rgba(0,0,0,0.5)",
+                    display: "flex",
+                  flexDirection: "column",
+                 alignItems: "center",
+  }}
+>
+  <h2 style={{ textAlign: "center", marginBottom: "0.5rem" }}>Administrar Participantes</h2>
 
-      <input
-        type="text"
-        placeholder="Buscar por nombre, apellido, cédula, correo, sexo o categoría..."
-        value={busqueda}
-        onChange={(e) => setBusqueda(e.target.value)}
-        style={{
-          width: "100%",
-          padding: "0.5rem",
-          margin: "1rem 0",
-          fontSize: "16px",
-          borderRadius: "6px",
-          border: "1px solid #ccc",
-        }}
-      />
+  <Link to="/" style={{ marginBottom: "1rem", color: "#00bcd4", textDecoration: "none" }}>
+    ← Volver al inicio
+  </Link>
 
-      {mensaje && (
-        <div
-          style={{
-            margin: "1rem 0",
-            padding: "0.5rem 1rem",
-            color: mensaje.tipo === "error" ? "white" : "green",
-            backgroundColor: mensaje.tipo === "error" ? "#d9534f" : "#5cb85c",
-            borderRadius: 4,
-          }}
-        >
-          {mensaje.texto}
-        </div>
-      )}
+  <input
+    type="text"
+    placeholder="Buscar por nombre, apellido, cédula, correo, sexo o categoría..."
+    value={busqueda}
+    onChange={(e) => setBusqueda(e.target.value)}
+    style={{
+      width: "100%",
+      padding: "0.7rem",
+      fontSize: "16px",
+      borderRadius: "6px",
+      border: "1px solid #ccc",
+      marginBottom: "1rem",
+    }}
+  />
 
-      {loading && <p>Cargando...</p>}
+  {mensaje && (
+    <div
+      style={{
+        margin: "1rem 0",
+        padding: "0.7rem 1rem",
+        color: mensaje.tipo === "error" ? "#fff" : "#fff",
+        backgroundColor: mensaje.tipo === "error" ? "#c0392b" : "#27ae60",
+        borderRadius: 4,
+        width: "100%",
+        textAlign: "center",
+      }}
+    >
+      {mensaje.texto}
+    </div>
+  )}
 
-      {/* Aquí el contenedor con altura fija y scroll */}
-      <div
-        style={{
-          maxHeight: 480,  // Altura máxima visible (puedes ajustar)
-          overflowY: "auto",
-          border: "1px solid #ccc",
-          borderRadius: 6,
-          boxShadow: "0 0 5px rgba(0,0,0,0.1)",
-        }}
-      >
-        <table
-          border="1"
-          cellPadding="8"
-          style={{ width: "100%", borderCollapse: "collapse" }}
-        >
-          {/* ... resto de tabla igual */}
-          <thead>
-            <tr style={{ backgroundColor: "#004d40", color: "white" }}>
-              <th>Nombre</th>
-              <th>Apellido</th>
-              <th>Cédula</th>
-              <th>Correo</th>
-              <th>Sexo</th>
-              <th>Categoría</th>
-              <th>QR Code</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {participantesFiltrados.map((p) => (
-              <tr key={p.cedula}>
-                {/* ... contenido filas igual */}
-                <td>
-                  {editando === p.cedula ? (
-                    <input
-                      value={formData.nombre}
-                      onChange={(e) =>
-                        setFormData({ ...formData, nombre: e.target.value })
-                      }
-                      disabled={loading}
-                    />
-                  ) : (
-                    p.nombre
-                  )}
-                </td>
-                <td>
-                  {editando === p.cedula ? (
-                    <input
-                      value={formData.apellido}
-                      onChange={(e) =>
-                        setFormData({ ...formData, apellido: e.target.value })
-                      }
-                      disabled={loading}
-                    />
-                  ) : (
-                    p.apellido || ""
-                  )}
-                </td>
-                <td>
-                  {editando === p.cedula ? (
-                    <input
-                      value={formData.cedula}
-                      onChange={(e) =>
-                        setFormData({ ...formData, cedula: e.target.value })
-                      }
-                      disabled={loading}
-                    />
-                  ) : (
-                    <span
-                      style={{
-                        fontWeight: "bold",
-                        backgroundColor: "#eee",
-                        userSelect: "none",
-                        color: "#555",
-                        padding: "2px 4px",
-                        display: "inline-block",
-                        borderRadius: 2,
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {p.cedula}
-                    </span>
-                  )}
-                </td>
-                <td>
-                  {editando === p.cedula ? (
-                    <input
-                      value={formData.correo}
-                      onChange={(e) =>
-                        setFormData({ ...formData, correo: e.target.value })
-                      }
-                      disabled={loading}
-                    />
-                  ) : (
-                    p.correo
-                  )}
-                </td>
-                <td>
-                  {editando === p.cedula ? (
-                    <select
-                      value={formData.sexo}
-                      onChange={(e) =>
-                        setFormData({ ...formData, sexo: e.target.value })
-                      }
-                      disabled={loading}
-                    >
-                      <option value="Hombre">Hombre</option>
-                      <option value="Mujer">Mujer</option>
-                    </select>
-                  ) : (
-                    p.sexo
-                  )}
-                </td>
-                <td>
-                  {editando === p.cedula ? (
-                    <select
-                      value={formData.categoria}
-                      onChange={(e) =>
-                        setFormData({ ...formData, categoria: e.target.value })
-                      }
-                      disabled={loading}
-                    >
-                      <option value="Estudiante">Estudiante</option>
-                      <option value="Docente">Docente</option>
-                      <option value="Funcionario">Funcionario</option>
-                      <option value="Invitado">Invitado</option>
-                      <option value="Egresado">Egresado</option>
-                    </select>
-                  ) : (
-                    p.categoria
-                  )}
-                </td>
+  {loading && <p style={{ color: "#aaa" }}>Cargando...</p>}
 
-                <td
+  <div
+    style={{
+      maxHeight: 480,
+      overflowY: "auto",
+      border: "1px solid #444",
+       overflowX: "auto",  // <- Agregado scroll horizontal
+      borderRadius: 6,
+      boxShadow: "0 0 5px rgba(0,0,0,0.3)",
+      width: "100%",
+    }}
+  >
+    <table
+      cellPadding="8"
+      style={{
+        width: "100%",
+        borderCollapse: "collapse",
+        backgroundColor: "#2b2b2b",
+        color: "#fff",
+        fontSize: "14px",
+      }}
+    >
+      <thead>
+        <tr style={{ backgroundColor: "#004d40" }}>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Cédula</th>
+          <th>Correo</th>
+          <th>Sexo</th>
+          <th>Categoría</th>
+          <th>QR Code</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {participantesFiltrados.map((p) => (
+          <tr key={p.cedula}>
+            {/* Nombre */}
+            <td>
+              {editando === p.cedula ? (
+                <input
+                  value={formData.nombre}
+                  onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                  disabled={loading}
+                />
+              ) : (
+                p.nombre
+              )}
+            </td>
+
+            {/* Apellido */}
+            <td>
+              {editando === p.cedula ? (
+                <input
+                  value={formData.apellido}
+                  onChange={(e) => setFormData({ ...formData, apellido: e.target.value })}
+                  disabled={loading}
+                />
+              ) : (
+                p.apellido || ""
+              )}
+            </td>
+
+            {/* Cédula */}
+            <td>
+              {editando === p.cedula ? (
+                <input
+                  value={formData.cedula}
+                  onChange={(e) => setFormData({ ...formData, cedula: e.target.value })}
+                  disabled={loading}
+                />
+              ) : (
+                <span
                   style={{
-                    textAlign: "center",
-                    backgroundColor: "#fff",
-                    padding: 1,
-                    borderRadius: 6,
+                    fontWeight: "bold",
+                    backgroundColor: "#444",
+                    padding: "3px 6px",
+                    borderRadius: 4,
+                    display: "inline-block",
                   }}
                 >
-                  {p.qr_code ? (
-                    <QRCodeCanvas
-                      value={p.qr_code}
-                      size={128}
-                      bgColor="#fff"
-                      fgColor="#000"
-                      level="H"
-                      includeMargin={true}
-                      style={{ borderRadius: 6, boxShadow: "0 0 5px rgba(0,0,0,0.15)" }}
-                    />
-                  ) : (
-                    "No disponible"
-                  )}
-                </td>
+                  {p.cedula}
+                </span>
+              )}
+            </td>
 
-                <td>
-                  {editando === p.cedula ? (
-                    <>
-                      <button onClick={guardarCambios} disabled={loading}>
-                        Guardar
-                      </button>
-                      <button
-                        onClick={cancelarEdicion}
-                        disabled={loading}
-                        style={{ marginLeft: "0.5rem" }}
-                      >
-                        Cancelar
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button onClick={() => comenzarEdicion(p)} disabled={loading}>
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => eliminarParticipante(p.cedula)}
-                        disabled={loading}
-                        style={{ marginLeft: "0.5rem" }}
-                      >
-                        Eliminar
-                      </button>
-                    </>
-                  )}
-                </td>
-              </tr>
-            ))}
-            {participantesFiltrados.length === 0 && !loading && (
-              <tr>
-                <td colSpan="8" style={{ textAlign: "center", padding: "1rem" }}>
-                  No se encontraron participantes.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+            {/* Correo */}
+            <td>
+              {editando === p.cedula ? (
+                <input
+                  value={formData.correo}
+                  onChange={(e) => setFormData({ ...formData, correo: e.target.value })}
+                  disabled={loading}
+                />
+              ) : (
+                p.correo
+              )}
+            </td>
+
+            {/* Sexo */}
+            <td>
+              {editando === p.cedula ? (
+                <select
+                  value={formData.sexo}
+                  onChange={(e) => setFormData({ ...formData, sexo: e.target.value })}
+                  disabled={loading}
+                >
+                  <option value="Hombre">Hombre</option>
+                  <option value="Mujer">Mujer</option>
+                </select>
+              ) : (
+                p.sexo
+              )}
+            </td>
+
+            {/* Categoría */}
+            <td>
+              {editando === p.cedula ? (
+                <select
+                  value={formData.categoria}
+                  onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
+                  disabled={loading}
+                >
+                  <option value="Estudiante">Estudiante</option>
+                  <option value="Docente">Docente</option>
+                  <option value="Funcionario">Funcionario</option>
+                  <option value="Invitado">Invitado</option>
+                  <option value="Egresado">Egresado</option>
+                </select>
+              ) : (
+                p.categoria
+              )}
+            </td>
+
+            {/* QR */}
+            <td style={{ textAlign: "center", backgroundColor: "#fff" }}>
+              {p.qr_code ? (
+                <QRCodeCanvas
+                  value={p.qr_code}
+                  size={64}
+                  bgColor="#fff"
+                  fgColor="#000"
+                  level="H"
+                  includeMargin={true}
+                  style={{ borderRadius: 6 }}
+                />
+              ) : (
+                "No disponible"
+              )}
+            </td>
+
+            {/* Acciones */}
+            <td>
+              {editando === p.cedula ? (
+                <>
+                  <button
+                    onClick={guardarCambios}
+                    disabled={loading}
+                    style={boton("green")}
+                  >
+                    Guardar
+                  </button>
+                  <button
+                    onClick={cancelarEdicion}
+                    disabled={loading}
+                    style={boton("gray")}
+                  >
+                    Cancelar
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => comenzarEdicion(p)}
+                    disabled={loading}
+                    style={boton("blue")}
+                  >
+                    Editar
+                  </button>
+                  <button
+                    onClick={() => eliminarParticipante(p.cedula)}
+                    disabled={loading}
+                    style={boton("red")}
+                  >
+                    Eliminar
+                  </button>
+                </>
+              )}
+            </td>
+          </tr>
+        ))}
+        {participantesFiltrados.length === 0 && !loading && (
+          <tr>
+            <td colSpan="8" style={{ textAlign: "center", padding: "1rem" }}>
+              No se encontraron participantes.
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  </div>
+</div>
   );
 }
 
