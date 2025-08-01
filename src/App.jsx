@@ -22,6 +22,8 @@ import logoCongreso from "./assets/logo_congreso.png";
 import Noticias from "./Noticias";
 import AdminUsuarios from "./AdminUsuarios";
 
+
+
 function AppWrapper() {
   const [isMobile, setIsMobile] = useState(false);
 

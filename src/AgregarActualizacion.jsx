@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "./supabaseClient";
 
+
 function AdminActualizaciones() {
   const navigate = useNavigate();
 
@@ -17,6 +18,36 @@ function AdminActualizaciones() {
     fecha: new Date().toISOString().slice(0, 10),
   });
 
+ const subirImagen = async (file) => {
+  if (!file) return null;
+  
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+    const filePath = fileName;
+
+    setLoading(true);
+
+    const { error: uploadError } = await supabase.storage
+      .from("imagenes")
+      .upload(filePath, file, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: file.type,
+      });
+
+    setLoading(false);
+
+    if (uploadError) {
+      setError("Error al subir la imagen");
+      return null;
+    }
+
+    const { data } = supabase.storage.from("imagenes").getPublicUrl(filePath);
+
+    return data.publicUrl;
+  };
+
+  // Cargar todas las actualizaciones
   const cargarActualizaciones = async () => {
     setLoading(true);
     const { data, error } = await supabase
@@ -36,6 +67,7 @@ function AdminActualizaciones() {
     cargarActualizaciones();
   }, []);
 
+  // Comenzar a editar una actualización existente
   const comenzarEdicion = (actualizacion) => {
     setEditandoId(actualizacion.id);
     setFormData({
@@ -47,6 +79,7 @@ function AdminActualizaciones() {
     setError(null);
   };
 
+  // Cancelar edición y limpiar formulario
   const cancelarEdicion = () => {
     setEditandoId(null);
     setFormData({
@@ -58,9 +91,20 @@ function AdminActualizaciones() {
     setError(null);
   };
 
-  const guardarActualizacion = async () => {
-    console.log("Contenido actual para guardar:", formData.contenido);
+  // Manejar cambio de archivo e iniciar subida
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
+    const url = await subirImagen(file);
+    if (url) {
+      setFormData((prev) => ({ ...prev, imagen_url: url }));
+      setError(null);
+    }
+  };
+
+  // Guardar o actualizar la actualización
+  const guardarActualizacion = async () => {
     if (!formData.titulo.trim()) return setError("El título es obligatorio");
     if (!formData.contenido.trim()) return setError("El contenido es obligatorio");
     if (!formData.fecha) return setError("La fecha es obligatoria");
@@ -97,6 +141,7 @@ function AdminActualizaciones() {
     }
   };
 
+  // Eliminar actualización
   const eliminarActualizacion = async (id) => {
     if (!window.confirm("¿Seguro que deseas eliminar esta actualización?")) return;
     setLoading(true);
@@ -189,19 +234,25 @@ function AdminActualizaciones() {
           </label>
 
           <label>
-            Imagen URL (opcional):<br />
+            Imagen (opcional):<br />
             <input
-              type="text"
-              value={formData.imagen_url}
-              onChange={(e) => setFormData({ ...formData, imagen_url: e.target.value })}
-              style={inputStyle}
-              placeholder="https://..."
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
               disabled={loading}
+              style={{ marginBottom: "0.5rem" }}
             />
+            {formData.imagen_url && (
+              <img
+                src={formData.imagen_url}
+                alt="Previsualización"
+                style={{ maxWidth: "150px", borderRadius: "8px", display: "block" }}
+              />
+            )}
           </label>
 
           <label>
-            Fecha:<br />
+          <br/> Fecha:<br/>
             <input
               type="date"
               value={formData.fecha}
@@ -252,12 +303,19 @@ function AdminActualizaciones() {
                 </td>
                 <td style={tdStyle}>
                   <button
-                    onClick={() => comenzarEdicion(actualizaciones.find((a) => a.id === id))}
+                    onClick={() =>
+                      comenzarEdicion(actualizaciones.find((a) => a.id === id))
+                    }
                     style={buttonGreenSmall}
+                    disabled={loading}
                   >
                     Editar
                   </button>
-                  <button onClick={() => eliminarActualizacion(id)} style={buttonRedSmall}>
+                  <button
+                    onClick={() => eliminarActualizacion(id)}
+                    style={buttonRedSmall}
+                    disabled={loading}
+                  >
                     Eliminar
                   </button>
                 </td>
