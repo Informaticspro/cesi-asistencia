@@ -230,10 +230,10 @@ function App() {
                     <button style={{ marginRight: "10px" }}>Registrar Participante</button>
                   </Link>
                   <Link to="/admin-participantes">
-                    <button style={{ marginRight: "10px" }}>Administrar Participantes</button>
+                    <button style={{ marginRight: "10px" }}>Lista de Participantes</button>
                   </Link>
                   <Link to="/admin-usuarios">
-                    <button style={{ marginRight: "10px" }}>Administrar Usuarios</button>
+                    <button style={{ marginRight: "10px" }}>Lista de Usuarios</button>
                   </Link>
                   <Link to="/agregar-actualizacion">
                     <button style={{ marginRight: "10px" }}>Agregar Actualización</button>
