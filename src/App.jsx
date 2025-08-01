@@ -153,7 +153,21 @@ function App() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+<div
+  style={{
+    minHeight: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",  // centra vertical
+    alignItems: "center",      // centra horizontal
+    backgroundColor: "#1c1c1c",
+    padding: "1rem",
+    boxSizing: "border-box",
+    width: "100vw",
+    overflowX: "hidden",
+    margin: 0,
+  }}
+  >
       <div style={{ flex: 1 }}>
         <Routes>
           <Route
@@ -196,14 +210,14 @@ function App() {
                       <div
                         style={{
                           backgroundColor: "#f0f0f0",
-                          padding: "8px 13px",
+                          padding: "6px 12px",
                           borderRadius: "8px",
                           display: "inline-block",
                           fontWeight: "bold",
                           marginTop: "6px",
                           color: "#333",
                           boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                          fontSize: "0.6rem",
+                          fontSize: "12px",
                         }}
                       >
                         Sesión activa: {nombreUsuario}
@@ -211,8 +225,8 @@ function App() {
                       <button
                         onClick={cerrarSesion}
                         style={{
-                          padding: "0.4rem 0.8rem",
-                          fontSize: "8px",
+                          padding: "0.2rem 0.8rem",
+                          fontSize: "12px",
                           backgroundColor: "#dc3545",
                           color: "#fff",
                           border: "none",

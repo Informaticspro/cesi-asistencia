@@ -42,17 +42,21 @@ function Bienvenida({ onLogin }) {
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#1c1c1c",
-        color: "#fff",
-        display: "flex",
-        flexDirection: "column",
-        overflowX: "hidden",  // <-- Evita scroll horizontal
-        maxWidth: "100vw",    // Evita que el ancho supere el viewport
-      }}
-    >
+<div
+  style={{
+    minHeight: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",  // centra vertical
+    alignItems: "center",      // centra horizontal
+    backgroundColor: "#1c1c1c",
+    padding: "1rem",
+    boxSizing: "border-box",
+    width: "100vw",
+    overflowX: "hidden",
+    margin: 0,
+  }}
+>
       {/* Header con logos */}
       <div
         style={{
@@ -211,7 +215,7 @@ function Bienvenida({ onLogin }) {
             type="submit"
             style={{
               width: "100%",
-              padding: "0.75rem",
+              padding: "0.50rem",
               backgroundColor: "#28a745",
               border: "none",
               borderRadius: "6px",
@@ -225,25 +229,42 @@ function Bienvenida({ onLogin }) {
           </button>
         </form>
 
-        <p style={{ textAlign: "center", fontSize: "0.9rem", marginBottom: "0.5rem" }}>
-          ¿Aún no estás registrado?
-        </p>
-        <Link to="/registrar" style={{ textDecoration: "none" }}>
-          <button
+              <p
             style={{
-              width: "100%",
-              padding: "0.75rem",
-              backgroundColor: "#007bff",
-              border: "none",
-              borderRadius: "6px",
-              fontWeight: "bold",
-              fontSize: "1rem",
-              color: "#fff",
-              cursor: "pointer",
-            }}
-          >
-            Registro de Participantes
-          </button>
+             textAlign: "center",
+             fontSize: "0.9rem",
+                 marginBottom: "0.5rem",
+              fontWeight: "bold", // 👈 esto lo pone en negrita
+              }}
+> 
+  ¿Aún no estás registrado?
+</p>
+        <Link to="/registrar" style={{ textDecoration: "none" }}>
+        <button
+    style={{
+      width: "100%",
+      padding: "1rem",
+      background: "linear-gradient(to right, #007bff, #00bfff)", // Gradiente azul llamativo
+      border: "none",
+      borderRadius: "10px",
+      fontWeight: "bold",
+      fontSize: "1.1rem",
+      color: "#fff",
+      cursor: "pointer",
+      boxShadow: "0 4px 10px rgba(0, 123, 255, 0.5)",
+      transition: "transform 0.2s ease, box-shadow 0.2s ease",
+    }}
+    onMouseOver={(e) => {
+      e.currentTarget.style.transform = "scale(1.03)";
+      e.currentTarget.style.boxShadow = "0 6px 14px rgba(0, 123, 255, 0.6)";
+    }}
+    onMouseOut={(e) => {
+      e.currentTarget.style.transform = "scale(1)";
+      e.currentTarget.style.boxShadow = "0 4px 10px rgba(0, 123, 255, 0.5)";
+    }}
+  >
+    Registro de Participante
+  </button>
         </Link>
       </div>
 
