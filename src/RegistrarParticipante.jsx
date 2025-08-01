@@ -84,6 +84,10 @@ const handleSubmit = async (e) => {
    const { data, error: insertError } = await supabase.from("participantes").insert([
         { cedula, nombre, apellido, correo, sexo, categoria, qr_code: cedula,} // 👈 Aquí guardamos el valor del QR},
         ]);
+        console.log("Resultado insert:", data);
+    if (insertError) {
+      console.error("Error insert Supabase:", insertError);
+        }
 
     if (insertError) throw insertError;
 
