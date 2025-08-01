@@ -59,7 +59,7 @@ const handleSubmit = async (e) => {
   setMensaje(null); // Limpia mensajes anteriores
 
   // Validación básica
-  if (!cedula || !nombre || !correo) {
+  if (!cedula || !nombre || !apellido || !correo || !sexo || !categoria) {
     setMensaje({ tipo: "error", texto: "❌ Todos los campos son obligatorios" });
     setLoading(false);
     return;
@@ -81,9 +81,9 @@ const handleSubmit = async (e) => {
     }
 
     // Inserta participante en Supabase
-    const { data, error: insertError } = await supabase.from("participantes").insert([
-      { cedula, nombre, correo },
-    ]);
+   const { data, error: insertError } = await supabase.from("participantes").insert([
+        { cedula, nombre, apellido, correo, sexo, categoria },
+        ]);
 
     if (insertError) throw insertError;
 
