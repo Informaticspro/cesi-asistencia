@@ -178,7 +178,7 @@ function EscanerQR() {
   }, []);
 
   return (
-    <div style={{ padding: "1rem", maxWidth: "500px", margin: "0 auto" }}>
+    <div style={{ padding: "1rem", maxWidth: "500px", margin: "0 auto", color: "#ffffff", }}>
       <h2 style={{ textAlign: "center" }}>Escanear QR</h2>
 
       {!scannerActivo && (

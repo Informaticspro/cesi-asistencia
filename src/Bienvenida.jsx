@@ -93,21 +93,22 @@ function Bienvenida({ onLogin }) {
             objectFit: "contain",
           }}
         />
-        <h1
-          style={{
-            textAlign: "center",
-            fontSize: "2rem",
-            fontWeight: "bold",
-            marginTop: "1rem",
-            position: "relative",
-            zIndex: 15, // PARA QUE EL TÍTULO QUDE ENCIMA DE LOS LOGOS
-            padding: "0 1rem", // Un poco de padding lateral para móviles
-            wordWrap: "break-word", // Que no desborde texto
-            maxWidth: "100%",
-          }}
-        >
-          Bienvenido al CESI 2025
-        </h1>
+ <h1
+  style={{
+    textAlign: "center",
+    fontSize: "2rem",
+    fontWeight: "bold",
+    marginTop: "1rem",
+    position: "relative",
+    zIndex: 15, // PARA QUE EL TÍTULO QUEDE ENCIMA DE LOS LOGOS
+    padding: "0 1rem", // Un poco de padding lateral para móviles
+    wordWrap: "break-word", // Que no desborde texto
+    maxWidth: "100%",
+    color: "#ffffff", // 👈 Esto asegura que el texto sea blanco SIEMPRE
+  }}
+>
+  Bienvenido al CESI 2025
+</h1>
         <p
           style={{
             textAlign: "center",
@@ -118,6 +119,7 @@ function Bienvenida({ onLogin }) {
             padding: "0 1rem",
             wordWrap: "break-word",
             maxWidth: "100%",
+             color: "#ffffff",
           }}
         >
           Inicia sesión o regístrate para participar
@@ -141,7 +143,7 @@ function Bienvenida({ onLogin }) {
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: "1rem" }}>
             <label
-              style={{ display: "block", marginBottom: "0.3rem", fontWeight: "bold" }}
+              style={{ display: "block", marginBottom: "0.3rem", fontWeight: "bold", color: "#ffffff" }}
             >
               Usuario
             </label>
@@ -164,7 +166,7 @@ function Bienvenida({ onLogin }) {
 
           <div style={{ marginBottom: "1rem" }}>
             <label
-              style={{ display: "block", marginBottom: "0.3rem", fontWeight: "bold" }}
+              style={{ display: "block", marginBottom: "0.3rem", fontWeight: "bold",  color: "#ffffff" }}
             >
               Contraseña
             </label>
@@ -183,12 +185,12 @@ function Bienvenida({ onLogin }) {
                 boxSizing: "border-box",
               }}
             />
-            <label style={{ display: "block", marginTop: "0.5rem", fontSize: "0.9rem" }}>
+            <label style={{ display: "block", marginTop: "0.5rem", fontSize: "0.9rem",color: "#ffffff", }}>
               <input
                 type="checkbox"
                 checked={mostrarContrasena}
                 onChange={() => setMostrarContrasena(!mostrarContrasena)}
-                style={{ marginRight: "0.4rem" }}
+                style={{ marginRight: "0.4rem",  }}
               />
               Mostrar contraseña
             </label>
@@ -223,6 +225,7 @@ function Bienvenida({ onLogin }) {
               fontSize: "1rem",
               cursor: "pointer",
               marginBottom: "1rem",
+              color: "#ffffff",
             }}
           >
             Ingresar
@@ -234,6 +237,7 @@ function Bienvenida({ onLogin }) {
              textAlign: "center",
              fontSize: "0.9rem",
                  marginBottom: "0.5rem",
+                 color: "#ffffff",
               fontWeight: "bold", // 👈 esto lo pone en negrita
               }}
 > 
@@ -283,6 +287,7 @@ function Bienvenida({ onLogin }) {
             fontSize: "1.5rem",
             marginBottom: "1rem",
             wordWrap: "break-word",
+            color: "#ffffff",
           }}
         >
           Noticias del Evento
