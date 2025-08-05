@@ -35,8 +35,9 @@ function AppWrapper() {
   }, []);
 
  const logoBaseStyle = {
-    position: "fixed",
+     position: "fixed",
     top: 0,
+    paddingTop: "env(safe-area-inset-top)", // Ajuste para notch y barra estado
     opacity: 0.7,
     pointerEvents: "none",
     userSelect: "none",
@@ -63,21 +64,24 @@ function AppWrapper() {
         />
          <div
   style={{
-    textAlign: "center",
-    flexGrow: 1,
-    padding: isMobile ? "0 4px" : "0 20px",
-    fontSize: isMobile ? "0.5rem" : "1.2rem",
-    fontWeight: "bold",
-    lineHeight: isMobile ? "0.9rem" : "1.5rem",
+     textAlign: "center",
+            flexGrow: 1,
+            padding: isMobile ? "0 4px" : "0 20px",
+            fontSize: isMobile ? "0.5rem" : "1.2rem",
+            fontWeight: "bold",
+            lineHeight: isMobile ? "0.9rem" : "1.5rem",
+            color: "#fff",
+            userSelect: "none",
   }}
 >
   CONGRESO DE ECONOMÍA, SOCIEDAD E INNOVACIÓN <br />
   <span
-    style={{
-      fontWeight: "normal",
-      fontSize: isMobile ? "0.45rem" : "0.9rem",
-      display: "block",
-      marginTop: isMobile ? "2px" : "5px",
+       style={{
+              fontWeight: "normal",
+              fontSize: isMobile ? "0.45rem" : "0.9rem",
+              display: "block",
+              marginTop: isMobile ? "2px" : "5px",
+              fontStyle: "italic",
     }}
   >
     "Construyendo una cultura de datos para la ciencia, la gobernanza y el desarrollo sostenible."
@@ -91,7 +95,10 @@ function AppWrapper() {
       </div>
 
       {/* Contenido principal con padding para no quedar oculto tras el header */}
-      <div style={{ paddingTop: isMobile ? 70 : 100, backgroundColor: "#1c1c1c", minHeight: "100vh", margin: 0 }}>
+      <div style={{  paddingTop: `calc(${isMobile ? "50px" : "70px"} + env(safe-area-inset-top))`,
+          backgroundColor: "#1c1c1c",
+          minHeight: "100vh",
+          margin: 0, }}>
         <App />
       </div>
     </Router>
