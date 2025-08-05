@@ -34,38 +34,55 @@ function AppWrapper() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const logoBaseStyle = {
+ const logoBaseStyle = {
     position: "fixed",
-    top: 15,
-    opacity: 0.5,
+    top: 0,
+    opacity: 0.7,
     pointerEvents: "none",
     userSelect: "none",
     zIndex: 9999,
+    backgroundColor: "#1c1c1c",
+    height: isMobile ? 40 : 60,
+    display: "flex",
+    alignItems: "center",
+    width: "100%",
+    padding: "0 15px",
+    boxSizing: "border-box",
+    justifyContent: "space-between",
+    borderBottom: "1px solid #444",
   };
 
-  return (
+ return (
     <Router>
-      <div style={{ width: "100%", position: "fixed", top: 0, left: 0, zIndex: 1000 }}>
+      {/* Header fijo con logos y fondo oscuro */}
+      <div style={logoBaseStyle}>
         <img
           src={logoUnachi}
           alt="Logo UNACHI"
-          style={{
-            ...logoBaseStyle,
-            left: 15,
-            height: isMobile ? 30 : 50,
-          }}
+          style={{ height: isMobile ? 30 : 50 }}
         />
+          <div
+    style={{
+      textAlign: "center",
+      flexGrow: 1,
+      fontSize: isMobile ? "0.35rem" : "1.45rem",
+      fontWeight: "bold",
+    }}
+  >
+    CONGRESO DE ECNOMÍA, SOCIEDAD E INNOVACÓN <br />
+    <span style={{ fontWeight: "normal", fontSize: isMobile ? "0.55rem" : "0.9rem" }}>
+      "Construyendo una cultura de datos para la ciencia, la gobernanza y el desarrollo sostenible."
+    </span>
+  </div>
         <img
           src={logoCongreso}
           alt="Logo Congreso"
-          style={{
-            ...logoBaseStyle,
-            right: 15,
-            height: isMobile ? 30 : 50,
-          }}
+          style={{ height: isMobile ? 30 : 50 }}
         />
       </div>
-      <div style={{ paddingTop: isMobile ? 60 : 80 }}>
+
+      {/* Contenido principal con padding para no quedar oculto tras el header */}
+      <div style={{ paddingTop: isMobile ? 50 : 70, backgroundColor: "#1c1c1c", minHeight: "100vh", margin: 0 }}>
         <App />
       </div>
     </Router>
