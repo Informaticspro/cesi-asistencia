@@ -115,7 +115,7 @@ const handleSubmit = async (e) => {
     console.error(err);
     setMensaje({
       tipo: "error",
-      texto: "❌ Ocurrió un error inesperado",
+       texto: `❌ Ocurrió un error inesperado: ${err.message}`,
     });
   }
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState,useRef } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -77,7 +77,12 @@ function App() {
   const [nombreUsuario, setNombreUsuario] = useState("");
   const navigate = useNavigate();
 
+  // Usamos useRef para mantener referencias a los timers entre renders
+  const timeoutAdvertencia = useRef(null);
+  const timeoutCierre = useRef(null);
+
   useEffect(() => {
+    // Cargar sesión guardada en localStorage al iniciar la app
     const savedAuth = localStorage.getItem("autorizado");
     const savedUser = localStorage.getItem("usuario");
     if (savedAuth === "true") {
@@ -86,17 +91,12 @@ function App() {
     }
   }, []);
 
-  // ⏰ Inactividad (cerrar sesión automática)
+  // ⏰ Manejo de inactividad para cerrar sesión automáticamente
   useEffect(() => {
     if (!autorizado) return;
 
-    let timeoutAdvertencia;
-    let timeoutCierre;
-
     const mostrarAdvertencia = () => {
-      alert(
-        "⚠️ ¡Atención! Tu sesión se cerrará en 1 minuto por inactividad si no haces nada."
-      );
+      alert("⚠️ ¡Atención! Tu sesión se cerrará en 2 minutos por inactividad si no haces nada.");
     };
 
     const cerrarPorInactividad = () => {
@@ -105,28 +105,28 @@ function App() {
     };
 
     const resetInactividadTimers = () => {
-      clearTimeout(timeoutAdvertencia);
-      clearTimeout(timeoutCierre);
-      timeoutAdvertencia = setTimeout(mostrarAdvertencia, 14 * 60 * 1000);
-      timeoutCierre = setTimeout(cerrarPorInactividad, 15 * 60 * 1000);
+      clearTimeout(timeoutAdvertencia.current);
+      clearTimeout(timeoutCierre.current);
+      timeoutAdvertencia.current = setTimeout(mostrarAdvertencia, 13 * 60 * 1000);
+      timeoutCierre.current = setTimeout(cerrarPorInactividad, 15 * 60 * 1000);
     };
 
     resetInactividadTimers();
 
     const handleActivity = () => resetInactividadTimers();
     const eventos = ["mousemove", "keydown", "click", "touchstart"];
-    eventos.forEach((e) => window.addEventListener(e, handleActivity));
+    eventos.forEach(e => window.addEventListener(e, handleActivity));
 
     return () => {
-      clearTimeout(timeoutAdvertencia);
-      clearTimeout(timeoutCierre);
-      eventos.forEach((e) => window.removeEventListener(e, handleActivity));
+      clearTimeout(timeoutAdvertencia.current);
+      clearTimeout(timeoutCierre.current);
+      eventos.forEach(e => window.removeEventListener(e, handleActivity));
     };
   }, [autorizado]);
 
-  // 🛡️ Detectar cierre de sesión desde otra pestaña o expiración
+  // 🛡️ Escuchar eventos de cambio de sesión en Supabase
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_OUT") {
         alert("⚠️ Tu sesión ha expirado o ha sido cerrada. Por favor, inicia sesión nuevamente.");
         cerrarSesion();
@@ -153,7 +153,6 @@ function App() {
     navigate("/", { replace: true });
     window.location.reload();
   };
-
   return (
 <div
   style={{
