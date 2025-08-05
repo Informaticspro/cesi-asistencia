@@ -8,7 +8,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { supabase } from "./supabaseClient"; // 👈 IMPORTANTE
-
+import { useLocation } from "react-router-dom";
 import Bienvenida from "./Bienvenida";
 import BuscarQR from "./BuscarQR";
 import EscanerQR from "./EscanerQR";
@@ -61,19 +61,28 @@ function AppWrapper() {
           alt="Logo UNACHI"
           style={{ height: isMobile ? 30 : 50 }}
         />
-          <div
+         <div
+  style={{
+    textAlign: "center",
+    flexGrow: 1,
+    padding: isMobile ? "0 4px" : "0 20px",
+    fontSize: isMobile ? "0.5rem" : "1.2rem",
+    fontWeight: "bold",
+    lineHeight: isMobile ? "0.9rem" : "1.5rem",
+  }}
+>
+  CONGRESO DE ECONOMÍA, SOCIEDAD E INNOVACIÓN <br />
+  <span
     style={{
-      textAlign: "center",
-      flexGrow: 1,
-      fontSize: isMobile ? "0.35rem" : "1.45rem",
-      fontWeight: "bold",
+      fontWeight: "normal",
+      fontSize: isMobile ? "0.45rem" : "0.9rem",
+      display: "block",
+      marginTop: isMobile ? "2px" : "5px",
     }}
   >
-    CONGRESO DE ECNOMÍA, SOCIEDAD E INNOVACÓN <br />
-    <span style={{ fontWeight: "normal", fontSize: isMobile ? "0.55rem" : "0.9rem" }}>
-      "Construyendo una cultura de datos para la ciencia, la gobernanza y el desarrollo sostenible."
-    </span>
-  </div>
+    "Construyendo una cultura de datos para la ciencia, la gobernanza y el desarrollo sostenible."
+  </span>
+</div>
         <img
           src={logoCongreso}
           alt="Logo Congreso"
@@ -82,7 +91,7 @@ function AppWrapper() {
       </div>
 
       {/* Contenido principal con padding para no quedar oculto tras el header */}
-      <div style={{ paddingTop: isMobile ? 50 : 70, backgroundColor: "#1c1c1c", minHeight: "100vh", margin: 0 }}>
+      <div style={{ paddingTop: isMobile ? 70 : 100, backgroundColor: "#1c1c1c", minHeight: "100vh", margin: 0 }}>
         <App />
       </div>
     </Router>
@@ -90,6 +99,13 @@ function AppWrapper() {
 }
 
 function App() {
+  const location = useLocation(); 
+
+    useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
+
+  // ... el resto de tu App (Routes, lógica, etc.)
   const [autorizado, setAutorizado] = useState(false);
   const [nombreUsuario, setNombreUsuario] = useState("");
   const navigate = useNavigate();
