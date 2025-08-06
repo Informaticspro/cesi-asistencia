@@ -422,7 +422,8 @@ const handleSubmit = async (e) => {
       >
         <p style={{ marginBottom: 4 }}>¡Has sido registrado exitosamente!</p>
         <p style={{ margin: 0, fontSize: "0.85rem" }}>
-          Puedes revisar tu confirmación en tu correo electrónico.
+         📨 ¡Correo de confirmación enviado!<br /><br />
+         ⚠️ Si no lo ves, revisa también el <u>correo no deseado o SPAM</u>.
         </p>
       </div>
             <h3
