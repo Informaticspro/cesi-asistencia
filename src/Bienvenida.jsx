@@ -184,7 +184,7 @@ return (
     borderRadius: "16px",
     boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
     width: "100%",
-    maxWidth: "400px",
+    maxWidth: "350px",
     backdropFilter: "blur(10px)",
     WebkitBackdropFilter: "blur(10px)",
   }}
@@ -269,7 +269,7 @@ onMouseOut={(e) => {
             onChange={(e) => setUsuario(e.target.value)}
             required
             style={{
-              width: "100%",
+              width: "80%",
               padding: "0.6rem",
               borderRadius: "6px",
               border: "1px solid #555",
@@ -297,7 +297,7 @@ onMouseOut={(e) => {
             onChange={(e) => setContrasena(e.target.value)}
             required
             style={{
-              width: "100%",
+              width: "80%",
               padding: "0.6rem",
               borderRadius: "6px",
               border: "1px solid #555",
@@ -344,7 +344,7 @@ onMouseOut={(e) => {
    <button
   type="submit"
   style={{
-    width: "100%",
+    width: "50%",
     padding: "0.8rem",
     background: "linear-gradient(135deg, #00c6ff, #0072ff)",
     color: "#fff",
@@ -355,6 +355,8 @@ onMouseOut={(e) => {
     cursor: "pointer",
     transition: "transform 0.2s ease, box-shadow 0.3s ease",
     boxShadow: "0 4px 15px rgba(0, 114, 255, 0.3)",
+    margin: "0 auto",
+    display: "block",  // para que el margin auto funcione bien
   }}
   onMouseOver={(e) => {
     e.currentTarget.style.transform = "scale(1.03)";
