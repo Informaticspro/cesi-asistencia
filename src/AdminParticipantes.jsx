@@ -2,6 +2,25 @@ import { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
 import { Link } from "react-router-dom";
 import { QRCodeCanvas } from "qrcode.react";
+import { saveAs } from "file-saver";
+
+
+export async function exportarParticipantesCSV() {
+  const { data, error } = await supabase.from("participantes").select("*");
+
+  if (error) {
+    alert("Error al obtener los datos.");
+    return;
+  }
+
+  const encabezados = ["cedula", "nombre", "correo", "qr_code"];
+  const filas = data.map((p) => [p.cedula, p.nombre, p.correo, p.qr_code]);
+
+  const csvContent = [encabezados, ...filas].map(fila => fila.join(",")).join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  saveAs(blob, "participantes.csv");
+}
 
 function AdminParticipantes() {
   const [participantes, setParticipantes] = useState([]);
@@ -163,6 +182,22 @@ function AdminParticipantes() {
   }}
 >
   <h2 style={{ textAlign: "center", marginBottom: "0.5rem" }}>Administrar Participantes</h2>
+  <button
+  onClick={exportarParticipantesCSV}
+  style={{
+    marginTop: "1rem",
+    padding: "0.8rem 1.2rem",
+    background: "#00c6ff",
+    color: "#fff",
+    border: "none",
+    borderRadius: "6px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+  }}
+>
+  Descargar CSV de Participantes
+</button>
 
   <Link to="/" style={{ marginBottom: "1rem", color: "#00bcd4", textDecoration: "none" }}>
     ← Volver al inicio

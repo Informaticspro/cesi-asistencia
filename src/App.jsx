@@ -21,6 +21,24 @@ import logoUnachi from "./assets/logo_unachi.png";
 import logoCongreso from "./assets/logo_congreso.png";
 import Noticias from "./Noticias";
 import AdminUsuarios from "./AdminUsuarios";
+import { saveAs } from "file-saver";
+
+export async function exportarAsistenciasCSV() {
+  const { data, error } = await supabase.from("asistencias").select("*");
+
+  if (error) {
+    alert("Error al obtener asistencias.");
+    return;
+  }
+
+  const encabezados = ["cedula", "fecha"];
+  const filas = data.map((a) => [a.cedula, a.fecha]);
+
+  const csvContent = [encabezados, ...filas].map(fila => fila.join(",")).join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  saveAs(blob, "asistencias.csv");
+}
 
 
 
@@ -320,8 +338,25 @@ function App() {
                     }}
                   >
                     <AsistenciaHoy />
+                    <button
+                     onClick={exportarAsistenciasCSV}
+                     style={{
+                      marginTop: "1rem",
+                      padding: "0.8rem 1.2rem",
+                      background: "#00c6ff",
+                      color: "#fff",
+                       border: "none",
+                     borderRadius: "6px",
+                    fontWeight: "bold",
+                     cursor: "pointer",
+                    boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+  }}
+>
+  Descargar CSV de Asistencia
+</button>
                   </div>
                 </div>
+                
               ) : (
              <div>
   <Bienvenida onLogin={handleLogin} />
