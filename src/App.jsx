@@ -372,7 +372,7 @@ function App() {
                   <div
                     style={{
                       marginTop: "2rem",
-                      maxHeight: 320,
+                      maxHeight: 400,
                       overflowY: "auto",
                       overflowX: "hidden",
                       borderRadius: "10px",
@@ -384,7 +384,7 @@ function App() {
                     }}
                   >
                     <AsistenciaHoy />
-                    <button
+                        <button
                      onClick={exportarAsistenciasCSV}
                      style={{
                       marginTop: "1rem",
@@ -401,6 +401,7 @@ function App() {
   Descargar CSV de Asistencia
 </button>
                   </div>
+              
                 </div>
                 
               ) : (
