@@ -407,6 +407,24 @@ const handleSubmit = async (e) => {
               border: "3px solid #004d40",
             }}
           >
+                {/* ✅ MENSAJE DE CONFIRMACIÓN */}
+      <div
+        style={{
+          backgroundColor: "#e0f2f1",
+          padding: "0.8rem",
+          borderRadius: "8px",
+          marginBottom: "1rem",
+          color: "#004d40",
+          fontWeight: "600",
+          fontSize: "0.95rem",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+        }}
+      >
+        <p style={{ marginBottom: 4 }}>¡Has sido registrado exitosamente!</p>
+        <p style={{ margin: 0, fontSize: "0.85rem" }}>
+          Puedes revisar tu confirmación en tu correo electrónico.
+        </p>
+      </div>
             <h3
               style={{
                 marginBottom: 20,
