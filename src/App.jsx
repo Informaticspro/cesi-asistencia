@@ -36,14 +36,14 @@ function AppWrapper() {
 
  const logoBaseStyle = {
      position: "fixed",
-    top: 0,
-    paddingTop: "env(safe-area-inset-top)", // Ajuste para notch y barra estado
+    top: "env(safe-area-inset-top)", // 👈 Esto ayuda a que no quede debajo de la status bar
+    paddingTop: isMobile ? 10 : 15,   // 👈 Ajuste visual adicional
     opacity: 0.7,
     pointerEvents: "none",
     userSelect: "none",
     zIndex: 9999,
     backgroundColor: "#1c1c1c",
-    height: isMobile ? 40 : 60,
+    height: isMobile ? 55 : 75,       // 👈 Aumentamos un poco para dejar espacio arriba
     display: "flex",
     alignItems: "center",
     width: "100%",
@@ -95,7 +95,7 @@ function AppWrapper() {
       </div>
 
       {/* Contenido principal con padding para no quedar oculto tras el header */}
-      <div style={{  paddingTop: `calc(${isMobile ? "50px" : "70px"} + env(safe-area-inset-top))`,
+      <div style={{  paddingTop: isMobile ? "90px" : "100px",
           backgroundColor: "#1c1c1c",
           minHeight: "100vh",
           margin: 0, }}>
