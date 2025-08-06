@@ -24,22 +24,68 @@ import AdminUsuarios from "./AdminUsuarios";
 import { saveAs } from "file-saver";
 
 export async function exportarAsistenciasCSV() {
-  const { data, error } = await supabase.from("asistencias").select("*");
+  // 1. Obtener asistencias
+  const { data: asistencias, error: errorAsistencias } = await supabase
+    .from("asistencias")
+    .select("*");
 
-  if (error) {
+  if (errorAsistencias) {
     alert("Error al obtener asistencias.");
     return;
   }
 
-  const encabezados = ["cedula", "fecha"];
-  const filas = data.map((a) => [a.cedula, a.fecha]);
+  // 2. Obtener participantes
+  const { data: participantes, error: errorParticipantes } = await supabase
+    .from("participantes")
+    .select("*");
 
-  const csvContent = [encabezados, ...filas].map(fila => fila.join(",")).join("\n");
+  if (errorParticipantes) {
+    alert("Error al obtener participantes.");
+    return;
+  }
+
+  // 3. Crear un mapa de participantes por cédula
+  const mapaParticipantes = {};
+  participantes.forEach((p) => {
+    mapaParticipantes[p.cedula] = p;
+  });
+
+  // 4. Encabezados del CSV
+  const encabezados = [
+    "cedula",
+    "nombre",
+    "apellido",
+    "correo",
+    "sexo",
+    "categoria",
+    "fecha",
+    "hora",
+  ];
+
+  // 5. Combinar asistencias con los datos del participante
+  const filas = asistencias.map((a) => {
+    const p = mapaParticipantes[a.cedula] || {};
+
+    return [
+      a.cedula,
+      p.nombre || "No encontrado",
+      p.apellido || "No encontrado",
+      p.correo || "No encontrado",
+      p.sexo || "No encontrado",
+      p.categoria || "No encontrado",
+      a.fecha || "",
+      a.hora || "",
+    ];
+  });
+
+  // 6. Crear contenido CSV
+  const csvContent = [encabezados, ...filas]
+    .map((fila) => fila.join(";"))
+    .join("\n");
 
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  saveAs(blob, "asistencias.csv");
+  saveAs(blob, "asistencias_completas.csv");
 }
-
 
 
 function AppWrapper() {
