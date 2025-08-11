@@ -3,9 +3,10 @@ import { supabase } from "./supabaseClient";
 import { Link } from "react-router-dom";
 import { QRCodeCanvas } from "qrcode.react";
 import { saveAs } from "file-saver";
+import * as XLSX from "xlsx";
 
 
-export async function exportarParticipantesCSV() {
+export async function exportarParticipantesExcel() {
   const { data, error } = await supabase.from("participantes").select("*");
 
   if (error) {
@@ -13,13 +14,50 @@ export async function exportarParticipantesCSV() {
     return;
   }
 
-  const encabezados = ["cedula", "nombre", "correo", "qr_code"];
-  const filas = data.map((p) => [p.cedula, p.nombre, p.correo, p.qr_code]);
+  // Preparar datos para Excel con formato legible
+  const datos = data.map((p) => ({
+    Cédula: p.cedula,
+    Nombre: p.nombre,
+    Apellido: p.apellido || "",
+    Correo: p.correo,
+    "Código QR": p.qr_code || "",
+  }));
 
-  const csvContent = [encabezados, ...filas].map(fila => fila.join(",")).join("\n");
+  // Crear hoja Excel desde JSON
+  const hoja = XLSX.utils.json_to_sheet(datos);
 
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  saveAs(blob, "participantes.csv");
+  // Ajustar ancho de columnas automáticamente
+  const anchos = Object.keys(datos[0] || {}).map((key) => {
+    const maxLongitud = Math.max(
+      key.length,
+      ...datos.map((fila) => (fila[key] ? fila[key].toString().length : 0))
+    );
+    return { wch: maxLongitud + 2 };
+  });
+  hoja["!cols"] = anchos;
+
+  // Estilizar encabezados: fondo amarillo claro y negrita
+  const encabezados = Object.keys(datos[0] || {});
+  encabezados.forEach((col, i) => {
+    const celda = hoja[XLSX.utils.encode_cell({ r: 0, c: i })];
+    if (celda && typeof celda === "object") {
+      celda.s = {
+        fill: { fgColor: { rgb: "FFD966" } },
+        font: { bold: true, color: { rgb: "000000" } },
+        alignment: { horizontal: "center", vertical: "center" },
+      };
+    }
+  });
+
+  // Crear libro y añadir hoja
+  const libro = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(libro, hoja, "Participantes");
+
+  // Generar archivo Excel
+  const arrayBuffer = XLSX.write(libro, { bookType: "xlsx", type: "array", cellStyles: true });
+  const blob = new Blob([arrayBuffer], { type: "application/octet-stream" });
+
+  saveAs(blob, "participantes.xlsx");
 }
 
 function AdminParticipantes() {
@@ -183,7 +221,7 @@ function AdminParticipantes() {
 >
   <h2 style={{ textAlign: "center", marginBottom: "0.5rem" }}>Administrar Participantes</h2>
   <button
-  onClick={exportarParticipantesCSV}
+  onClick={exportarParticipantesExcel}
   style={{
     marginTop: "1rem",
     padding: "0.8rem 1.2rem",
@@ -196,7 +234,7 @@ function AdminParticipantes() {
     boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
   }}
 >
-  Descargar CSV de Participantes
+  Descargar Excel de Participantes
 </button>
 
   <Link to="/" style={{ marginBottom: "1rem", color: "#00bcd4", textDecoration: "none" }}>
