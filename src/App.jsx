@@ -22,8 +22,9 @@ import logoCongreso from "./assets/logo_congreso.png";
 import Noticias from "./Noticias";
 import AdminUsuarios from "./AdminUsuarios";
 import { saveAs } from "file-saver";
+import * as XLSX from "xlsx";
 
-export async function exportarAsistenciasCSV() {
+export async function exportarAsistenciasExcel() {
   // 1. Obtener asistencias
   const { data: asistencias, error: errorAsistencias } = await supabase
     .from("asistencias")
@@ -50,42 +51,45 @@ export async function exportarAsistenciasCSV() {
     mapaParticipantes[p.cedula] = p;
   });
 
-  // 4. Encabezados del CSV
-  const encabezados = [
-    "cedula",
-    "nombre",
-    "apellido",
-    "correo",
-    "sexo",
-    "categoria",
-    "fecha",
-    "hora",
-  ];
-
-  // 5. Combinar asistencias con los datos del participante
-  const filas = asistencias.map((a) => {
+  // 4. Combinar asistencias con datos del participante
+  const datos = asistencias.map((a) => {
     const p = mapaParticipantes[a.cedula] || {};
-
-    return [
-      a.cedula,
-      p.nombre || "No encontrado",
-      p.apellido || "No encontrado",
-      p.correo || "No encontrado",
-      p.sexo || "No encontrado",
-      p.categoria || "No encontrado",
-      a.fecha || "",
-      a.hora || "",
-    ];
+    return {
+      Cédula: a.cedula,
+      Nombre: p.nombre || "No encontrado",
+      Apellido: p.apellido || "No encontrado",
+      Correo: p.correo || "No encontrado",
+      Sexo: p.sexo || "No encontrado",
+      Categoría: p.categoria || "No encontrado",
+      Fecha: a.fecha ? new Date(a.fecha).toLocaleDateString("es-PA") : "",
+      Hora: a.hora ? new Date(`1970-01-01T${a.hora}`).toLocaleTimeString("es-PA") : "",
+    };
   });
 
-  // 6. Crear contenido CSV
-  const csvContent = [encabezados, ...filas]
-    .map((fila) => fila.join(";"))
-    .join("\n");
+  // 5. Crear hoja de Excel
+  const hoja = XLSX.utils.json_to_sheet(datos);
 
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  saveAs(blob, "asistencias_completas.csv");
+  // 6. Ajustar ancho de columnas automáticamente
+  const anchos = Object.keys(datos[0] || {}).map((key) => {
+    const maxLongitud = Math.max(
+      key.length,
+      ...datos.map((fila) => (fila[key] ? fila[key].toString().length : 0))
+    );
+    return { wch: maxLongitud + 2 }; // +2 para un poquito de espacio
+  });
+  hoja["!cols"] = anchos;
+
+  // 7. Crear libro de Excel
+  const libro = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(libro, hoja, "Asistencias");
+
+  // 8. Generar archivo Excel
+  const arrayBuffer = XLSX.write(libro, { bookType: "xlsx", type: "array" });
+  const blob = new Blob([arrayBuffer], { type: "application/octet-stream" });
+
+  saveAs(blob, "asistencias_completas.xlsx");
 }
+
 
 
 function AppWrapper() {
