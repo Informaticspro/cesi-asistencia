@@ -75,16 +75,29 @@ export async function exportarAsistenciasExcel() {
       key.length,
       ...datos.map((fila) => (fila[key] ? fila[key].toString().length : 0))
     );
-    return { wch: maxLongitud + 2 }; // +2 para un poquito de espacio
+    return { wch: maxLongitud + 2 };
   });
   hoja["!cols"] = anchos;
 
-  // 7. Crear libro de Excel
+  // 7. Estilizar encabezados (truco con XLSX)
+  const encabezados = Object.keys(datos[0] || {});
+  encabezados.forEach((col, i) => {
+    const celda = hoja[XLSX.utils.encode_cell({ r: 0, c: i })];
+    if (celda && typeof celda === "object") {
+      celda.s = {
+        fill: { fgColor: { rgb: "FFD966" } }, // Amarillo claro
+        font: { bold: true, color: { rgb: "000000" } }, // Negrita y negro
+        alignment: { horizontal: "center", vertical: "center" }
+      };
+    }
+  });
+
+  // 8. Crear libro de Excel
   const libro = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(libro, hoja, "Asistencias");
 
-  // 8. Generar archivo Excel
-  const arrayBuffer = XLSX.write(libro, { bookType: "xlsx", type: "array" });
+  // 9. Generar archivo Excel
+  const arrayBuffer = XLSX.write(libro, { bookType: "xlsx", type: "array", cellStyles: true });
   const blob = new Blob([arrayBuffer], { type: "application/octet-stream" });
 
   saveAs(blob, "asistencias_completas.xlsx");
@@ -389,7 +402,7 @@ function App() {
                   >
                     <AsistenciaHoy />
                         <button
-                     onClick={exportarAsistenciasCSV}
+                     onClick={exportarAsistenciasExcel}
                      style={{
                       marginTop: "1rem",
                       padding: "0.8rem 1.2rem",
