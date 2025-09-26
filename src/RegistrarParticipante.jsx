@@ -10,12 +10,21 @@ function RegistrarParticipante() {
   const [correo, setCorreo] = useState("");
   const [sexo, setSexo] = useState("");
   const [categoria, setCategoria] = useState("");
+  const [correop, setCorreop] = useState("");
+  const [nacionalidad, setNacionalidad] = useState("");
+  const [otraNacionalidad, setOtraNacionalidad] = useState("");
+  const [modalidad, setModalidad] = useState("");
+  const [tipoParticipacion, setTipoParticipacion] = useState("");
+  const [entidad, setEntidad] = useState("");
+  const [otraEntidad, setOtraEntidad] = useState("");
   const [mensaje, setMensaje] = useState(null);
   const [loading, setLoading] = useState(false);
   const [qrVisible, setQrVisible] = useState(false);
   const [sugerencias, setSugerencias] = useState([]);
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
   const cedulaInputRef = useRef(null);
+  const [mostrarErrorCedula, setMostrarErrorCedula] = useState(false);
+
   
   
   const qrRef = useRef(null);
@@ -64,7 +73,11 @@ const handleSubmit = async (e) => {
     setLoading(false);
     return;
   }
-
+if (!cedula) {
+  setMostrarErrorCedula(true);
+  return;
+}
+setMostrarErrorCedula(false);
   try {
     // Verifica si el participante ya existe por cédula
     const { data: existente, error } = await supabase
@@ -82,8 +95,24 @@ const handleSubmit = async (e) => {
 
     // Inserta participante en Supabase
    const { data, error: insertError } = await supabase.from("participantes").insert([
-        { cedula, nombre, apellido, correo, sexo, categoria, qr_code: cedula,} // 👈 Aquí guardamos el valor del QR},
-        ]);
+  {
+    cedula,
+    nombre,
+    apellido,
+    correo,
+    sexo,
+    categoria,
+    correop,
+    nacionalidad,
+    otra_nacionalidad: otraNacionalidad,
+    modalidad,
+    tipo_participacion: tipoParticipacion,
+    entidad,
+    otra_entidad: otraEntidad,
+    qr_code: cedula,
+  }
+])// 👈 Aquí guardamos el valor del QR},
+      
         console.log("Resultado insert:", data);
     if (insertError) {
       console.error("Error insert Supabase:", insertError);
@@ -152,7 +181,8 @@ const handleSubmit = async (e) => {
   return (
     <div
       style={{
-        maxWidth: 420,
+        maxWidth: "700px",
+        width: "90%",
         margin: "2rem auto",
         padding: "2rem",
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
@@ -162,185 +192,490 @@ const handleSubmit = async (e) => {
         position: "relative",
       }}
     >
-      <h2
+      {/* BLOQUE DE INSTRUCCIONES */}
+      <div
         style={{
-          textAlign: "center",
-          marginBottom: 20,
+          backgroundColor: "#e0f2f1",
+          padding: "1.5rem",
+          borderRadius: "12px",
+          border: "2px solid #004d40",
+          marginBottom: "2rem",
           color: "#004d40",
-          fontWeight: "700",
+          lineHeight: 1.6,
         }}
       >
+        <h2 style={{ textAlign: "center", fontWeight: "700", marginBottom: "1rem" }}>
+          Inscripciones a CESI 2025
+        </h2>
+        <h3 style={{ fontWeight: "600", marginBottom: "0.5rem" }}>ORIENTACIONES GENERALES</h3>
+        <p style={{ marginBottom: "0.5rem" }}>
+          Agradecemos considere la información siguiente antes de formalizar su preinscripción:
+        </p>
+        <ol style={{ paddingLeft: "1.2rem" }}>
+          <li>CESI 2025 se desarrollará del 27 al 31 de octubre de 2025.</li>
+          <li>El congreso tiene un costo y las conferencias son presenciales y virtuales.</li>
+          <li>Los horarios de CESI estarán distribuidos en tres bloques: Conferencias presenciales en el turno matutino, talleres para grupos seleccionados en el turno vespertino y videoconferencias en el turno nocturno.</li>
+          <li>Se validará un único acceso por participante. Ningún participante podrá registrarse más de una vez.</li>
+          <li>Para los usuarios de la Universidad Autónoma el ingreso al congreso será mediante correo institucional (por favor validen el acceso con Microsoft 365).</li>
+          <li>El programa del congreso se remitirá al correo de inscripción.</li>
+          <li>Se emitirá certificado a quien cumpla con más del 70% de asistencia a las conferencias.</li>
+          <li>Los certificados son digitales y se remiten al correo de inscripción.</li>
+          <li>La comunicación durante las ponencias se hará a través del chat donde habrá uno o varios moderadores.</li>
+          <li>A los participantes preinscritos se les remitirá el enlace para la inscripción oficial (Vía formulario Teams) al congreso.</li>
+          <li>Para el cómputo de las horas es importante usar un ÚNICO correo de acceso. Si ingresa con dos correos, sólo se tomará en cuenta uno.</li>
+          <li>Sólo se permitirá el ingreso al congreso de los participantes que hayan formalizado el proceso de registro.</li>
+          <li>La reserva de su cupo quedará garantizada únicamente con la cancelación del plan seleccionado. 
+            Las licenciadas Magela Atencio y Yulitza Vigil atenderán en la biblioteca de la Facultad para 
+            la gestión de pagos de los participantes.</li>
+        </ol>
+      </div>
+
+      <h2 style={{ textAlign: "center", marginBottom: 20, color: "#004d40", fontWeight: "700" }}>
         Registro de participantes CESI 2025
-      </h2>
+      
+  </h2>
 
-      {mensaje && (
-        <div
-          style={{
-            padding: "0.75rem 1rem",
-            marginBottom: "1.2rem",
-            borderRadius: 6,
-            color: mensaje.tipo === "error" ? "#fff" : "#155724",
-            backgroundColor: mensaje.tipo === "error" ? "#d32f2f" : "#c8e6c9",
-            border: mensaje.tipo === "error" ? "1px solid #f44336" : "1px solid #4caf50",
-            fontWeight: "600",
-            textAlign: "center",
-            boxShadow: "0 0 8px rgba(0,0,0,0.05)",
+  {mensaje && (
+    <div
+      style={{
+        padding: "0.75rem 1rem",
+        marginBottom: "1.2rem",
+        borderRadius: 6,
+        color: mensaje.tipo === "error" ? "#fff" : "#155724",
+        backgroundColor: mensaje.tipo === "error" ? "#d32f2f" : "#c8e6c9",
+        border: mensaje.tipo === "error" ? "1px solid #f44336" : "1px solid #4caf50",
+        fontWeight: "600",
+        textAlign: "center",
+        boxShadow: "0 0 8px rgba(0,0,0,0.05)",
+      }}
+    >
+      {mensaje.texto}
+    </div>
+  )}
+
+  <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+   {/* CÉDULA */}
+<div style={{ display: "flex", flexDirection: "column", marginBottom: "1rem" }}>
+  <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+    Ingrese su Cédula o I.D (ejemplo 4-718-888) <span style={{ color: "red" }}>*</span>
+  </label>
+  <input
+    type="text"
+    placeholder="Ingrese su cédula"
+    value={cedula}
+    onChange={(e) => setCedula(e.target.value)}
+    style={{
+      padding: "0.7rem",
+      fontSize: 16,
+      borderRadius: 6,
+      border: "2px solid #004d40",
+      outlineColor: "#1565c0",
+      fontWeight: 600,
+      backgroundColor: "#f5f5f5", // fondo claro
+      color: "#004d40",            // color del texto
+    }}
+    disabled={qrVisible}
+    autoComplete="off"
+    ref={cedulaInputRef}
+    onBlur={() => setTimeout(() => setMostrarSugerencias(false), 150)}
+  />
+
+  {/* Mensaje de error si cédula está vacío */}
+  {!cedula && mostrarErrorCedula && (
+    <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+      ❌ Este campo es obligatorio
+    </p>
+  )}
+
+  {mostrarSugerencias && sugerencias.length > 0 && (
+    <ul
+      style={{
+        listStyle: "none",
+        padding: "0.5rem",
+        border: "1px solid #ccc",
+        borderRadius: "6px",
+        backgroundColor: "#fff",
+        position: "absolute",
+        zIndex: 1000,
+        marginTop: "4px",
+        maxHeight: "150px",
+        overflowY: "auto",
+      }}
+    >
+      {sugerencias.map((item) => (
+        <li
+          key={item.cedula}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            handleSeleccion(item);
+            setTimeout(() => setMostrarSugerencias(false), 0);
           }}
+          style={{
+            padding: "0.4rem 0.6rem",
+            cursor: "pointer",
+            borderBottom: "1px solid #eee",
+            backgroundColor: "#fff",
+            color: "#333",
+          }}
+          onMouseEnter={(e) => (e.target.style.backgroundColor = "#f0f0f0")}
+          onMouseLeave={(e) => (e.target.style.backgroundColor = "#fff")}
         >
-          {mensaje.texto}
-        </div>
-      )}
+          {item.cedula} - {item.nombre} {item.apellido}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
 
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: "flex", flexDirection: "column", gap: "14px" }}
-      >
-        <input
-          type="text"
-          placeholder="Cédula"
-          value={cedula}
-          onChange={(e) => setCedula(e.target.value)}
-          style={{
-            padding: "0.7rem",
-            fontSize: 16,
-            borderRadius: 6,
-            border: "2px solid #004d40",
-            outlineColor: "#1565c0",
-            fontWeight: "600",
-          }}
-          disabled={qrVisible}
-          autoComplete="off"
-          ref={cedulaInputRef}
-          onBlur={() => setTimeout(() => setMostrarSugerencias(false), 150)}
-        />
-
-        {mostrarSugerencias && sugerencias.length > 0 && (
-          <ul
-            style={{
-              listStyle: "none",
-              padding: "0.5rem",
-              border: "1px solid #ccc",
-              borderRadius: "6px",
-              backgroundColor: "#fff",
-              position: "absolute",
-              zIndex: 1000,
-              marginTop: "-8px",
-              maxHeight: "150px",
-              overflowY: "auto",
-            }}
-          >
-            {sugerencias.map((item) => (
-      <li
-        key={item.cedula}
-        onMouseDown={(e) => {
-          // Evitar que el blur se dispare antes de esta acción
-          e.preventDefault();
-          handleSeleccion(item);
-          // Cerrar lista con un pequeño delay
-          setTimeout(() => {
-            setMostrarSugerencias(false);
-          }, 0);
+    {/* NOMBRE */}
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+        Nombre
+      </label>
+      <input
+        type="text"
+        placeholder="Nombre"
+        value={nombre}
+        onChange={(e) => setNombre(e.target.value)}
+        style={{
+          padding: "0.7rem",
+          fontSize: 16,
+          borderRadius: 6,
+          border: "2px solid #004d40",
+          outlineColor: "#1565c0",
+          fontWeight: 600,
+          backgroundColor: "#f5f5f5", // fondo claro para modo claro
+          color: "#004d40",            // color del texto
         }}
-                style={{
-                  padding: "0.4rem 0.6rem",
-                  cursor: "pointer",
-                  borderBottom: "1px solid #eee",
-                  backgroundColor: "#fff",
-                  color: "#333",
-                }}
-                onMouseEnter={(e) => (e.target.style.backgroundColor = "#f0f0f0")}
-                onMouseLeave={(e) => (e.target.style.backgroundColor = "#fff")}
-              >
-                {item.cedula} - {item.nombre} {item.apellido}
-              </li>
-            ))}
-          </ul>
-        )}
+        disabled={qrVisible}
+      />
+    </div>
 
+    {/* APELLIDO */}
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+        Apellido
+      </label>
+      <input
+        type="text"
+        placeholder="Apellido"
+        value={apellido}
+        onChange={(e) => setApellido(e.target.value)}
+        style={{
+          padding: "0.7rem",
+          fontSize: 16,
+          borderRadius: 6,
+          border: "2px solid #004d40",
+          outlineColor: "#1565c0",
+          fontWeight: 600,
+          backgroundColor: "#f5f5f5", // fondo claro para modo claro
+          color: "#004d40",            // color del texto
+        }}
+        disabled={qrVisible}
+      />
+    </div>
+
+    {/* CORREO */}
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+        Correo institucional
+      </label>
+      <input
+        type="email"
+        placeholder="Correo"
+        value={correo}
+        onChange={(e) => setCorreo(e.target.value)}
+        style={{
+          padding: "0.7rem",
+          fontSize: 16,
+          borderRadius: 6,
+          border: "2px solid #004d40",
+          outlineColor: "#1565c0",
+          fontWeight: 600,
+          backgroundColor: "#f5f5f5", // fondo claro para modo claro
+          color: "#004d40",            // color del texto
+        }}
+        disabled={qrVisible}
+      />
+    </div>
+
+    {/* CORREO PERSONAL */}
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+        Correo personal
+      </label>
+      <input
+        type="email"
+        placeholder="Correo personal"
+        value={correop}
+        onChange={(e) => setCorreop(e.target.value)}
+        style={{
+          padding: "0.7rem",
+          fontSize: 16,
+          borderRadius: 6,
+          border: "2px solid #004d40",
+          outlineColor: "#1565c0",
+          fontWeight: 600,
+          backgroundColor: "#f5f5f5", // fondo claro para modo claro
+          color: "#004d40",            // color del texto
+        }}
+        disabled={qrVisible}
+      />
+    </div>
+
+ {/* SEXO */}
+<div style={{ display: "flex", flexDirection: "column" }}>
+  <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+    Sexo
+  </label>
+  <div
+    style={{
+      padding: "0.7rem",
+      borderRadius: 6,
+      border: "2px solid #004d40",
+      backgroundColor: "#fff",
+      display: "flex",
+      gap: "12px",
+    }}
+  >
+    <label style={{ fontWeight: 600, color: "#004d40" }}>
+      <input
+        type="radio"
+        value="Hombre"
+        checked={sexo === "Hombre"}
+        onChange={(e) => setSexo(e.target.value)}
+        disabled={qrVisible}
+      />
+      Hombre
+    </label>
+
+    <label style={{ fontWeight: 600, color: "#004d40" }}>
+      <input
+        type="radio"
+        value="Mujer"
+        checked={sexo === "Mujer"}
+        onChange={(e) => setSexo(e.target.value)}
+        disabled={qrVisible}
+      />
+      Mujer
+    </label>
+  </div>
+</div>
+
+    {/* NACIONALIDAD */}
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+        Nacionalidad
+      </label>
+      <div
+        style={{
+          padding: "0.7rem",
+          borderRadius: 6,
+          border: "2px solid #004d40",
+          backgroundColor: "#fff",
+          display: "flex",
+          gap: "12px",
+        }}
+      >
+        <label style={{ fontWeight: 600, color: "#004d40" }}>
+          <input
+            type="radio"
+            value="Panameña"
+            checked={nacionalidad === "Panameña"}
+            onChange={(e) => setNacionalidad(e.target.value)}
+            disabled={qrVisible}
+          />
+          Panameña
+        </label>
+
+        <label style={{ fontWeight: 600, color: "#004d40" }}>
+          <input
+            type="radio"
+            value="Otra"
+            checked={nacionalidad === "Otra"}
+            onChange={(e) => setNacionalidad(e.target.value)}
+            disabled={qrVisible}
+          />
+          Otra
+        </label>
+      </div>
+      {nacionalidad === "Otra" && (
         <input
           type="text"
-          placeholder="Nombre"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
+          placeholder="Indique su nacionalidad"
+          value={otraNacionalidad}
+          onChange={(e) => setOtraNacionalidad(e.target.value)}
+          disabled={qrVisible}
           style={{
             padding: "0.7rem",
             fontSize: 16,
             borderRadius: 6,
             border: "2px solid #004d40",
             outlineColor: "#1565c0",
-            fontWeight: "600",
+            fontWeight: 600,
+            backgroundColor: "#f5f5f5", // fondo claro para modo claro
+          color: "#004d40",            // color del texto
+            marginTop: "0.5rem",
           }}
-          disabled={qrVisible}
         />
-        <input
-          type="text"
-          placeholder="Apellido"
-          value={apellido}
-          onChange={(e) => setApellido(e.target.value)}
-          style={{
-            padding: "0.7rem",
-            fontSize: 16,
-            borderRadius: 6,
-            border: "2px solid #004d40",
-            outlineColor: "#1565c0",
-            fontWeight: "600",
-          }}
-          disabled={qrVisible}
-        />
-        <input
-          type="email"
-          placeholder="Correo"
-          value={correo}
-          onChange={(e) => setCorreo(e.target.value)}
-          style={{
-            padding: "0.7rem",
-            fontSize: 16,
-            borderRadius: 6,
-            border: "2px solid #004d40",
-            outlineColor: "#1565c0",
-            fontWeight: "600",
-          }}
-          disabled={qrVisible}
-        />
+      )}
+    </div>
 
-        <select
-          value={sexo}
-          onChange={(e) => setSexo(e.target.value)}
-          disabled={qrVisible}
-          style={{
-            padding: "0.7rem",
-            fontSize: 16,
-            borderRadius: 6,
-            border: "2px solid #004d40",
-            outlineColor: "#1565c0",
-            fontWeight: "600",
-          }}
-        >
-          <option value="" disabled>Sexo</option>
-          <option value="Hombre">Hombre</option>
-          <option value="Mujer">Mujer</option>
-        </select>
-
-        <select
-          value={categoria}
+    {/* CATEGORÍA */}
+<div style={{ display: "flex", flexDirection: "column" }}>
+  <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+    Categoría
+  </label>
+  <div
+    style={{
+      padding: "0.7rem",
+      borderRadius: 6,
+      border: "2px solid #004d40",
+      backgroundColor: "#fff",
+      display: "flex",
+      flexDirection: "column",
+      gap: "6px",
+    }}
+  >
+    {["Estudiante", "Docente", "Funcionario", "Invitado", "Egresado"].map((cat) => (
+      <label key={cat} style={{ fontWeight: 600, color: "#004d40" }}>
+        <input
+          type="radio"
+          value={cat}
+          checked={categoria === cat}
           onChange={(e) => setCategoria(e.target.value)}
           disabled={qrVisible}
+        />
+        {cat}
+      </label>
+    ))}
+  </div>
+</div>
+
+  {/* MODALIDAD */}
+  <div style={{ display: "flex", flexDirection: "column" }}>
+    <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+      Modalidad de participación
+    </label>
+    <div
+      style={{
+        padding: "0.7rem",
+        borderRadius: 6,
+        border: "2px solid #004d40",
+        backgroundColor: "#fff",
+        display: "flex",
+        flexDirection: "column",
+        gap: "6px",
+      }}
+    >
+      {[
+        { value: "Estudiante-Plan 1", text: "Estudiante-Plan 1: $20.00 (congreso presencial y virtual, talleres, refrigerios, certificados, otros)" },
+        { value: "Estudiante-Plan 2", text: "Estudiante-Plan 2: $25.00 (participación en congreso presencial y/o virtual + cena)" },
+        { value: "Administrativo", text: "Administrativo: $30.00" },
+        { value: "Estudiante de posgrado", text: "Estudiante de postgrado: $25.00" },
+        { value: "Docente-Plan 1", text: "Docente-Plan 1: $60.00 (TC)" },
+        { value: "Docente-Plan 2", text: "Docente-Plan 2: $50.00 (TM)" },
+        { value: "Docente-Plan 3", text: "Docente-Plan 3: $40.00 (EVE)" },
+        { value: "Público en general", text: "Público en general: $50.00" }
+      ].map((m) => (
+        <label key={m.value} style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 600, color: "#004d40" }}>
+          <input
+            type="radio"
+            value={m.value}
+            checked={modalidad === m.value}
+            onChange={(e) => setModalidad(e.target.value)}
+            disabled={qrVisible}
+          />
+          {m.text}
+        </label>
+      ))}
+    </div>
+  </div>
+
+  {/* TIPO DE PARTICIPANTE */}
+  <div style={{ display: "flex", flexDirection: "column" }}>
+    <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+      Tipo de participante
+    </label>
+    <div
+      style={{
+        padding: "0.7rem",
+        borderRadius: 6,
+        border: "2px solid #004d40",
+        backgroundColor: "#fff",
+        display: "flex",
+        flexDirection: "column",
+        gap: "6px",
+      }}
+    >
+      {["Interno", "Externo"].map((tipo) => (
+        <label key={tipo} style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 600, color: "#004d40" }}>
+          <input
+            type="radio"
+            value={tipo}
+            checked={tipoParticipacion === tipo}
+            onChange={(e) => setTipoParticipacion(e.target.value)}
+            disabled={qrVisible}
+          />
+          {tipo === "Interno" ? "Interno a la universidad" : "Externo a la universidad"}
+        </label>
+      ))}
+    </div>
+  </div>
+
+  {/* ENTIDAD (solo si es EXTERNO) */}
+  {tipoParticipacion === "Externo" && (
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+        Entidad
+      </label>
+      <div
+        style={{
+          padding: "0.7rem",
+          borderRadius: 6,
+          border: "2px solid #004d40",
+          backgroundColor: "#fff",
+          display: "flex",
+          flexDirection: "column",
+          gap: "6px",
+        }}
+      >
+        {["CEP", "PROGREZANDO", "Otra"].map((ent) => (
+          <label key={ent} style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 600, color: "#004d40" }}>
+            <input
+              type="radio"
+              value={ent}
+              checked={entidad === ent}
+              onChange={(e) => setEntidad(e.target.value)}
+              disabled={qrVisible}
+            />
+            {ent === "CEP" ? "Colegio de Economista de Panamá (CEP)" : ent === "PROGREZANDO" ? "PROGREZANDO" : "Otra"}
+          </label>
+        ))}
+      </div>
+      {entidad === "Otra" && (
+        <input
+          type="text"
+          placeholder="Indique la entidad"
+          value={otraEntidad}
+          onChange={(e) => setOtraEntidad(e.target.value)}
+          disabled={qrVisible}
           style={{
             padding: "0.7rem",
             fontSize: 16,
             borderRadius: 6,
             border: "2px solid #004d40",
             outlineColor: "#1565c0",
-            fontWeight: "600",
+            fontWeight: 600,
+            backgroundColor: "#f5f5f5", // fondo claro para modo claro
+          color: "#004d40",            // color del texto
+            marginTop: "0.5rem",
           }}
-        >
-          <option value="" disabled>Categoría</option>
-          <option value="Estudiante">Estudiante</option>
-          <option value="Docente">Docente</option>
-          <option value="Funcionario">Funcionario</option>
-          <option value="Invitado">Invitado</option>
-          <option value="Egresado">Egresado</option>
-        </select>
+        />
+      )}
+    </div>
+  )}
+
 
         <button
           type="submit"
@@ -427,6 +762,7 @@ const handleSubmit = async (e) => {
         </p>
       </div>
             <h3
+            
               style={{
                 marginBottom: 20,
                 color: "#004d40",
