@@ -16,12 +16,21 @@ export async function exportarParticipantesExcel() {
 
   // Preparar datos para Excel con formato legible
   const datos = data.map((p) => ({
-    Cédula: p.cedula,
-    Nombre: p.nombre,
-    Apellido: p.apellido || "",
-    Correo: p.correo,
-    "Código QR": p.qr_code || "",
-  }));
+  Cédula: p.cedula,
+  Nombre: p.nombre,
+  Apellido: p.apellido || "",
+  Correo: p.correo,
+  "Correo P.": p.correop || "",
+  Sexo: p.sexo,
+  Categoría: p.categoria,
+  Nacionalidad: p.nacionalidad || "",
+  "Otra Nacionalidad": p.otra_nacionalidad || "",
+  Modalidad: p.modalidad || "",
+  "Tipo Participación": p.tipo_participacion || "",
+  Entidad: p.entidad || "",
+  "Otra Entidad": p.otra_entidad || "",
+  "Código QR": p.qr_code || "",
+}));
 
   // Crear hoja Excel desde JSON
   const hoja = XLSX.utils.json_to_sheet(datos);
@@ -65,11 +74,18 @@ function AdminParticipantes() {
   const [editando, setEditando] = useState(null);
   const [formData, setFormData] = useState({
     nombre: "",
-    apellido: "",
-    cedula: "",
-    correo: "",
-    sexo: "Hombre",
-    categoria: "Estudiante",
+  apellido: "",
+  cedula: "",
+  correo: "",
+  sexo: "Hombre",
+  categoria: "Estudiante",
+  correop: "",
+  nacionalidad: "",
+  otraNacionalidad: "",
+  modalidad: "",
+  tipoParticipacion: "",
+  entidad: "",
+  otraEntidad: "",
   });
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState(null);
@@ -137,6 +153,13 @@ function AdminParticipantes() {
       correo: p.correo,
       sexo: p.sexo || "Hombre",
       categoria: p.categoria || "Estudiante",
+          correop: p.correop || "",
+          nacionalidad: p.nacionalidad || "",
+          otraNacionalidad: p.otra_nacionalidad || "",
+          modalidad: p.modalidad || "",
+          tipoParticipacion: p.tipo_participacion || "",
+         entidad: p.entidad || "",
+    otraEntidad: p.otra_entidad || "",
     });
     setMensaje(null);
   };
@@ -176,6 +199,13 @@ function AdminParticipantes() {
         correo: formData.correo.trim(),
         sexo: formData.sexo,
         categoria: formData.categoria,
+        correop: formData.correop.trim(),
+        nacionalidad: formData.nacionalidad.trim(),
+        otra_nacionalidad: formData.otraNacionalidad.trim(),
+        modalidad: formData.modalidad.trim(),
+        tipo_participacion: formData.tipoParticipacion.trim(),
+        entidad: formData.entidad.trim(),
+        otra_entidad: formData.otraEntidad.trim(),
         qr_code: formData.cedula.trim(),
       })
       .eq("cedula", editando);
@@ -199,7 +229,13 @@ function AdminParticipantes() {
       p.cedula?.toLowerCase().includes(termino) ||
       p.correo?.toLowerCase().includes(termino) ||
       p.sexo?.toLowerCase().includes(termino) ||
-      p.categoria?.toLowerCase().includes(termino)
+      p.correop?.toLowerCase().includes(termino)||
+       p.nacionalidad?.toLowerCase().includes(termino)||
+        p.otra_nacionalidad?.toLowerCase().includes(termino)||
+         p.modalidad?.toLowerCase().includes(termino)||
+          p.tipo_participacion?.toLowerCase().includes(termino)||
+            p.entidad?.toLowerCase().includes(termino)||
+              p.otra_entidad?.toLowerCase().includes(termino)
     );
   });
 
@@ -227,6 +263,8 @@ function AdminParticipantes() {
     padding: "0.8rem 1.2rem",
     background: "#00c6ff",
     color: "#fff",
+
+    
     border: "none",
     borderRadius: "6px",
     fontWeight: "bold",
@@ -303,6 +341,13 @@ function AdminParticipantes() {
           <th>Correo</th>
           <th>Sexo</th>
           <th>Categoría</th>
+          <th>Correo P.</th>
+          <th>Nacionalidad</th>
+           <th>Otra Nacionalidad</th>
+          <th>Modalidad</th>
+          <th>Tipo Participación</th>
+          <th>Entidad</th>
+          <th>Otra Entidad</th>
           <th>QR Code</th>
           <th>Acciones</th>
         </tr>
@@ -406,6 +451,102 @@ function AdminParticipantes() {
                 p.categoria
               )}
             </td>
+            {/* Correo P. */}
+<td>
+  {editando === p.cedula ? (
+    <input
+      value={formData.correop}
+      onChange={(e) => setFormData({ ...formData, correop: e.target.value })}
+      disabled={loading}
+    />
+  ) : (
+    p.correop || ""
+  )}
+</td>
+
+{/* Nacionalidad */}
+<td>
+  {editando === p.cedula ? (
+    <input
+      value={formData.nacionalidad}
+      onChange={(e) => setFormData({ ...formData, nacionalidad: e.target.value })}
+      disabled={loading}
+    />
+  ) : (
+    p.nacionalidad || ""
+  )}
+</td>
+
+{/* Otra Nacionalidad */}
+<td>
+  {editando === p.cedula ? (
+    <input
+      value={formData.otraNacionalidad}
+      onChange={(e) =>
+        setFormData({ ...formData, otraNacionalidad: e.target.value })
+      }
+      disabled={loading}
+    />
+  ) : (
+    p.otra_nacionalidad || ""
+  )}
+</td>
+
+{/* Modalidad */}
+<td>
+  {editando === p.cedula ? (
+    <input
+      value={formData.modalidad}
+      onChange={(e) => setFormData({ ...formData, modalidad: e.target.value })}
+      disabled={loading}
+    />
+  ) : (
+    p.modalidad || ""
+  )}
+</td>
+
+{/* Tipo Participación */}
+<td>
+  {editando === p.cedula ? (
+    <input
+      value={formData.tipoParticipacion}
+      onChange={(e) =>
+        setFormData({ ...formData, tipoParticipacion: e.target.value })
+      }
+      disabled={loading}
+    />
+  ) : (
+    p.tipo_participacion || ""
+  )}
+</td>
+
+{/* Entidad */}
+<td>
+  {editando === p.cedula ? (
+    <input
+      value={formData.entidad}
+      onChange={(e) => setFormData({ ...formData, entidad: e.target.value })}
+      disabled={loading}
+    />
+  ) : (
+    p.entidad || ""
+  )}
+</td>
+
+{/* Otra Entidad */}
+<td>
+  {editando === p.cedula ? (
+    <input
+      value={formData.otraEntidad}
+      onChange={(e) =>
+        setFormData({ ...formData, otraEntidad: e.target.value })
+      }
+      disabled={loading}
+    />
+  ) : (
+    p.otra_entidad || ""
+  )}
+</td>
 
             {/* QR */}
             <td style={{ textAlign: "center", backgroundColor: "#fff" }}>
@@ -466,7 +607,7 @@ function AdminParticipantes() {
         ))}
         {participantesFiltrados.length === 0 && !loading && (
           <tr>
-            <td colSpan="8" style={{ textAlign: "center", padding: "1rem" }}>
+            <td colSpan="15" style={{ textAlign: "center", padding: "1rem" }}>
               No se encontraron participantes.
             </td>
           </tr>

@@ -21,9 +21,8 @@ function AsistenciaHoy() {
 
       const { data, error } = await supabase
         .from("asistencias")
-        .select("cedula, fecha, hora, participantes(nombre, correo)")
-        .gte("fecha", inicioIso)
-        .lt("fecha", finIso)
+        .select("cedula, fecha, hora, participantes(nombre, apellido, correo)")
+       
         .order("fecha", { ascending: true });
 
       if (error) {
@@ -63,6 +62,7 @@ function AsistenciaHoy() {
             <tr style={{ borderBottom: "1px solid #00ffff" }}>
               <th style={{ padding: "8px", textAlign: "left" }}>Cédula</th>
               <th style={{ padding: "8px", textAlign: "left" }}>Nombre</th>
+              <th style={{ padding: "8px", textAlign: "left" }}>apellido</th>
               <th style={{ padding: "8px", textAlign: "left" }}>Correo</th>
               <th style={{ padding: "8px", textAlign: "left" }}>Hora</th>
             </tr>
@@ -79,6 +79,7 @@ function AsistenciaHoy() {
               <tr key={`${cedula}-${fecha}-${hora}`} style={{ borderBottom: "1px solid #444" }}>
                 <td style={{ padding: "8px" }}>{cedula}</td>
                 <td style={{ padding: "8px" }}>{participantes?.nombre || "Sin nombre"}</td>
+                <td style={{ padding: "8px" }}>{participantes?.apellido || ""}</td>
                 <td style={{ padding: "8px" }}>{participantes?.correo || "Sin correo"}</td>
                 <td style={{ padding: "8px" }}>{hora || "Hora no disponible"}</td>
               </tr>
