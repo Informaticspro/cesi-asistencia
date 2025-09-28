@@ -120,12 +120,13 @@ setMostrarErrorCedula(false);
 
     if (insertError) throw insertError;
 
+        const API_URL = import.meta.env.VITE_API_URL;
     // Enviar QR al backend Express
-    const response = await fetch("https://cesi-servidor.onrender.com/api/registro", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cedula, nombre, correo }),
-    });
+  const response = await fetch(`${API_URL}/api/registro`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ cedula, nombre, correo }),
+});
 
     if (!response.ok) {
       const errorData = await response.json();
