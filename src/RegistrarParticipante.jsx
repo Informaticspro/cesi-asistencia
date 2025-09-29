@@ -122,7 +122,7 @@ setMostrarErrorCedula(false);
 
         const API_URL = import.meta.env.VITE_API_URL;
     // Enviar QR al backend Express
-  const response = await fetch(`${API_URL}/api/registro`, {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/registro`, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ cedula, nombre, correo }),
