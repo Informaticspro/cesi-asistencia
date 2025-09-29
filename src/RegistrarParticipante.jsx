@@ -571,14 +571,14 @@ setMostrarErrorCedula(false);
       }}
     >
       {[
-        { value: "Estudiante-Plan 1", text: "Estudiante-Plan 1: $20.00 (congreso presencial y virtual, talleres, refrigerios, certificados, otros)" },
-        { value: "Estudiante-Plan 2", text: "Estudiante-Plan 2: $25.00 (participación en congreso presencial y/o virtual + cena)" },
-        { value: "Administrativo", text: "Administrativo: $30.00" },
-        { value: "Estudiante de posgrado", text: "Estudiante de postgrado: $25.00" },
-        { value: "Docente-Plan 1", text: "Docente-Plan 1: $60.00 (TC)" },
-        { value: "Docente-Plan 2", text: "Docente-Plan 2: $50.00 (TM)" },
-        { value: "Docente-Plan 3", text: "Docente-Plan 3: $40.00 (EVE)" },
-        { value: "Público en general", text: "Público en general: $50.00" }
+         { value: "Estudiante-Plan 1", text: "Estudiante-Plan 1&#58; $20.00 (congreso presencial y virtual, talleres, refrigerios, certificados, otros)" },
+  { value: "Estudiante-Plan 2", text: "Estudiante-Plan 2&#58; $25.00 (participación en congreso presencial y/o virtual + cena)" },
+  { value: "Administrativo", text: "Administrativo&#58; $30.00" },
+  { value: "Estudiante de posgrado", text: "Estudiante de postgrado&#58; $25.00" },
+  { value: "Docente-Plan 1", text: "Docente-Plan 1&#58; $60.00 (TC)" },
+  { value: "Docente-Plan 2", text: "Docente-Plan 2&#58; $50.00 (TM)" },
+  { value: "Docente-Plan 3", text: "Docente-Plan 3&#58; $40.00 (EVE)" },
+  { value: "Público en general", text: "Público en general&#58; $50.00" }
       ].map((m) => (
         <label key={m.value} style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 600, color: "#004d40" }}>
           <input
