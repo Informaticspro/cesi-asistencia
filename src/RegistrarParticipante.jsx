@@ -229,6 +229,7 @@ setMostrarErrorCedula(false);
           <li>La reserva de su cupo quedará garantizada únicamente con la cancelación del plan seleccionado. 
             Las licenciadas Magela Atencio y Yulitza Vigil atenderán en la biblioteca de la Facultad para 
             la gestión de pagos de los participantes.</li>
+            <li>Cuenta Banco Nacional, N°:100003381685, Cuenta Corriente,Universidad Autónoma de Chiriquí A.I.P.</li>
         </ol>
       </div>
 
