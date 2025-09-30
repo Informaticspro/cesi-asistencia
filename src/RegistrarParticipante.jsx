@@ -202,7 +202,23 @@ setMostrarErrorCedula(false);
         boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
         position: "relative",
       }}
-    >
+    >   {/* Botón Volver atrás */}
+      <div style={{ textAlign: "left", marginBottom: "1rem" }}>
+        <button
+          onClick={() => navigate(-1)} // retrocede una página
+          style={{
+            padding: "0.6rem 1.2rem",
+            backgroundColor: "#004d40",
+            color: "#fff",
+            fontWeight: "bold",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+          }}
+        >
+          ⬅ Volver atrás
+        </button>
+      </div>
       {/* BLOQUE DE INSTRUCCIONES */}
       <div
         style={{
