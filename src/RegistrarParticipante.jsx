@@ -24,7 +24,7 @@ function RegistrarParticipante() {
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
   const cedulaInputRef = useRef(null);
   const [mostrarErrorCedula, setMostrarErrorCedula] = useState(false);
-
+  const [errorCedula, setErrorCedula] = useState("");
   
   
   const qrRef = useRef(null);
@@ -38,7 +38,16 @@ function RegistrarParticipante() {
         setSugerencias([]);
         return;
       }
-
+const validarCedula = (valor) => {
+  const regex = /^[0-9]+-[0-9]+-[0-9]+$/;
+  if (valor === "") {
+    setErrorCedula(""); // vacío no muestra error
+  } else if (!regex.test(valor)) {
+    setErrorCedula("Formato inválido. Ej: 4-760-2153");
+  } else {
+    setErrorCedula(""); // válido
+  }
+};
       const { data, error } = await supabase
         .from("participantes_autorizados")
         .select("cedula, nombre, apellido, correo")
@@ -266,29 +275,33 @@ setMostrarErrorCedula(false);
   type="text"
   value={cedula}
   onChange={(e) => {
-    // quita espacios automáticamente
-    let valor = e.target.value.replace(/\s+/g, "");
+    const valor = e.target.value.replace(/\s+/g, ""); // quita espacios
     setCedula(valor);
+    validarCedula(valor); // valida en tiempo real
   }}
   required
-  placeholder="Ej: 4-760-2153"
-  pattern="^[0-9]+-[0-9]+-[0-9]+$"
-  title="La cédula debe tener el formato 0-000-0000"
+  placeholder="Ej: 0-000-000"
   style={{
     padding: "0.7rem",
     fontSize: 16,
     borderRadius: 6,
-    border: "2px solid #004d40",
-    outlineColor: "#1565c0",
+    border: errorCedula ? "2px solid red" : "2px solid #004d40",
+    outlineColor: errorCedula ? "red" : "#1565c0",
     fontWeight: 600,
-    backgroundColor: "#f5f5f5", // fondo claro
-    color: "#004d40",           // color del texto
+    backgroundColor: "#f5f5f5",
+    color: "#004d40",
   }}
   disabled={qrVisible}
   autoComplete="off"
   ref={cedulaInputRef}
   onBlur={() => setTimeout(() => setMostrarSugerencias(false), 150)}
 />
+
+{errorCedula && (
+  <p style={{ color: "red", fontSize: "0.85rem", marginTop: "0.3rem" }}>
+    {errorCedula}
+  </p>
+)}
 
   {/* Mensaje de error si cédula está vacío */}
   {!cedula && mostrarErrorCedula && (
@@ -337,107 +350,130 @@ setMostrarErrorCedula(false);
   )}
 </div>
 
-    {/* NOMBRE */}
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
-        Nombre
-      </label>
-      <input
-        type="text"
-        placeholder="Nombre"
-        value={nombre}
-        onChange={(e) => setNombre(e.target.value)}
-        style={{
-          padding: "0.7rem",
-          fontSize: 16,
-          borderRadius: 6,
-          border: "2px solid #004d40",
-          outlineColor: "#1565c0",
-          fontWeight: 600,
-          backgroundColor: "#f5f5f5", // fondo claro para modo claro
-          color: "#004d40",            // color del texto
-        }}
-        disabled={qrVisible}
-      />
-    </div>
-
-    {/* APELLIDO */}
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
-        Apellido
-      </label>
-      <input
-        type="text"
-        placeholder="Apellido"
-        value={apellido}
-        onChange={(e) => setApellido(e.target.value)}
-        style={{
-          padding: "0.7rem",
-          fontSize: 16,
-          borderRadius: 6,
-          border: "2px solid #004d40",
-          outlineColor: "#1565c0",
-          fontWeight: 600,
-          backgroundColor: "#f5f5f5", // fondo claro para modo claro
-          color: "#004d40",            // color del texto
-        }}
-        disabled={qrVisible}
-      />
-    </div>
-
-    {/* CORREO */}
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
-        Correo institucional
-      </label>
-      <input
-        type="email"
-        placeholder="Correo"
-        value={correo}
-        onChange={(e) => setCorreo(e.target.value)}
-        style={{
-          padding: "0.7rem",
-          fontSize: 16,
-          borderRadius: 6,
-          border: "2px solid #004d40",
-          outlineColor: "#1565c0",
-          fontWeight: 600,
-          backgroundColor: "#f5f5f5", // fondo claro para modo claro
-          color: "#004d40",            // color del texto
-        }}
-        disabled={qrVisible}
-      />
-    </div>
-
-    {/* CORREO PERSONAL */}
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
-        Correo personal
-      </label>
-      <input
-        type="email"
-        placeholder="Correo personal"
-        value={correop}
-        onChange={(e) => setCorreop(e.target.value)}
-        style={{
-          padding: "0.7rem",
-          fontSize: 16,
-          borderRadius: 6,
-          border: "2px solid #004d40",
-          outlineColor: "#1565c0",
-          fontWeight: 600,
-          backgroundColor: "#f5f5f5", // fondo claro para modo claro
-          color: "#004d40",            // color del texto
-        }}
-        disabled={qrVisible}
-      />
-    </div>
-
- {/* SEXO */}
-<div style={{ display: "flex", flexDirection: "column" }}>
+ {/* NOMBRE */}
+<div style={{ display: "flex", flexDirection: "column", marginBottom: "1rem" }}>
   <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
-    Sexo
+    Nombre <span style={{ color: "red" }}>*</span>
   </label>
+  <input
+    type="text"
+    placeholder="Nombre"
+    value={nombre}
+    onChange={(e) => {
+      const valor = e.target.value.replace(/[^a-zA-ZÁÉÍÓÚáéíóúñÑ\s]/g, ""); // solo letras y espacios
+      setNombre(valor);
+    }}
+    required
+    style={{
+      padding: "0.7rem",
+      fontSize: 16,
+      borderRadius: 6,
+      border: "2px solid #004d40",
+      outlineColor: "#1565c0",
+      fontWeight: 600,
+      backgroundColor: "#f5f5f5",
+      color: "#004d40",
+    }}
+    disabled={qrVisible}
+  />
+  {!nombre && (
+    <p style={{ color: "red", fontSize: "0.85rem", marginTop: "0.3rem" }}>
+      Ingrese su nombre
+    </p>
+  )}
+</div>
+
+{/* APELLIDO */}
+<div style={{ display: "flex", flexDirection: "column", marginBottom: "1rem" }}>
+  <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+    Apellido <span style={{ color: "red" }}>*</span>
+  </label>
+  <input
+    type="text"
+    placeholder="Apellido"
+    value={apellido}
+    onChange={(e) => {
+      const valor = e.target.value.replace(/[^a-zA-ZÁÉÍÓÚáéíóúñÑ\s]/g, "");
+      setApellido(valor);
+    }}
+    required
+    style={{
+      padding: "0.7rem",
+      fontSize: 16,
+      borderRadius: 6,
+      border: "2px solid #004d40",
+      outlineColor: "#1565c0",
+      fontWeight: 600,
+      backgroundColor: "#f5f5f5",
+      color: "#004d40",
+    }}
+    disabled={qrVisible}
+  />
+  {!apellido && (
+    <p style={{ color: "red", fontSize: "0.85rem", marginTop: "0.3rem" }}>
+      Ingrese su apellido
+    </p>
+  )}
+</div>
+
+{/* CORREO INSTITUCIONAL */}
+<div style={{ display: "flex", flexDirection: "column", marginBottom: "1rem" }}>
+  <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+    Correo institucional <span style={{ color: "red" }}>*</span>
+  </label>
+  <input
+    type="email"
+    placeholder="ejemplo@unachi.ac.pa"
+    value={correo}
+    onChange={(e) => setCorreo(e.target.value)}
+    required
+    style={{
+      padding: "0.7rem",
+      fontSize: 16,
+      borderRadius: 6,
+      border: "2px solid #004d40",
+      outlineColor: "#1565c0",
+      fontWeight: 600,
+      backgroundColor: "#f5f5f5",
+      color: "#004d40",
+    }}
+    disabled={qrVisible}
+  />
+  {!correo && (
+    <p style={{ color: "red", fontSize: "0.85rem", marginTop: "0.3rem" }}>
+      Ingrese su correo institucional
+    </p>
+  )}
+</div>
+
+{/* CORREO PERSONAL */}
+<div style={{ display: "flex", flexDirection: "column", marginBottom: "1rem" }}>
+  <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+    Correo personal
+  </label>
+  <input
+    type="email"
+    placeholder="ejemplo@gmail.com"
+    value={correop}
+    onChange={(e) => setCorreop(e.target.value)}
+    style={{
+      padding: "0.7rem",
+      fontSize: 16,
+      borderRadius: 6,
+      border: "2px solid #004d40",
+      outlineColor: "#1565c0",
+      fontWeight: 600,
+      backgroundColor: "#f5f5f5",
+      color: "#004d40",
+    }}
+    disabled={qrVisible}
+  />
+</div>
+ {/* SEXO */}
+<fieldset style={{ border: "none", margin: 0, padding: 0 }}>
+  <legend style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+    Sexo <span style={{ color: "red" }}>*</span>
+  </legend>
   <div
     style={{
       padding: "0.7rem",
@@ -451,7 +487,9 @@ setMostrarErrorCedula(false);
     <label style={{ fontWeight: 600, color: "#004d40" }}>
       <input
         type="radio"
+        name="sexo"
         value="Hombre"
+        required
         checked={sexo === "Hombre"}
         onChange={(e) => setSexo(e.target.value)}
         disabled={qrVisible}
@@ -462,7 +500,9 @@ setMostrarErrorCedula(false);
     <label style={{ fontWeight: 600, color: "#004d40" }}>
       <input
         type="radio"
+        name="sexo"
         value="Mujer"
+        required
         checked={sexo === "Mujer"}
         onChange={(e) => setSexo(e.target.value)}
         disabled={qrVisible}
@@ -470,72 +510,87 @@ setMostrarErrorCedula(false);
       Mujer
     </label>
   </div>
-</div>
+  {!sexo && (
+    <p style={{ color: "red", fontSize: "0.85rem", marginTop: "0.3rem" }}>
+      Seleccione una opción
+    </p>
+  )}
+</fieldset>
 
-    {/* NACIONALIDAD */}
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
-        Nacionalidad
-      </label>
-      <div
-        style={{
-          padding: "0.7rem",
-          borderRadius: 6,
-          border: "2px solid #004d40",
-          backgroundColor: "#fff",
-          display: "flex",
-          gap: "12px",
-        }}
-      >
-        <label style={{ fontWeight: 600, color: "#004d40" }}>
-          <input
-            type="radio"
-            value="Panameña"
-            checked={nacionalidad === "Panameña"}
-            onChange={(e) => setNacionalidad(e.target.value)}
-            disabled={qrVisible}
-          />
-          Panameña
-        </label>
+{/* NACIONALIDAD */}
+<fieldset style={{ border: "none", margin: 0, padding: 0 }}>
+  <legend style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+    Nacionalidad <span style={{ color: "red" }}>*</span>
+  </legend>
+  <div
+    style={{
+      padding: "0.7rem",
+      borderRadius: 6,
+      border: "2px solid #004d40",
+      backgroundColor: "#fff",
+      display: "flex",
+      gap: "12px",
+    }}
+  >
+    <label style={{ fontWeight: 600, color: "#004d40" }}>
+      <input
+        type="radio"
+        name="nacionalidad"
+        value="Panameña"
+        required
+        checked={nacionalidad === "Panameña"}
+        onChange={(e) => setNacionalidad(e.target.value)}
+        disabled={qrVisible}
+      />
+      Panameña
+    </label>
 
-        <label style={{ fontWeight: 600, color: "#004d40" }}>
-          <input
-            type="radio"
-            value="Otra"
-            checked={nacionalidad === "Otra"}
-            onChange={(e) => setNacionalidad(e.target.value)}
-            disabled={qrVisible}
-          />
-          Otra
-        </label>
-      </div>
-      {nacionalidad === "Otra" && (
-        <input
-          type="text"
-          placeholder="Indique su nacionalidad"
-          value={otraNacionalidad}
-          onChange={(e) => setOtraNacionalidad(e.target.value)}
-          disabled={qrVisible}
-          style={{
-            padding: "0.7rem",
-            fontSize: 16,
-            borderRadius: 6,
-            border: "2px solid #004d40",
-            outlineColor: "#1565c0",
-            fontWeight: 600,
-            backgroundColor: "#f5f5f5", // fondo claro para modo claro
-          color: "#004d40",            // color del texto
-            marginTop: "0.5rem",
-          }}
-        />
-      )}
-    </div>
+    <label style={{ fontWeight: 600, color: "#004d40" }}>
+      <input
+        type="radio"
+        name="nacionalidad"
+        value="Otra"
+        required
+        checked={nacionalidad === "Otra"}
+        onChange={(e) => setNacionalidad(e.target.value)}
+        disabled={qrVisible}
+      />
+      Otra
+    </label>
+  </div>
+  {!nacionalidad && (
+    <p style={{ color: "red", fontSize: "0.85rem", marginTop: "0.3rem" }}>
+      Seleccione una opción
+    </p>
+  )}
+  {nacionalidad === "Otra" && (
+    <input
+      type="text"
+      placeholder="Indique su nacionalidad"
+      value={otraNacionalidad}
+      onChange={(e) => setOtraNacionalidad(e.target.value)}
+      disabled={qrVisible}
+      required
+      style={{
+        padding: "0.7rem",
+        fontSize: 16,
+        borderRadius: 6,
+        border: "2px solid #004d40",
+        outlineColor: "#1565c0",
+        fontWeight: 600,
+        backgroundColor: "#f5f5f5",
+        color: "#004d40",
+        marginTop: "0.5rem",
+      }}
+    />
+  )}
+</fieldset>
 
-    {/* CATEGORÍA */}
-<div style={{ display: "flex", flexDirection: "column" }}>
-  <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
-    Categoría
-  </label>
+{/* CATEGORÍA */}
+<fieldset style={{ border: "none", margin: 0, padding: 0 }}>
+  <legend style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+    Categoría <span style={{ color: "red" }}>*</span>
+  </legend>
   <div
     style={{
       padding: "0.7rem",
@@ -547,11 +602,13 @@ setMostrarErrorCedula(false);
       gap: "6px",
     }}
   >
-    {["Estudiante", "Docente", "Funcionario", "Invitado", "Egresado"].map((cat) => (
+    {["Estudiante", "Docente", "Funcionario", "Invitado", "Egresado"].map((cat, i) => (
       <label key={cat} style={{ fontWeight: 600, color: "#004d40" }}>
         <input
           type="radio"
+          name="categoria"
           value={cat}
+          required={i === 0}
           checked={categoria === cat}
           onChange={(e) => setCategoria(e.target.value)}
           disabled={qrVisible}
@@ -560,62 +617,104 @@ setMostrarErrorCedula(false);
       </label>
     ))}
   </div>
-</div>
+  {!categoria && (
+    <p style={{ color: "red", fontSize: "0.85rem", marginTop: "0.3rem" }}>
+      Seleccione una opción
+    </p>
+  )}
+</fieldset>
 
-  {/* MODALIDAD */}
-  <div style={{ display: "flex", flexDirection: "column" }}>
-    <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
-      Modalidad de participación
-    </label>
-    <div
-      style={{
-        padding: "0.7rem",
-        borderRadius: 6,
-        border: "2px solid #004d40",
-        backgroundColor: "#fff",
-        display: "flex",
-        flexDirection: "column",
-        gap: "6px",
-      }}
-    >
-{[
-  { value: "Estudiante-Plan 1: $20.00 (congreso presencial y virtual, talleres, refrigerios, certificados, otros)" },
-  { value: "Estudiante-Plan 2: $25.00 (participación en congreso presencial y/o virtual + cena)" },
-  { value: "Administrativo: $30.00" },
-  { value: "Estudiante de postgrado: $25.00" },
-  { value: "Docente-Plan 1: $60.00 (TC)" },
-  { value: "Docente-Plan 2: $50.00 (TM)" },
-  { value: "Docente-Plan 3: $40.00 (EVE)" },
-  { value: "Público en general: $50.00" }
-].map((m) => (
-  <label
-    key={m.value}
+{/* MODALIDAD */}
+<fieldset style={{ border: "none", margin: 0, padding: 0 }}>
+  <legend style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+    Modalidad de participación <span style={{ color: "red" }}>*</span>
+  </legend>
+  <div
     style={{
+      padding: "0.7rem",
+      borderRadius: 6,
+      border: "2px solid #004d40",
+      backgroundColor: "#fff",
       display: "flex",
-      alignItems: "center",
+      flexDirection: "column",
       gap: "6px",
-      fontWeight: 600,
-      color: "#004d40"
     }}
   >
-    <input
-      type="radio"
-      value={m.value}
-      checked={modalidad === m.value}
-      onChange={(e) => setModalidad(e.target.value)}
-      disabled={qrVisible}
-    />
-    {m.value}
-  </label>
-))}
-    </div>
+    {[
+      { value: "Estudiante-Plan 1: $20.00 (congreso presencial y virtual, talleres, refrigerios, certificados, otros)" },
+      { value: "Estudiante-Plan 2: $25.00 (participación en congreso presencial y/o virtual + cena)" },
+      { value: "Administrativo: $30.00" },
+      { value: "Estudiante de postgrado: $25.00" },
+      { value: "Docente-Plan 1: $60.00 (TC)" },
+      { value: "Docente-Plan 2: $50.00 (TM)" },
+      { value: "Docente-Plan 3: $40.00 (EVE)" },
+      { value: "Público en general: $50.00" }
+    ].map((m, i) => (
+      <label key={m.value} style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 600, color: "#004d40" }}>
+        <input
+          type="radio"
+          name="modalidad"
+          value={m.value}
+          required={i === 0}
+          checked={modalidad === m.value}
+          onChange={(e) => setModalidad(e.target.value)}
+          disabled={qrVisible}
+        />
+        {m.value}
+      </label>
+    ))}
   </div>
+  {!modalidad && (
+    <p style={{ color: "red", fontSize: "0.85rem", marginTop: "0.3rem" }}>
+      Seleccione una opción
+    </p>
+  )}
+</fieldset>
 
-  {/* TIPO DE PARTICIPANTE */}
-  <div style={{ display: "flex", flexDirection: "column" }}>
-    <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
-      Tipo de participante
-    </label>
+{/* TIPO DE PARTICIPANTE */}
+<fieldset style={{ border: "none", margin: 0, padding: 0 }}>
+  <legend style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+    Tipo de participante <span style={{ color: "red" }}>*</span>
+  </legend>
+  <div
+    style={{
+      padding: "0.7rem",
+      borderRadius: 6,
+      border: "2px solid #004d40",
+      backgroundColor: "#fff",
+      display: "flex",
+      flexDirection: "column",
+      gap: "6px",
+    }}
+  >
+    {["Interno", "Externo"].map((tipo, i) => (
+      <label key={tipo} style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 600, color: "#004d40" }}>
+        <input
+          type="radio"
+          name="tipoParticipacion"
+          value={tipo}
+          required={i === 0}
+          checked={tipoParticipacion === tipo}
+          onChange={(e) => setTipoParticipacion(e.target.value)}
+          disabled={qrVisible}
+        />
+        {tipo === "Interno" ? "Interno a la universidad" : "Externo a la universidad"}
+      </label>
+    ))}
+  </div>
+  {!tipoParticipacion && (
+    <p style={{ color: "red", fontSize: "0.85rem", marginTop: "0.3rem" }}>
+      Seleccione una opción
+    </p>
+  )}
+</fieldset>
+
+{/* ENTIDAD (solo si es EXTERNO) */}
+{tipoParticipacion === "Externo" && (
+  <fieldset style={{ border: "none", margin: 0, padding: 0 }}>
+    <legend style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
+      Entidad <span style={{ color: "red" }}>*</span>
+    </legend>
     <div
       style={{
         padding: "0.7rem",
@@ -627,73 +726,53 @@ setMostrarErrorCedula(false);
         gap: "6px",
       }}
     >
-      {["Interno", "Externo"].map((tipo) => (
-        <label key={tipo} style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 600, color: "#004d40" }}>
+      {["CEP", "PROGREZANDO", "Otra"].map((ent, i) => (
+        <label key={ent} style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 600, color: "#004d40" }}>
           <input
             type="radio"
-            value={tipo}
-            checked={tipoParticipacion === tipo}
-            onChange={(e) => setTipoParticipacion(e.target.value)}
+            name="entidad"
+            value={ent}
+            required={i === 0}
+            checked={entidad === ent}
+            onChange={(e) => setEntidad(e.target.value)}
             disabled={qrVisible}
           />
-          {tipo === "Interno" ? "Interno a la universidad" : "Externo a la universidad"}
+          {ent === "CEP"
+            ? "Colegio de Economista de Panamá (CEP)"
+            : ent === "PROGREZANDO"
+            ? "PROGREZANDO"
+            : "Otra"}
         </label>
       ))}
     </div>
-  </div>
-
-  {/* ENTIDAD (solo si es EXTERNO) */}
-  {tipoParticipacion === "Externo" && (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
-        Entidad
-      </label>
-      <div
+    {!entidad && (
+      <p style={{ color: "red", fontSize: "0.85rem", marginTop: "0.3rem" }}>
+        Seleccione una opción
+      </p>
+    )}
+    {entidad === "Otra" && (
+      <input
+        type="text"
+        placeholder="Indique la entidad"
+        value={otraEntidad}
+        onChange={(e) => setOtraEntidad(e.target.value)}
+        disabled={qrVisible}
+        required
         style={{
           padding: "0.7rem",
+          fontSize: 16,
           borderRadius: 6,
           border: "2px solid #004d40",
-          backgroundColor: "#fff",
-          display: "flex",
-          flexDirection: "column",
-          gap: "6px",
+          outlineColor: "#1565c0",
+          fontWeight: 600,
+          backgroundColor: "#f5f5f5",
+          color: "#004d40",
+          marginTop: "0.5rem",
         }}
-      >
-        {["CEP", "PROGREZANDO", "Otra"].map((ent) => (
-          <label key={ent} style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 600, color: "#004d40" }}>
-            <input
-              type="radio"
-              value={ent}
-              checked={entidad === ent}
-              onChange={(e) => setEntidad(e.target.value)}
-              disabled={qrVisible}
-            />
-            {ent === "CEP" ? "Colegio de Economista de Panamá (CEP)" : ent === "PROGREZANDO" ? "PROGREZANDO" : "Otra"}
-          </label>
-        ))}
-      </div>
-      {entidad === "Otra" && (
-        <input
-          type="text"
-          placeholder="Indique la entidad"
-          value={otraEntidad}
-          onChange={(e) => setOtraEntidad(e.target.value)}
-          disabled={qrVisible}
-          style={{
-            padding: "0.7rem",
-            fontSize: 16,
-            borderRadius: 6,
-            border: "2px solid #004d40",
-            outlineColor: "#1565c0",
-            fontWeight: 600,
-            backgroundColor: "#f5f5f5", // fondo claro para modo claro
-          color: "#004d40",            // color del texto
-            marginTop: "0.5rem",
-          }}
-        />
-      )}
-    </div>
-  )}
+      />
+    )}
+  </fieldset>
+)}
 
 
         <button
