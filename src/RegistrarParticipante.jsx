@@ -218,7 +218,7 @@ setMostrarErrorCedula(false);
           <li>El congreso tiene un costo y las conferencias son presenciales y virtuales.</li>
           <li>Los horarios de CESI estarán distribuidos en tres bloques: Conferencias presenciales en el turno matutino, talleres para grupos seleccionados en el turno vespertino y videoconferencias en el turno nocturno.</li>
           <li>Se validará un único acceso por participante. Ningún participante podrá registrarse más de una vez.</li>
-          <li>Para los usuarios de la Universidad Autónoma el ingreso al congreso será mediante correo institucional (por favor validen el acceso con Microsoft 365).</li>
+          <li>Para los participantes de la Universidad Autónoma el ingreso al congreso será mediante correo institucional (por favor validen el acceso con Microsoft 365).</li>
           <li>El programa del congreso se remitirá al correo de inscripción.</li>
           <li>Se emitirá certificado a quien cumpla con más del 70% de asistencia a las conferencias.</li>
           <li>Los certificados son digitales y se remiten al correo de inscripción.</li>
