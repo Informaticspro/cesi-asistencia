@@ -263,25 +263,32 @@ setMostrarErrorCedula(false);
     Ingrese su Cédula o I.D (ejemplo 4-718-888) <span style={{ color: "red" }}>*</span>
   </label>
   <input
-    type="text"
-    placeholder="Ingrese su cédula"
-    value={cedula}
-    onChange={(e) => setCedula(e.target.value)}
-    style={{
-      padding: "0.7rem",
-      fontSize: 16,
-      borderRadius: 6,
-      border: "2px solid #004d40",
-      outlineColor: "#1565c0",
-      fontWeight: 600,
-      backgroundColor: "#f5f5f5", // fondo claro
-      color: "#004d40",            // color del texto
-    }}
-    disabled={qrVisible}
-    autoComplete="off"
-    ref={cedulaInputRef}
-    onBlur={() => setTimeout(() => setMostrarSugerencias(false), 150)}
-  />
+  type="text"
+  value={cedula}
+  onChange={(e) => {
+    // quita espacios automáticamente
+    let valor = e.target.value.replace(/\s+/g, "");
+    setCedula(valor);
+  }}
+  required
+  placeholder="Ej: 4-760-2153"
+  pattern="^[0-9]+-[0-9]+-[0-9]+$"
+  title="La cédula debe tener el formato 0-000-0000"
+  style={{
+    padding: "0.7rem",
+    fontSize: 16,
+    borderRadius: 6,
+    border: "2px solid #004d40",
+    outlineColor: "#1565c0",
+    fontWeight: 600,
+    backgroundColor: "#f5f5f5", // fondo claro
+    color: "#004d40",           // color del texto
+  }}
+  disabled={qrVisible}
+  autoComplete="off"
+  ref={cedulaInputRef}
+  onBlur={() => setTimeout(() => setMostrarSugerencias(false), 150)}
+/>
 
   {/* Mensaje de error si cédula está vacío */}
   {!cedula && mostrarErrorCedula && (
