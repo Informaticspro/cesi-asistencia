@@ -457,7 +457,7 @@ setMostrarErrorCedula(false);
   />
   {!correo && (
     <p style={{ color: "red", fontSize: "0.85rem", marginTop: "0.3rem" }}>
-      Ingrese su correo institucional
+      ⚠️Verifique que su correo institucional esté escrito completo⚠️*
     </p>
   )}
 </div>
