@@ -12,26 +12,32 @@ function ActualizacionesEvento({ mostrarTodas = false }) {
   useEffect(() => {
     async function fetchActualizaciones() {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("actualizaciones")
-        .select("*")
-        .order("fecha", { ascending: false });
+
+      let query = supabase.from("actualizaciones").select("*");
+
+      if (mostrarTodas) {
+        // 🔹 Muestra todas las noticias ordenadas por fecha
+        query = query.order("fecha", { ascending: false });
+      } else {
+        // 🔹 Solo las que tengan posición definida (1 o 2)
+        query = query
+          .in("posicion", [1, 2])
+          .order("posicion", { ascending: true });
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         setError("Error al cargar actualizaciones");
         console.error("Error Supabase:", error);
       } else {
-        setActualizaciones(data);
+        setActualizaciones(data || []);
       }
       setLoading(false);
     }
 
     fetchActualizaciones();
-  }, []);
-
-  const noticiasParaMostrar = mostrarTodas
-    ? actualizaciones
-    : actualizaciones.slice(0, 1); // solo las 3 más recientes
+  }, [mostrarTodas]);
 
   if (loading)
     return (
@@ -47,7 +53,7 @@ function ActualizacionesEvento({ mostrarTodas = false }) {
       </p>
     );
 
-  if (noticiasParaMostrar.length === 0)
+  if (actualizaciones.length === 0)
     return (
       <p style={{ color: "#ccc", textAlign: "center", marginTop: "1rem" }}>
         No hay actualizaciones disponibles.
@@ -63,7 +69,7 @@ function ActualizacionesEvento({ mostrarTodas = false }) {
           gap: "1rem",
         }}
       >
-        {noticiasParaMostrar.map(({ id, titulo, contenido, imagen_url, fecha }, index) => (
+        {actualizaciones.map(({ id, titulo, contenido, imagen_url, fecha }, index) => (
           <div
             key={id}
             style={{
@@ -116,8 +122,8 @@ function ActualizacionesEvento({ mostrarTodas = false }) {
         ))}
       </div>
 
-      {/* Botón para ver más */}
-      {!mostrarTodas && actualizaciones.length > 3 && (
+      {/* Botón para ver más noticias (solo si NO estamos mostrando todas) */}
+      {!mostrarTodas && (
         <div style={{ textAlign: "center", marginTop: "2rem" }}>
           <button
             onClick={() => navigate("/noticias")}
@@ -138,7 +144,6 @@ function ActualizacionesEvento({ mostrarTodas = false }) {
         </div>
       )}
 
-      {/* Animación keyframe */}
       <style>{`
         @keyframes fadeInUp {
           0% {

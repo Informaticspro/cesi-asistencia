@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "./supabaseClient";
 
-
 function AdminActualizaciones() {
   const navigate = useNavigate();
 
@@ -16,11 +15,12 @@ function AdminActualizaciones() {
     contenido: "",
     imagen_url: "",
     fecha: new Date().toISOString().slice(0, 10),
+    posicion: "", // 👈 nuevo campo
   });
 
- const subirImagen = async (file) => {
-  if (!file) return null;
-  
+  const subirImagen = async (file) => {
+    if (!file) return null;
+
     const fileExt = file.name.split(".").pop();
     const fileName = `${Date.now()}.${fileExt}`;
     const filePath = fileName;
@@ -47,7 +47,6 @@ function AdminActualizaciones() {
     return data.publicUrl;
   };
 
-  // Cargar todas las actualizaciones
   const cargarActualizaciones = async () => {
     setLoading(true);
     const { data, error } = await supabase
@@ -67,7 +66,6 @@ function AdminActualizaciones() {
     cargarActualizaciones();
   }, []);
 
-  // Comenzar a editar una actualización existente
   const comenzarEdicion = (actualizacion) => {
     setEditandoId(actualizacion.id);
     setFormData({
@@ -75,11 +73,11 @@ function AdminActualizaciones() {
       contenido: actualizacion.contenido || "",
       imagen_url: actualizacion.imagen_url || "",
       fecha: actualizacion.fecha.slice(0, 10),
+      posicion: actualizacion.posicion || "",
     });
     setError(null);
   };
 
-  // Cancelar edición y limpiar formulario
   const cancelarEdicion = () => {
     setEditandoId(null);
     setFormData({
@@ -87,11 +85,11 @@ function AdminActualizaciones() {
       contenido: "",
       imagen_url: "",
       fecha: new Date().toISOString().slice(0, 10),
+      posicion: "",
     });
     setError(null);
   };
 
-  // Manejar cambio de archivo e iniciar subida
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -103,7 +101,6 @@ function AdminActualizaciones() {
     }
   };
 
-  // Guardar o actualizar la actualización
   const guardarActualizacion = async () => {
     if (!formData.titulo.trim()) return setError("El título es obligatorio");
     if (!formData.contenido.trim()) return setError("El contenido es obligatorio");
@@ -117,10 +114,10 @@ function AdminActualizaciones() {
       contenido: formData.contenido.trim(),
       imagen_url: formData.imagen_url.trim(),
       fecha: formData.fecha,
+      posicion: formData.posicion ? Number(formData.posicion) : null,
     };
 
     let error;
-
     if (editandoId) {
       const { error: err } = await supabase
         .from("actualizaciones")
@@ -141,7 +138,6 @@ function AdminActualizaciones() {
     }
   };
 
-  // Eliminar actualización
   const eliminarActualizacion = async (id) => {
     if (!window.confirm("¿Seguro que deseas eliminar esta actualización?")) return;
     setLoading(true);
@@ -210,10 +206,7 @@ function AdminActualizaciones() {
             <input
               type="text"
               value={formData.titulo}
-              onChange={(e) => {
-                setFormData({ ...formData, titulo: e.target.value });
-                setError(null);
-              }}
+              onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
               style={inputStyle}
               disabled={loading}
             />
@@ -223,10 +216,7 @@ function AdminActualizaciones() {
             Contenido:<br />
             <textarea
               value={formData.contenido}
-              onChange={(e) => {
-                setFormData({ ...formData, contenido: e.target.value });
-                setError(null);
-              }}
+              onChange={(e) => setFormData({ ...formData, contenido: e.target.value })}
               rows={4}
               style={inputStyle}
               disabled={loading}
@@ -252,11 +242,24 @@ function AdminActualizaciones() {
           </label>
 
           <label>
-          <br/> Fecha:<br/>
+            <br /> Fecha:<br />
             <input
               type="date"
               value={formData.fecha}
               onChange={(e) => setFormData({ ...formData, fecha: e.target.value })}
+              style={inputStyle}
+              disabled={loading}
+            />
+          </label>
+
+          <label>
+            <br /> Posición en Bienvenida (1 o 2):<br />
+            <input
+              type="number"
+              min="1"
+              max="2"
+              value={formData.posicion}
+              onChange={(e) => setFormData({ ...formData, posicion: e.target.value })}
               style={inputStyle}
               disabled={loading}
             />
@@ -279,15 +282,17 @@ function AdminActualizaciones() {
             <tr style={{ backgroundColor: "#00796b", color: "white" }}>
               <th style={thStyle}>Título</th>
               <th style={thStyle}>Fecha</th>
+              <th style={thStyle}>Posición</th>
               <th style={thStyle}>Imagen</th>
               <th style={thStyle}>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {actualizaciones.map(({ id, titulo, fecha, imagen_url }) => (
+            {actualizaciones.map(({ id, titulo, fecha, imagen_url, posicion }) => (
               <tr key={id} style={{ borderBottom: "1px solid #444" }}>
                 <td style={tdStyle}>{titulo}</td>
                 <td style={tdStyle}>{new Date(fecha).toLocaleDateString()}</td>
+                <td style={tdStyle}>{posicion || "-"}</td>
                 <td style={tdStyle}>
                   {imagen_url ? (
                     <a href={imagen_url} target="_blank" rel="noopener noreferrer">
@@ -303,9 +308,7 @@ function AdminActualizaciones() {
                 </td>
                 <td style={tdStyle}>
                   <button
-                    onClick={() =>
-                      comenzarEdicion(actualizaciones.find((a) => a.id === id))
-                    }
+                    onClick={() => comenzarEdicion(actualizaciones.find((a) => a.id === id))}
                     style={buttonGreenSmall}
                     disabled={loading}
                   >
@@ -323,7 +326,7 @@ function AdminActualizaciones() {
             ))}
             {actualizaciones.length === 0 && !loading && (
               <tr>
-                <td colSpan={4} style={{ textAlign: "center", padding: "1rem", color: "#aaa" }}>
+                <td colSpan={5} style={{ textAlign: "center", padding: "1rem", color: "#aaa" }}>
                   No hay actualizaciones registradas.
                 </td>
               </tr>
