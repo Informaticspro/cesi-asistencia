@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "./supabaseClient";
 import ActualizacionesEvento from "./ActualizacionesEvento";
 
+
 function Bienvenida({ onLogin }) {
   const [usuario, setUsuario] = useState("");
   const [contraseña, setContrasena] = useState("");
@@ -112,8 +113,19 @@ function Bienvenida({ onLogin }) {
         margin: 0,
       }}
     >
-      {/* Header con título y botón de registro */}
+       {/* Header con logo, título y botón de registro */}
       <div style={{ width: "100%", textAlign: "center", marginBottom: "2rem" }}>
+        {/* Logo CESI */}
+        <img
+          src="/logocesiblanco.png"
+          alt="Logo CESI 2025"
+          style={{
+            width: "300px",
+            marginBottom: "1rem",
+            marginTop: "1rem",
+          }}
+        />
+        
         <h1 className="titulo-cesi">Bienvenido a CESI 2025</h1>
         <p style={{ color: "#ffffff", fontSize: "1.1rem", marginBottom: "1rem" }}>
           ¿Aún no estás registrado?

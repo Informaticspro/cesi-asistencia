@@ -18,7 +18,7 @@ import MiFooter from "./MiFooter";
 import AgregarActualizacion from "./AgregarActualizacion";
 import AsistenciaHoy from "./AsistenciaHoy";
 import logoUnachi from "./assets/logo_unachi.png";
-import logoCongreso from "./assets/logo_congreso.png";
+
 import Noticias from "./Noticias";
 import AdminUsuarios from "./AdminUsuarios";
 import { saveAs } from "file-saver";
@@ -135,51 +135,83 @@ function AppWrapper() {
   };
 
  return (
-    <Router>
-      {/* Header fijo con logos y fondo oscuro */}
-      <div style={logoBaseStyle}>
-        <img
-          src={logoUnachi}
-          alt="Logo UNACHI"
-          style={{ height: isMobile ? 30 : 50 }}
-        />
-         <div
-  style={{
-     textAlign: "center",
-            flexGrow: 1,
-            padding: isMobile ? "0 4px" : "0 20px",
-            fontSize: isMobile ? "0.5rem" : "1.2rem",
+ <Router>
+      {/* Header fijo con logos a la izquierda y texto centrado */}
+      <div
+        style={{
+          ...logoBaseStyle,
+          display: "flex",
+          alignItems: "center",
+          position: "relative", // necesario para centrar el texto
+          backgroundColor: "#1c1c1c",
+          padding: isMobile ? "4px 6px" : "8px 20px",
+        }}
+      >
+        {/* Logos a la izquierda */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: isMobile ? "6px" : "15px", // espacio entre logos
+          }}
+        >
+          <img
+            src="/Dato1.png"
+            alt="Logo Dato1"
+            style={{ height: isMobile ? 25 : 75 }}
+          />
+          <img
+            src="/Unachi-2.png"
+            alt="Logo UNACHI"
+            style={{ height: isMobile ? 25 : 75 }}
+          />
+          <img
+            src="/logoeconomia3.png"
+            alt="Logo Economía"
+            style={{ height: isMobile ? 25 : 75 }}
+          />
+        </div>
+
+        {/* Texto centrado */}
+        <div
+          style={{
+            textAlign: "center",
+            fontSize: isMobile ? "0.55rem" : "1.1rem",
             fontWeight: "bold",
-            lineHeight: isMobile ? "0.9rem" : "1.5rem",
+            lineHeight: isMobile ? "0.9rem" : "1.4rem",
             color: "#fff",
             userSelect: "none",
-  }}
->
-  CONGRESO DE ECONOMÍA, SOCIEDAD E INNOVACIÓN <br />
-  <span
-       style={{
+            position: "absolute", // truco para centrar
+            left: "50%",
+            transform: "translateX(-50%)",
+            whiteSpace: "nowrap",
+          }}
+        >
+          CONGRESO DE ECONOMÍA, SOCIEDAD E INNOVACIÓN <br />
+          <span
+            style={{
               fontWeight: "normal",
               fontSize: isMobile ? "0.45rem" : "0.9rem",
               display: "block",
               marginTop: isMobile ? "2px" : "5px",
               fontStyle: "italic",
-    }}
-  >
-    "Construyendo una cultura de datos para la ciencia, la gobernanza y el desarrollo sostenible."
-  </span>
-</div>
-        <img
-          src={logoCongreso}
-          alt="Logo Congreso"
-          style={{ height: isMobile ? 30 : 50 }}
-        />
+            }}
+          >
+            "Construyendo una cultura de datos para la ciencia, la gobernanza y
+            el desarrollo sostenible."
+          </span>
+        </div>
       </div>
 
       {/* Contenido principal con padding para no quedar oculto tras el header */}
-      <div style={{  paddingTop: isMobile ? "90px" : "100px",
+      <div
+        style={{
+          paddingTop: isMobile ? "90px" : "100px",
           backgroundColor: "#1c1c1c",
           minHeight: "100vh",
-          margin: 0, }}>
+          margin: 0,
+        }}
+      >
         <App />
       </div>
     </Router>
