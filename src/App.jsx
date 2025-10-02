@@ -145,6 +145,7 @@ function AppWrapper() {
           position: "relative", // necesario para centrar el texto
           backgroundColor: "#1c1c1c",
           padding: isMobile ? "4px 6px" : "8px 20px",
+          minHeight: isMobile ? "55px" : "80px",
         }}
       >
         {/* Logos a la izquierda */}
@@ -152,23 +153,25 @@ function AppWrapper() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: isMobile ? "6px" : "15px", // espacio entre logos
+            gap: isMobile ? "4px" : "15px",
+            maxWidth: isMobile ? "35%" : "none", // evita que se coma todo el ancho
+            flexShrink: 0,
           }}
         >
           <img
             src="/Dato1.png"
             alt="Logo Dato1"
-            style={{ height: isMobile ? 25 : 75 }}
+            style={{ height: isMobile ? 20 : 55 }}
           />
           <img
             src="/Unachi-2.png"
             alt="Logo UNACHI"
-            style={{ height: isMobile ? 25 : 75 }}
+            style={{ height: isMobile ? 20 : 55 }}
           />
           <img
             src="/logoeconomia3.png"
             alt="Logo Economía"
-            style={{ height: isMobile ? 25 : 75 }}
+            style={{ height: isMobile ? 20 : 55 }}
           />
         </div>
 
@@ -176,24 +179,25 @@ function AppWrapper() {
         <div
           style={{
             textAlign: "center",
-            fontSize: isMobile ? "0.55rem" : "1.1rem",
+            fontSize: isMobile ? "0.5rem" : "1.1rem",
             fontWeight: "bold",
-            lineHeight: isMobile ? "0.9rem" : "1.4rem",
+            lineHeight: isMobile ? "0.8rem" : "1.4rem",
             color: "#fff",
             userSelect: "none",
-            position: "absolute", // truco para centrar
+            position: "absolute",
             left: "50%",
             transform: "translateX(-50%)",
-            whiteSpace: "nowrap",
+            whiteSpace: isMobile ? "normal" : "nowrap", // permite salto de línea en móvil
+            width: isMobile ? "80%" : "auto", // limita ancho en móvil
           }}
         >
           CONGRESO DE ECONOMÍA, SOCIEDAD E INNOVACIÓN <br />
           <span
             style={{
               fontWeight: "normal",
-              fontSize: isMobile ? "0.45rem" : "0.9rem",
+              fontSize: isMobile ? "0.4rem" : "0.9rem",
               display: "block",
-              marginTop: isMobile ? "2px" : "5px",
+              marginTop: isMobile ? "1px" : "5px",
               fontStyle: "italic",
             }}
           >
@@ -206,7 +210,7 @@ function AppWrapper() {
       {/* Contenido principal con padding para no quedar oculto tras el header */}
       <div
         style={{
-          paddingTop: isMobile ? "90px" : "100px",
+          paddingTop: isMobile ? "70px" : "100px",
           backgroundColor: "#1c1c1c",
           minHeight: "100vh",
           margin: 0,
