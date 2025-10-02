@@ -135,7 +135,7 @@ function AppWrapper() {
   };
 
  return (
-   <Router>
+    <Router>
       {/* Header fijo */}
       <div
         style={{
@@ -144,8 +144,12 @@ function AppWrapper() {
           alignItems: "center",
           backgroundColor: "#1c1c1c",
           padding: isMobile ? "6px 10px" : "10px 20px",
-          flexDirection: isMobile ? "column" : "row", // móvil: logos arriba y texto debajo
-          position: "relative",
+          flexDirection: isMobile ? "column" : "row",
+          position: "fixed",   // 👈 ahora siempre fijo
+          top: 0,
+          left: 0,
+          width: "100%",       // ocupa todo el ancho
+          zIndex: 1000,        // se queda arriba de todo
         }}
       >
         {/* Logos a la izquierda */}
@@ -154,7 +158,7 @@ function AppWrapper() {
             display: "flex",
             alignItems: "center",
             gap: isMobile ? "4px" : "15px",
-            alignSelf: isMobile ? "center" : "flex-start", // en móvil centrados arriba
+            alignSelf: isMobile ? "center" : "flex-start",
           }}
         >
           <img
@@ -183,8 +187,8 @@ function AppWrapper() {
             lineHeight: isMobile ? "1.1rem" : "1.5rem",
             color: "#fff",
             userSelect: "none",
-            marginTop: isMobile ? "6px" : "0", // baja el texto en móvil
-            position: isMobile ? "static" : "absolute", // móvil fluye, pc centrado
+            marginTop: isMobile ? "6px" : "0",
+            position: isMobile ? "static" : "absolute",
             left: isMobile ? "auto" : "50%",
             transform: isMobile ? "none" : "translateX(-50%)",
             width: isMobile ? "100%" : "auto",
@@ -208,10 +212,10 @@ function AppWrapper() {
         </div>
       </div>
 
-      {/* Contenido principal */}
+      {/* Contenido principal con padding compensando header fijo */}
       <div
         style={{
-          paddingTop: isMobile ? "105px" : "120px",
+          paddingTop: isMobile ? "115px" : "130px", // 👈 aumenta un poco para que no lo tape
           backgroundColor: "#1c1c1c",
           minHeight: "100vh",
           margin: 0,
