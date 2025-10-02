@@ -77,8 +77,8 @@ const handleSubmit = async (e) => {
   setMensaje(null); // Limpia mensajes anteriores
 
   // Validación básica
-  if (!cedula || !nombre || !apellido || !correo || !sexo || !categoria) {
-    setMensaje({ tipo: "error", texto: "❌ Todos los campos son obligatorios" });
+  if (!cedula || !nombre || !apellido || !sexo || !categoria) {
+    setMensaje({ tipo: "error", texto: "❌ Algunos campos son obligatorios" });
     setLoading(false);
     return;
   }
