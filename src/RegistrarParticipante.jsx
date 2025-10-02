@@ -10,7 +10,6 @@ function RegistrarParticipante() {
   const [correo, setCorreo] = useState("");
   const [sexo, setSexo] = useState("");
   const [categoria, setCategoria] = useState("");
-  const [correop, setCorreop] = useState("");
   const [nacionalidad, setNacionalidad] = useState("");
   const [otraNacionalidad, setOtraNacionalidad] = useState("");
   const [modalidad, setModalidad] = useState("");
@@ -111,7 +110,6 @@ setMostrarErrorCedula(false);
     correo,
     sexo,
     categoria,
-    correop,
     nacionalidad,
     otra_nacionalidad: otraNacionalidad,
     modalidad,
@@ -432,14 +430,14 @@ setMostrarErrorCedula(false);
   )}
 </div>
 
-{/* CORREO INSTITUCIONAL */}
+{/* CORREO ELECTRÓNICO */}
 <div style={{ display: "flex", flexDirection: "column", marginBottom: "1rem" }}>
   <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
-    Correo institucional <span style={{ color: "red" }}>*</span>
+    Correo electrónico <span style={{ color: "red" }}>*</span>
   </label>
   <input
     type="email"
-    placeholder="ejemplo@unachi.ac.pa"
+    placeholder="ejemplo@unachi.ac.pa o ejemplo@gmail.com"
     value={correo}
     onChange={(e) => setCorreo(e.target.value)}
     required
@@ -457,34 +455,12 @@ setMostrarErrorCedula(false);
   />
   {!correo && (
     <p style={{ color: "red", fontSize: "0.85rem", marginTop: "0.3rem" }}>
-      ⚠️Verifique que su correo institucional esté escrito completo⚠️*
+      ⚠️Verifique que su correo esté escrito completo⚠️*
     </p>
   )}
 </div>
 
-{/* CORREO PERSONAL */}
-<div style={{ display: "flex", flexDirection: "column", marginBottom: "1rem" }}>
-  <label style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
-    Correo personal
-  </label>
-  <input
-    type="email"
-    placeholder="ejemplo@gmail.com"
-    value={correop}
-    onChange={(e) => setCorreop(e.target.value)}
-    style={{
-      padding: "0.7rem",
-      fontSize: 16,
-      borderRadius: 6,
-      border: "2px solid #004d40",
-      outlineColor: "#1565c0",
-      fontWeight: 600,
-      backgroundColor: "#f5f5f5",
-      color: "#004d40",
-    }}
-    disabled={qrVisible}
-  />
-</div>
+
  {/* SEXO */}
 <fieldset style={{ border: "none", margin: 0, padding: 0 }}>
   <legend style={{ marginBottom: "4px", fontWeight: 700, color: "#004d40" }}>
