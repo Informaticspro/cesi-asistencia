@@ -3,6 +3,7 @@ import { QRCodeCanvas } from "qrcode.react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "./supabaseClient";
 
+
 function RegistrarParticipante() {
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
@@ -636,7 +637,7 @@ setMostrarErrorCedula(false);
   >
     {[
       { value: "Estudiante-Plan 1: $20.00 (congreso presencial y virtual, talleres, refrigerios, certificados, otros)" },
-      { value: "Estudiante-Plan 2: $25.00 (participación en congreso presencial y/o virtual + cena)" },
+      { value: "Estudiante-Plan 2: $25.00 (congreso todo incluido + cena)" },
       { value: "Administrativo: $30.00" },
       { value: "Estudiante de postgrado: $25.00" },
       { value: "Docente-Plan 1: $60.00 (TC)" },
