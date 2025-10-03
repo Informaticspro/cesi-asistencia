@@ -62,7 +62,7 @@ function AsistenciaHoy() {
             <tr style={{ borderBottom: "1px solid #00ffff" }}>
               <th style={{ padding: "8px", textAlign: "left" }}>Cédula</th>
               <th style={{ padding: "8px", textAlign: "left" }}>Nombre</th>
-              <th style={{ padding: "8px", textAlign: "left" }}>apellido</th>
+              <th style={{ padding: "8px", textAlign: "left" }}>Apellido</th>
               <th style={{ padding: "8px", textAlign: "left" }}>Correo</th>
               <th style={{ padding: "8px", textAlign: "left" }}>Hora</th>
             </tr>
