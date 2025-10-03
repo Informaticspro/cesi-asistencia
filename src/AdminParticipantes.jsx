@@ -299,35 +299,49 @@ function AdminParticipantes() {
         }}
       />
 
-      {/* 🔢 Contador (siempre visible) */}
-      <div
-        style={{
-          marginBottom: "1rem",
-          color: "#fff",
-          fontWeight: "bold",
-          textAlign: "left",
-          width: "100%",
-        }}
-      >
-        Mostrando {participantesFiltrados.length} de {participantes.length} registros
-      </div>
+    {/* 🔢 Contador (siempre visible) */}
+<div
+  style={{
+    marginBottom: "1rem",
+    color: "#fff",
+    fontWeight: "bold",
+    textAlign: "left",
+    width: "100%",
+  }}
+>
+  Mostrando {participantesFiltrados.length} de {participantes.length} registros &nbsp; | &nbsp;
+  <span style={{ color: "#4caf50" }}>
+    Estudiantes: {participantesFiltrados.filter(p => p.categoria === "Estudiante").length}
+  </span>{" "}
+  |{" "}
+  <span style={{ color: "#2196f3" }}>
+    Docentes: {participantesFiltrados.filter(p => p.categoria === "Docente").length}
+  </span>{" "}
+  |{" "}
+  <span style={{ color: "#ff9800" }}>
+    Funcionarios: {participantesFiltrados.filter(p => p.categoria === "Funcionario").length}
+  </span>{" "}
+  |{" "}
+  <span style={{ color: "#9c27b0" }}>
+    Invitados: {participantesFiltrados.filter(p => p.categoria === "Invitado").length}
+  </span>
+</div>
 
-      {mensaje && (
-        <div
-          style={{
-            margin: "1rem 0",
-            padding: "0.7rem 1rem",
-            color: "#fff",
-            backgroundColor: mensaje.tipo === "error" ? "#c0392b" : "#27ae60",
-            borderRadius: 4,
-            width: "100%",
-            textAlign: "center",
-          }}
-        >
-          {mensaje.texto}
-        </div>
-      )}
-
+{mensaje && (
+  <div
+    style={{
+      margin: "1rem 0",
+      padding: "0.7rem 1rem",
+      color: "#fff",
+      backgroundColor: mensaje.tipo === "error" ? "#c0392b" : "#27ae60",
+      borderRadius: 4,
+      width: "100%",
+      textAlign: "center",
+    }}
+  >
+    {mensaje.texto}
+  </div>
+)}
       {loading && <p style={{ color: "#aaa" }}>Cargando...</p>}
 
       {/* Tabla */}
