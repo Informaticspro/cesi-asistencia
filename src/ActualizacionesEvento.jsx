@@ -122,27 +122,7 @@ function ActualizacionesEvento({ mostrarTodas = false }) {
         ))}
       </div>
 
-      {/* Botón para ver más noticias (solo si NO estamos mostrando todas) */}
-      {!mostrarTodas && (
-        <div style={{ textAlign: "center", marginTop: "2rem" }}>
-          <button
-            onClick={() => navigate("/noticias")}
-            style={{
-              backgroundColor: "#007bff",
-              color: "#fff",
-              border: "none",
-              padding: "0.75rem 1.5rem",
-              borderRadius: "6px",
-              fontSize: "1rem",
-              fontWeight: "bold",
-              cursor: "pointer",
-              transition: "background 0.3s",
-            }}
-          >
-            Ver más noticias
-          </button>
-        </div>
-      )}
+
 
       <style>{`
         @keyframes fadeInUp {

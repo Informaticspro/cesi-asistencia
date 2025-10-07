@@ -159,123 +159,38 @@ function Bienvenida({ onLogin }) {
           </button>
         </Link>
       </div>
-
-      {/* Login exclusivo para administradores */}
-      <div
-        className="login-box-gradient"
-        style={{
-          padding: "1.5rem",
-          borderRadius: "14px",
-          boxShadow: "0 6px 20px rgba(0,0,0,0.4)",
-          width: "100%",
-          maxWidth: "280px",
-          marginTop: "1rem",
-          textAlign: "center",
-        }}
-      >
-        <p
-          style={{
-            color: "#ff1744",
-            fontWeight: "bold",
-            marginBottom: "1rem",
-            fontSize: "0.95rem",
-          }}
-        >
-          Acceso exclusivo para administradores
-        </p>
-
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "1rem", textAlign: "left" }}>
-            <label style={{ fontWeight: "bold", color: "#fff", fontSize: "0.9rem" }}>
-              Usuario
-            </label>
-            <input
-              type="text"
-              value={usuario}
-              onChange={(e) => setUsuario(e.target.value)}
-              required
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                borderRadius: "6px",
-                border: "1px solid #555",
-                backgroundColor: "#fff",
-                color: "#000",
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: "1rem", textAlign: "left" }}>
-            <label style={{ fontWeight: "bold", color: "#fff", fontSize: "0.9rem" }}>
-              Contraseña
-            </label>
-            <input
-              type={mostrarContrasena ? "text" : "password"}
-              value={contraseña}
-              onChange={(e) => setContrasena(e.target.value)}
-              required
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                borderRadius: "6px",
-                border: "1px solid #555",
-                backgroundColor: "#fff",
-                color: "#000",
-              }}
-            />
-            <label
-              style={{
-                display: "block",
-                marginTop: "0.5rem",
-                fontSize: "0.85rem",
-                color: "#fff",
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={mostrarContrasena}
-                onChange={() => setMostrarContrasena(!mostrarContrasena)}
-                style={{ marginRight: "0.4rem" }}
-              />
-              Mostrar contraseña
-            </label>
-          </div>
-
-          {error && (
-            <div
-              style={{
-                backgroundColor: "#dc3545",
-                color: "#fff",
-                padding: "0.6rem",
-                borderRadius: "6px",
-                marginBottom: "1rem",
-                fontSize: "0.9rem",
-              }}
-            >
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            style={{
-              width: "100%",
-              padding: "0.7rem",
-              background: "linear-gradient(135deg, #00c6ff, #0072ff)",
-              color: "#fff",
-              fontWeight: "bold",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              transition: "transform 0.2s ease, box-shadow 0.3s ease",
-              boxShadow: "0 4px 12px rgba(0, 114, 255, 0.4)",
-            }}
-          >
-            Ingresar
-          </button>
-        </form>
-      </div>
-
+{/* 🔍 Buscar mi Código QR */}
+<div style={{ marginTop: "1rem" }}>
+  <Link to="/buscar-qr" style={{ textDecoration: "none" }}>
+    <button
+      style={{
+        padding: "1rem 2rem",
+        background: "linear-gradient(to right, #00796b, #004d40)",
+        border: "none",
+        borderRadius: "10px",
+        fontWeight: "bold",
+        fontSize: "1.2rem",
+        color: "#fff",
+        cursor: "pointer",
+        boxShadow: "0 6px 14px rgba(0, 121, 107, 0.6)",
+        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+      }}
+      onMouseOver={(e) => {
+        e.currentTarget.style.transform = "scale(1.05)";
+        e.currentTarget.style.boxShadow =
+          "0 8px 18px rgba(0, 121, 107, 0.7)";
+      }}
+      onMouseOut={(e) => {
+        e.currentTarget.style.transform = "scale(1)";
+        e.currentTarget.style.boxShadow =
+          "0 6px 14px rgba(0, 121, 107, 0.6)";
+      }}
+    >
+      🔍 Buscar mi Código QR
+    </button>
+  </Link>
+</div>
+      
       {/* Sección de Actualizaciones */}
       <div
         style={{

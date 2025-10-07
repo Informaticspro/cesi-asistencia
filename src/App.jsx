@@ -133,97 +133,249 @@ function AppWrapper() {
     justifyContent: "space-between",
     borderBottom: "1px solid #444",
   };
+const [mostrarLogin, setMostrarLogin] = useState(false);
+const [usuario, setUsuario] = useState("");
+const [contraseña, setContrasena] = useState("");
+const [mostrarContrasena, setMostrarContrasena] = useState(false);
+const [error, setError] = useState(null);
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setError(null);
+  const { data, error: err } = await supabase
+    .from("usuarios")
+    .select("*")
+    .ilike("usuario", usuario.trim())
+    .single();
 
+  if (err || !data) return setError("Usuario no encontrado");
+
+  if (data["contraseña"] === contraseña) {
+    localStorage.setItem("autorizado", "true");
+    localStorage.setItem("usuario", data.usuario);
+    setMostrarLogin(false);
+    window.location.reload();
+  } else {
+    setError("Contraseña incorrecta");
+  }
+};
  return (
     <Router>
-      {/* Header fijo */}
-      <div
+  {/* HEADER FIJO */}
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      backgroundColor: "#1c1c1c",
+      padding: isMobile ? "6px 10px" : "10px 20px",
+      flexDirection: isMobile ? "column" : "row",
+      position: "fixed",
+      top: 0,
+      left: 0,
+      width: "100%",
+      zIndex: 1000,
+      borderBottom: "1px solid #444",
+    }}
+  >
+    {/* 🏛️ LOGOS IZQUIERDA */}
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: isMobile ? "4px" : "15px",
+        alignSelf: isMobile ? "center" : "flex-start",
+      }}
+    >
+      <img src="/Dato1.png" alt="Logo Dato1" style={{ height: isMobile ? 28 : 55 }} />
+      <img src="/Unachi-2.png" alt="Logo UNACHI" style={{ height: isMobile ? 28 : 55 }} />
+      <img src="/logoeconomia3.png" alt="Logo Economía" style={{ height: isMobile ? 28 : 55 }} />
+    </div>
+
+    {/* 🧾 TÍTULO CENTRAL */}
+    <div
+      style={{
+        textAlign: "center",
+        fontSize: isMobile ? "0.75rem" : "1.1rem",
+        fontWeight: "bold",
+        lineHeight: isMobile ? "1.1rem" : "1.5rem",
+        color: "#fff",
+        userSelect: "none",
+        position: isMobile ? "static" : "absolute",
+        left: isMobile ? "auto" : "50%",
+        transform: isMobile ? "none" : "translateX(-50%)",
+      }}
+    >
+      CONGRESO DE ECONOMÍA, SOCIEDAD E INNOVACIÓN
+      <br />
+      <span
         style={{
-          ...logoBaseStyle,
-          display: "flex",
-          alignItems: "center",
-          backgroundColor: "#1c1c1c",
-          padding: isMobile ? "6px 10px" : "10px 20px",
-          flexDirection: isMobile ? "column" : "row",
-          position: "fixed",   // 👈 ahora siempre fijo
-          top: 0,
-          left: 0,
-          width: "100%",       // ocupa todo el ancho
-          zIndex: 1000,        // se queda arriba de todo
+          fontWeight: "normal",
+          fontSize: isMobile ? "0.6rem" : "0.9rem",
+          display: "block",
+          marginTop: "3px",
+          fontStyle: "italic",
         }}
       >
-        {/* Logos a la izquierda */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: isMobile ? "4px" : "15px",
-            alignSelf: isMobile ? "center" : "flex-start",
-          }}
-        >
-          <img
-            src="/Dato1.png"
-            alt="Logo Dato1"
-            style={{ height: isMobile ? 28 : 55 }}
-          />
-          <img
-            src="/Unachi-2.png"
-            alt="Logo UNACHI"
-            style={{ height: isMobile ? 28 : 55 }}
-          />
-          <img
-            src="/logoeconomia3.png"
-            alt="Logo Economía"
-            style={{ height: isMobile ? 28 : 55 }}
-          />
-        </div>
+        "Construyendo una cultura de datos para la ciencia, la gobernanza y el desarrollo sostenible."
+      </span>
+    </div>
 
-        {/* Texto */}
+    {/* 🔑 BOTÓN LOGIN A LA DERECHA */}
+    <div
+      onClick={() => setMostrarLogin(!mostrarLogin)}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+        cursor: "pointer",
+        color: "#fff",
+        fontWeight: "bold",
+        fontSize: isMobile ? "0.85rem" : "1rem",
+        transition: "opacity 0.2s ease, transform 0.2s ease",
+        marginRight: isMobile ? "8px" : "30px",
+        whiteSpace: "nowrap",
+      }}
+      title="Acceso de administradores"
+    >
+      <span
+        style={{
+          fontSize: isMobile ? "1.3rem" : "1.6rem",
+          color: "#ffd54f",
+        }}
+      >
+        🔑
+      </span>
+      <span
+        style={{
+          textDecoration: "underline",
+          textUnderlineOffset: "3px",
+          color: "#fff",
+        }}
+      >
+        Iniciar sesión
+      </span>
+    </div>
+
+    {/* 💬 FORMULARIO FLOTANTE LOGIN */}
+    {mostrarLogin && (
+      <>
+        {/* Fondo oscuro */}
+        <div
+          onClick={() => setMostrarLogin(false)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0,0,0,0.4)",
+            backdropFilter: "blur(3px)",
+            zIndex: 999,
+          }}
+        ></div>
+
+        {/* Caja de login */}
         <div
           style={{
-            textAlign: "center",
-            fontSize: isMobile ? "0.75rem" : "1.1rem",
-            fontWeight: "bold",
-            lineHeight: isMobile ? "1.1rem" : "1.5rem",
+            position: "fixed",
+            top: isMobile ? "90px" : "80px",
+            right: isMobile ? "10px" : "25px",
+            background: "linear-gradient(135deg, rgba(44,44,44,0.95), rgba(58,58,58,0.95))",
+            borderRadius: "12px",
+            padding: "1rem",
+            width: isMobile ? "80vw" : "300px",
+            zIndex: 1001,
+            boxShadow: "0 4px 15px rgba(0,0,0,0.4)",
             color: "#fff",
-            userSelect: "none",
-            marginTop: isMobile ? "6px" : "0",
-            position: isMobile ? "static" : "absolute",
-            left: isMobile ? "auto" : "50%",
-            transform: isMobile ? "none" : "translateX(-50%)",
-            width: isMobile ? "100%" : "auto",
-            padding: isMobile ? "0 8px" : "0",
+            textAlign: "center",
           }}
         >
-          CONGRESO DE ECONOMÍA, SOCIEDAD E INNOVACIÓN
-          <br />
-          <span
-            style={{
-              fontWeight: "normal",
-              fontSize: isMobile ? "0.6rem" : "0.9rem",
-              display: "block",
-              marginTop: "3px",
-              fontStyle: "italic",
-            }}
-          >
-            "Construyendo una cultura de datos para la ciencia, la gobernanza y
-            el desarrollo sostenible."
-          </span>
-        </div>
-      </div>
+          <p style={{ color: "#ff1744", fontWeight: "bold" }}>
+            Acceso exclusivo para administradores
+          </p>
+          <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+            <input
+              type="text"
+              placeholder="Usuario"
+              value={usuario}
+              onChange={(e) => setUsuario(e.target.value)}
+              required
+              style={{
+                padding: "0.5rem",
+                borderRadius: "6px",
+                border: "1px solid #555",
+                backgroundColor: "#fff",
+                color: "#000",
+              }}
+            />
+            <input
+              type={mostrarContrasena ? "text" : "password"}
+              placeholder="Contraseña"
+              value={contraseña}
+              onChange={(e) => setContrasena(e.target.value)}
+              required
+              style={{
+                padding: "0.5rem",
+                borderRadius: "6px",
+                border: "1px solid #555",
+                backgroundColor: "#fff",
+                color: "#000",
+              }}
+            />
+            <label style={{ fontSize: "0.85rem" }}>
+              <input
+                type="checkbox"
+                checked={mostrarContrasena}
+                onChange={() => setMostrarContrasena(!mostrarContrasena)}
+                style={{ marginRight: "0.4rem" }}
+              />
+              Mostrar contraseña
+            </label>
 
-      {/* Contenido principal con padding compensando header fijo */}
-      <div
-        style={{
-          paddingTop: isMobile ? "115px" : "130px", // 👈 aumenta un poco para que no lo tape
-          backgroundColor: "#1c1c1c",
-          minHeight: "100vh",
-          margin: 0,
-        }}
-      >
-        <App />
-      </div>
-    </Router>
+            {error && (
+              <div
+                style={{
+                  backgroundColor: "#dc3545",
+                  color: "#fff",
+                  padding: "0.5rem",
+                  borderRadius: "6px",
+                }}
+              >
+                {error}
+              </div>
+            )}
+            <button
+              type="submit"
+              style={{
+                padding: "0.6rem",
+                background: "linear-gradient(135deg, #00c6ff, #0072ff)",
+                border: "none",
+                borderRadius: "6px",
+                color: "#fff",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              Ingresar
+            </button>
+          </form>
+        </div>
+      </>
+    )}
+  </div>
+
+  {/* CONTENIDO PRINCIPAL */}
+  <div
+    style={{
+      paddingTop: isMobile ? "115px" : "130px",
+      backgroundColor: "#1c1c1c",
+      minHeight: "100vh",
+      margin: 0,
+    }}
+  >
+    <App />
+  </div>
+</Router>
   );
 }
 
@@ -491,29 +643,7 @@ function App() {
     </Link>
   </div>
 
-  {/* BOTÓN BUSCAR QR */}
-  <div style={{ textAlign: "center", marginTop: "0.5rem" }}>
-    <Link to="/buscar-qr">
-      <button
-        style={{
-          padding: "0.7rem 1.2rem",
-          fontSize: "16px",
-          fontWeight: "bold",
-          borderRadius: "8px",
-          backgroundColor: "#00796b",
-          color: "white",
-          border: "none",
-          cursor: "pointer",
-          boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
-          transition: "background-color 0.3s",
-        }}
-        onMouseEnter={(e) => (e.target.style.backgroundColor = "#004d40")}
-        onMouseLeave={(e) => (e.target.style.backgroundColor = "#00796b")}
-      >
-        🔍 Buscar mi Código QR
-      </button>
-    </Link>
-  </div>
+
 </div>
               )
             }
