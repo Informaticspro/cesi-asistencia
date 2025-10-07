@@ -1,4 +1,4 @@
-import { useEffect, useState,useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,9 +6,9 @@ import {
   Navigate,
   Link,
   useNavigate,
+  useLocation,
 } from "react-router-dom";
-import { supabase } from "./supabaseClient"; // 👈 IMPORTANTE
-import { useLocation } from "react-router-dom";
+import { supabase } from "./supabaseClient";
 import Bienvenida from "./Bienvenida";
 import BuscarQR from "./BuscarQR";
 import EscanerQR from "./EscanerQR";
@@ -17,96 +17,73 @@ import AdminParticipantes from "./AdminParticipantes";
 import MiFooter from "./MiFooter";
 import AgregarActualizacion from "./AgregarActualizacion";
 import AsistenciaHoy from "./AsistenciaHoy";
-import logoUnachi from "./assets/logo_unachi.png";
-
 import Noticias from "./Noticias";
 import AdminUsuarios from "./AdminUsuarios";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 
+/* 🧩 EXPORTAR ASISTENCIAS */
 export async function exportarAsistenciasExcel() {
-  // 1. Obtener asistencias
-  const { data: asistencias, error: errorAsistencias } = await supabase
-    .from("asistencias")
-    .select("*");
+  const { data: asistencias } = await supabase.from("asistencias").select("*");
+  const { data: participantes } = await supabase.from("participantes").select("*");
 
-  if (errorAsistencias) {
-    alert("Error al obtener asistencias.");
+  if (!asistencias || !participantes) {
+    alert("Error al obtener datos");
     return;
   }
 
-  // 2. Obtener participantes
-  const { data: participantes, error: errorParticipantes } = await supabase
-    .from("participantes")
-    .select("*");
+  const mapa = {};
+  participantes.forEach((p) => (mapa[p.cedula] = p));
 
-  if (errorParticipantes) {
-    alert("Error al obtener participantes.");
-    return;
-  }
-
-  // 3. Crear un mapa de participantes por cédula
-  const mapaParticipantes = {};
-  participantes.forEach((p) => {
-    mapaParticipantes[p.cedula] = p;
-  });
-
-  // 4. Combinar asistencias con datos del participante
   const datos = asistencias.map((a) => {
-    const p = mapaParticipantes[a.cedula] || {};
+    const p = mapa[a.cedula] || {};
     return {
       Cédula: a.cedula,
       Nombre: p.nombre || "No encontrado",
-      Apellido: p.apellido || "No encontrado",
-      Correo: p.correo || "No encontrado",
-      Sexo: p.sexo || "No encontrado",
-      Categoría: p.categoria || "No encontrado",
-      Fecha: a.fecha ? new Date(a.fecha).toLocaleDateString("es-PA") : "",
-      Hora: a.hora ? new Date(`1970-01-01T${a.hora}`).toLocaleTimeString("es-PA") : "",
+      Correo: p.correo || "",
+      Categoría: p.categoria || "",
+      Fecha: new Date(a.fecha).toLocaleDateString("es-PA"),
+      Hora: a.hora || "",
     };
   });
 
-  // 5. Crear hoja de Excel
   const hoja = XLSX.utils.json_to_sheet(datos);
-
-  // 6. Ajustar ancho de columnas automáticamente
-  const anchos = Object.keys(datos[0] || {}).map((key) => {
-    const maxLongitud = Math.max(
-      key.length,
-      ...datos.map((fila) => (fila[key] ? fila[key].toString().length : 0))
-    );
-    return { wch: maxLongitud + 2 };
-  });
-  hoja["!cols"] = anchos;
-
-  // 7. Estilizar encabezados (truco con XLSX)
-  const encabezados = Object.keys(datos[0] || {});
-  encabezados.forEach((col, i) => {
-    const celda = hoja[XLSX.utils.encode_cell({ r: 0, c: i })];
-    if (celda && typeof celda === "object") {
-      celda.s = {
-        fill: { fgColor: { rgb: "FFD966" } }, // Amarillo claro
-        font: { bold: true, color: { rgb: "000000" } }, // Negrita y negro
-        alignment: { horizontal: "center", vertical: "center" }
-      };
-    }
-  });
-
-  // 8. Crear libro de Excel
   const libro = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(libro, hoja, "Asistencias");
 
-  // 9. Generar archivo Excel
-  const arrayBuffer = XLSX.write(libro, { bookType: "xlsx", type: "array", cellStyles: true });
-  const blob = new Blob([arrayBuffer], { type: "application/octet-stream" });
-
-  saveAs(blob, "asistencias_completas.xlsx");
+  const excel = XLSX.write(libro, { bookType: "xlsx", type: "array" });
+  saveAs(new Blob([excel]), "asistencias.xlsx");
 }
 
-
-
+/* 🧠 COMPONENTE PRINCIPAL */
 function AppWrapper() {
+  return (
+    <Router>
+      <HeaderConLogin />
+      <div
+        style={{
+          paddingTop: "130px",
+          backgroundColor: "#1c1c1c",
+          minHeight: "100vh",
+        }}
+      >
+        <App />
+      </div>
+    </Router>
+  );
+}
+
+/* 🧱 HEADER + LOGIN 🔐 */
+function HeaderConLogin() {
   const [isMobile, setIsMobile] = useState(false);
+  const [mostrarLogin, setMostrarLogin] = useState(false);
+  const [usuario, setUsuario] = useState("");
+  const [contraseña, setContrasena] = useState("");
+  const [mostrarContrasena, setMostrarContrasena] = useState(false);
+  const [error, setError] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 480);
@@ -115,84 +92,71 @@ function AppWrapper() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
- const logoBaseStyle = {
-     position: "fixed",
-    top: "env(safe-area-inset-top)", // 👈 Esto ayuda a que no quede debajo de la status bar
-    paddingTop: isMobile ? 10 : 15,   // 👈 Ajuste visual adicional
-    opacity: 0.7,
-    pointerEvents: "none",
-    userSelect: "none",
-    zIndex: 9999,
-    backgroundColor: "#1c1c1c",
-    height: isMobile ? 55 : 75,       // 👈 Aumentamos un poco para dejar espacio arriba
-    display: "flex",
-    alignItems: "center",
-    width: "100%",
-    padding: "0 15px",
-    boxSizing: "border-box",
-    justifyContent: "space-between",
-    borderBottom: "1px solid #444",
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const { data, error } = await supabase
+      .from("usuarios")
+      .select("*")
+      .ilike("usuario", usuario.trim())
+      .single();
+
+    if (error || !data) {
+      setError("Usuario no encontrado");
+      return;
+    }
+
+    if (data["contraseña"] === contraseña) {
+      setError(null);
+      setIsLoggedIn(true);
+      setMostrarLogin(false);
+      navigate("/admin-participantes");
+    } else {
+      setError("Contraseña incorrecta");
+    }
   };
 
- return (
-    <Router>
-      {/* Header fijo */}
+  return (
+    <>
+      {/* 🔝 HEADER FIJO */}
       <div
         style={{
-          ...logoBaseStyle,
-          display: "flex",
-          alignItems: "center",
-          backgroundColor: "#1c1c1c",
-          padding: isMobile ? "6px 10px" : "10px 20px",
-          flexDirection: isMobile ? "column" : "row",
-          position: "fixed",   // 👈 ahora siempre fijo
+          position: "fixed",
           top: 0,
           left: 0,
-          width: "100%",       // ocupa todo el ancho
-          zIndex: 1000,        // se queda arriba de todo
+          width: "100%",
+          zIndex: 1000,
+          backgroundColor: "#1c1c1c",
+          padding: isMobile ? "6px 10px" : "10px 20px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexDirection: isMobile ? "column" : "row",
+          borderBottom: "1px solid #444",
         }}
       >
-        {/* Logos a la izquierda */}
+        {/* LOGOS */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
             gap: isMobile ? "4px" : "15px",
-            alignSelf: isMobile ? "center" : "flex-start",
           }}
         >
-          <img
-            src="/Dato1.png"
-            alt="Logo Dato1"
-            style={{ height: isMobile ? 28 : 55 }}
-          />
-          <img
-            src="/Unachi-2.png"
-            alt="Logo UNACHI"
-            style={{ height: isMobile ? 28 : 55 }}
-          />
-          <img
-            src="/logoeconomia3.png"
-            alt="Logo Economía"
-            style={{ height: isMobile ? 28 : 55 }}
-          />
+          <img src="/Dato1.png" alt="Logo Dato1" style={{ height: isMobile ? 28 : 55 }} />
+          <img src="/Unachi-2.png" alt="Logo UNACHI" style={{ height: isMobile ? 28 : 55 }} />
+          <img src="/logoeconomia3.png" alt="Logo Economía" style={{ height: isMobile ? 28 : 55 }} />
         </div>
 
-        {/* Texto */}
+        {/* TEXTO CENTRAL */}
         <div
           style={{
             textAlign: "center",
             fontSize: isMobile ? "0.75rem" : "1.1rem",
             fontWeight: "bold",
-            lineHeight: isMobile ? "1.1rem" : "1.5rem",
             color: "#fff",
-            userSelect: "none",
-            marginTop: isMobile ? "6px" : "0",
             position: isMobile ? "static" : "absolute",
             left: isMobile ? "auto" : "50%",
             transform: isMobile ? "none" : "translateX(-50%)",
-            width: isMobile ? "100%" : "auto",
-            padding: isMobile ? "0 8px" : "0",
           }}
         >
           CONGRESO DE ECONOMÍA, SOCIEDAD E INNOVACIÓN
@@ -201,29 +165,155 @@ function AppWrapper() {
             style={{
               fontWeight: "normal",
               fontSize: isMobile ? "0.6rem" : "0.9rem",
-              display: "block",
-              marginTop: "3px",
               fontStyle: "italic",
             }}
           >
-            "Construyendo una cultura de datos para la ciencia, la gobernanza y
-            el desarrollo sostenible."
+            "Construyendo una cultura de datos para la ciencia, la gobernanza y el desarrollo sostenible."
           </span>
         </div>
-      </div>
 
-      {/* Contenido principal con padding compensando header fijo */}
-      <div
-        style={{
-          paddingTop: isMobile ? "115px" : "130px", // 👈 aumenta un poco para que no lo tape
-          backgroundColor: "#1c1c1c",
-          minHeight: "100vh",
-          margin: 0,
-        }}
-      >
-        <App />
+{/* ICONO + TEXTO LOGIN */}
+{!isLoggedIn && (
+  <div
+    onClick={() => setMostrarLogin(!mostrarLogin)}
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+      cursor: "pointer",
+      color: "#fff",
+      fontWeight: "bold",
+      fontSize: isMobile ? "0.85rem" : "1rem",
+      transition: "opacity 0.2s ease, transform 0.2s ease",
+      marginRight: isMobile ? "8px" : "30px", // 👈 separa del borde derecho
+      whiteSpace: "nowrap", // 👈 evita que se corte el texto
+    }}
+    title="Acceso de administradores"
+  >
+    <span
+      style={{
+        fontSize: isMobile ? "1.3rem" : "1.6rem",
+        color: "#ffd54f", // amarillo suave
+      }}
+    >
+      🔑
+    </span>
+    <span
+      style={{
+        textDecoration: "underline",
+        textUnderlineOffset: "3px",
+        color: "#fff",
+      }}
+    >
+      Iniciar sesión
+    </span>
+  </div>
+)}
+        {/* 💬 LOGIN FLOTANTE */}
+        {mostrarLogin && (
+          <>
+            <div
+              onClick={() => setMostrarLogin(false)}
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100vw",
+                height: "100vh",
+                backgroundColor: "rgba(0,0,0,0.4)",
+                backdropFilter: "blur(3px)",
+                zIndex: 999,
+              }}
+            ></div>
+
+            <div
+              style={{
+                position: "fixed",
+                top: isMobile ? "90px" : "80px",
+                right: isMobile ? "10px" : "25px",
+                background: "linear-gradient(135deg, rgba(44,44,44,0.95), rgba(58,58,58,0.95))",
+                borderRadius: "12px",
+                padding: "1rem",
+                width: isMobile ? "80vw" : "300px",
+                zIndex: 1001,
+                boxShadow: "0 4px 15px rgba(0,0,0,0.4)",
+                color: "#fff",
+                textAlign: "center",
+              }}
+            >
+              <p style={{ color: "#ff1744", fontWeight: "bold" }}>
+                Acceso exclusivo para administradores
+              </p>
+              <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                <input
+                  type="text"
+                  placeholder="Usuario"
+                  value={usuario}
+                  onChange={(e) => setUsuario(e.target.value)}
+                  required
+                  style={{
+                    padding: "0.5rem",
+                    borderRadius: "6px",
+                    border: "1px solid #555",
+                    backgroundColor: "#fff",
+                    color: "#000",
+                  }}
+                />
+                <input
+                  type={mostrarContrasena ? "text" : "password"}
+                  placeholder="Contraseña"
+                  value={contraseña}
+                  onChange={(e) => setContrasena(e.target.value)}
+                  required
+                  style={{
+                    padding: "0.5rem",
+                    borderRadius: "6px",
+                    border: "1px solid #555",
+                    backgroundColor: "#fff",
+                    color: "#000",
+                  }}
+                />
+                <label style={{ fontSize: "0.85rem" }}>
+                  <input
+                    type="checkbox"
+                    checked={mostrarContrasena}
+                    onChange={() => setMostrarContrasena(!mostrarContrasena)}
+                    style={{ marginRight: "0.4rem" }}
+                  />
+                  Mostrar contraseña
+                </label>
+                {error && (
+                  <div
+                    style={{
+                      backgroundColor: "#dc3545",
+                      color: "#fff",
+                      padding: "0.5rem",
+                      borderRadius: "6px",
+                    }}
+                  >
+                    {error}
+                  </div>
+                )}
+                <button
+                  type="submit"
+                  style={{
+                    padding: "0.6rem",
+                    background: "linear-gradient(135deg, #00c6ff, #0072ff)",
+                    border: "none",
+                    borderRadius: "6px",
+                    color: "#fff",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                  }}
+                >
+                  Ingresar
+                </button>
+              </form>
+            </div>
+          </>
+        )}
       </div>
-    </Router>
+    </>
   );
 }
 
