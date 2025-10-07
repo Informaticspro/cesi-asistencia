@@ -66,10 +66,10 @@ function EscanerQR() {
         { facingMode: "environment" },
         {
           fps: 10,
-          qrbox: (w, h) => {
-            const size = Math.floor(Math.min(w, h) * 0.8);
-            return { width: size, height: size };
-          },
+        qrbox: (w, h) => {
+  const size = Math.floor(Math.min(w, h) * 0.9); // antes era 0.8
+  return { width: size, height: size };
+},
         },
         async (decodedText) => {
           if (scanningRef.current) return;
