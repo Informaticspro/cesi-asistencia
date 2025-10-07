@@ -47,23 +47,17 @@ function AsistenciaHoy() {
     <div style={{ color: "#fff" }}>
       <h2>Asistencias del día</h2>
       <p>Total asistentes: {asistencias.length}</p>
-    <div
-  style={{
-    maxHeight: 200,
-    overflowY: "auto",
-    backgroundColor: "#222",
-    borderRadius: "8px",
-    padding: "0.5rem",
-    boxShadow: "0 0 8px rgba(0, 255, 255, 0.3)",
-  }}
->
-  <div
-    style={{
-      overflowX: "auto", // ✅ habilita desplazamiento horizontal
-      WebkitOverflowScrolling: "touch", // ✅ mejora desplazamiento en móviles
-    }}
-      ></div>
-        <table style={{ width: "100%",minWidth: "600px", borderCollapse: "collapse" }}>
+      <div
+        style={{
+          maxHeight: 200,
+          overflowY: "auto",
+          backgroundColor: "#222",
+          borderRadius: "8px",
+          padding: "0.5rem",
+          boxShadow: "0 0 8px rgba(0, 255, 255, 0.3)",
+        }}
+      >
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr style={{ borderBottom: "1px solid #00ffff" }}>
               <th style={{ padding: "8px", textAlign: "left" }}>Cédula</th>
