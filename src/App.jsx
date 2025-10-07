@@ -59,16 +59,21 @@ export async function exportarAsistenciasExcel() {
 function AppWrapper() {
   return (
     <Router>
-      <HeaderConLogin />
-      <div
-        style={{
-          paddingTop: "130px",
-          backgroundColor: "#1c1c1c",
-          minHeight: "100vh",
-        }}
-      >
-        <App />
-      </div>
+    <HeaderConLogin onLoginSuccess={(usuario) => {
+  localStorage.setItem("autorizado", "true");
+  localStorage.setItem("usuario", usuario);
+  window.location.reload(); // 👈 fuerza recarga con estado admin activo
+}} />
+
+<div
+  style={{
+    paddingTop: "130px",
+    backgroundColor: "#1c1c1c",
+    minHeight: "100vh",
+  }}
+>
+  <App />
+</div>
     </Router>
   );
 }
@@ -100,19 +105,22 @@ function HeaderConLogin() {
       .ilike("usuario", usuario.trim())
       .single();
 
-    if (error || !data) {
-      setError("Usuario no encontrado");
-      return;
-    }
+ if (data["contraseña"] === contraseña) {
+  setError(null);
+  setIsLoggedIn(true);
+  setMostrarLogin(false);
 
-    if (data["contraseña"] === contraseña) {
-      setError(null);
-      setIsLoggedIn(true);
-      setMostrarLogin(false);
-      navigate("/admin-participantes");
-    } else {
-      setError("Contraseña incorrecta");
-    }
+  // 🔹 Si existe callback del padre (AppWrapper), notifícalo
+  if (typeof onLoginSuccess === "function") {
+    onLoginSuccess(data.usuario);
+  } else {
+    localStorage.setItem("autorizado", "true");
+    localStorage.setItem("usuario", data.usuario);
+    navigate("/admin-participantes");
+  }
+} else {
+  setError("Contraseña incorrecta");
+}
   };
 
   return (
@@ -517,20 +525,21 @@ function App() {
   <EscanerQR />
 </div>
 
-                  <div
-                    style={{
-                      marginTop: "2rem",
-                      maxHeight: 400,
-                      overflowY: "auto",
-                      overflowX: "hidden",
-                      borderRadius: "10px",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
-                      backgroundColor: "#1e1e1e",
-                      padding: "1rem",
-                      maxWidth: "100%",
-                      wordBreak: "break-word",
-                    }}
-                  >
+{/* 📋 Lista de asistencias */}
+                <div
+  style={{
+    marginTop: "2rem",
+    borderRadius: "10px",
+    backgroundColor: "#1e1e1e",
+    padding: "1rem",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+    width: "100%",
+    maxWidth: "100%",
+    boxSizing: "border-box",
+    overflow: "hidden", // ✅ evita que se salga del contenedor
+  }}
+>
+  
                     <AsistenciaHoy />
                         <button
                      onClick={exportarAsistenciasExcel}
