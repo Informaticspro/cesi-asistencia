@@ -353,6 +353,7 @@ function AdminParticipantes() {
           overflowX: "auto",
           borderRadius: 6,
           boxShadow: "0 0 5px rgba(0,0,0,0.3)",
+          border: "1px solid #19af21ff", // borde externo
           width: "100%",
         }}
       >
@@ -367,7 +368,9 @@ function AdminParticipantes() {
           }}
         >
           <thead>
-            <tr style={{ backgroundColor: "#004d40" }}>
+            <tr style={{ backgroundColor: "#004d40", borderBottom: "1px solid  #19af21ff",
+               position: "sticky",  top: 0, zIndex: 2
+             }}> 
               <th>Nombre</th>
               <th>Apellido</th>
               <th>Cédula</th>
@@ -390,7 +393,10 @@ function AdminParticipantes() {
             {participantesFiltrados.map((p) => (
               <tr key={p.cedula}>
                 {/* Nombre */}
-                <td>
+                <td style={{
+    borderBottom: "1px solid #0cbe39ff",
+    padding: "8px",
+  }}>
                   {editando === p.cedula ? (
                     <input
                       value={formData.nombre}
@@ -405,7 +411,10 @@ function AdminParticipantes() {
                 </td>
 
                 {/* Apellido */}
-                <td>
+                <td style={{
+    borderBottom: "1px solid #0cbe39ff",
+    padding: "8px",
+  }}>
                   {editando === p.cedula ? (
                     <input
                       value={formData.apellido}
@@ -420,7 +429,10 @@ function AdminParticipantes() {
                 </td>
 
                 {/* Cédula */}
-                <td>
+                <td style={{
+    borderBottom: "1px solid #0cbe39ff",
+    padding: "8px",
+  }}>
                   {editando === p.cedula ? (
                     <input
                       value={formData.cedula}
@@ -445,7 +457,10 @@ function AdminParticipantes() {
                 </td>
 
                 {/* Correo */}
-                <td>
+                <td style={{
+    borderBottom: "1px solid #0cbe39ff",
+    padding: "8px",
+  }}>
                   {editando === p.cedula ? (
                     <input
                       value={formData.correo}
@@ -460,7 +475,10 @@ function AdminParticipantes() {
                 </td>
 
                 {/* Sexo */}
-                <td>
+                <td style={{
+    borderBottom: "1px solid #0cbe39ff",
+    padding: "8px",
+  }}>
                   {editando === p.cedula ? (
                     <select
                       value={formData.sexo}
@@ -478,7 +496,10 @@ function AdminParticipantes() {
                 </td>
 
                 {/* Categoría */}
-                <td>
+                <td style={{
+    borderBottom: "1px solid #0cbe39ff",
+    padding: "8px",
+  }}>
                   {editando === p.cedula ? (
                     <select
                       value={formData.categoria}
@@ -499,7 +520,10 @@ function AdminParticipantes() {
                 </td>
 
                 {/* Correo P. */}
-                <td>
+                <td style={{
+    borderBottom: "1px solid #0cbe39ff",
+    padding: "8px",
+  }}>
                   {editando === p.cedula ? (
                     <input
                       value={formData.correop}
@@ -514,7 +538,10 @@ function AdminParticipantes() {
                 </td>
 
                 {/* Nacionalidad */}
-                <td>
+                <td style={{
+    borderBottom: "1px solid #0cbe39ff",
+    padding: "8px",
+  }}>
                   {editando === p.cedula ? (
                     <input
                       value={formData.nacionalidad}
@@ -532,7 +559,10 @@ function AdminParticipantes() {
                 </td>
 
                 {/* Otra Nacionalidad */}
-                <td>
+                <td style={{
+    borderBottom: "1px solid #0cbe39ff",
+    padding: "8px",
+  }}>
                   {editando === p.cedula ? (
                     <input
                       value={formData.otraNacionalidad}
@@ -550,7 +580,10 @@ function AdminParticipantes() {
                 </td>
 
                 {/* Modalidad */}
-                <td>
+                <td style={{
+    borderBottom: "1px solid #0cbe39ff",
+    padding: "8px",
+  }}>
                   {editando === p.cedula ? (
                     <input
                       value={formData.modalidad}
@@ -565,7 +598,10 @@ function AdminParticipantes() {
                 </td>
 
                 {/* Tipo Participación */}
-                <td>
+                <td style={{
+    borderBottom: "1px solid #0cbe39ff",
+    padding: "8px",
+  }}>
                   {editando === p.cedula ? (
                     <input
                       value={formData.tipoParticipacion}
@@ -583,7 +619,10 @@ function AdminParticipantes() {
                 </td>
 
                 {/* Entidad */}
-                <td>
+                <td style={{
+    borderBottom: "1px solid #0cbe39ff",
+    padding: "8px",
+  }}>
                   {editando === p.cedula ? (
                     <input
                       value={formData.entidad}
@@ -598,7 +637,10 @@ function AdminParticipantes() {
                 </td>
 
                 {/* Otra Entidad */}
-                <td>
+                <td style={{
+    borderBottom: "1px solid #0cbe39ff",
+    padding: "8px",
+  }}>
                   {editando === p.cedula ? (
                     <input
                       value={formData.otraEntidad}
@@ -616,7 +658,8 @@ function AdminParticipantes() {
                 </td>
 
                 {/* QR */}
-                <td style={{ textAlign: "center", backgroundColor: "#fff" }}>
+                <td style={{ textAlign: "center", backgroundColor: "#fff", borderBottom: "1px solid #333",
+    padding: "8px" }}>
                   {p.qr_code ? (
                     <QRCodeCanvas
                       value={p.qr_code}
@@ -633,43 +676,35 @@ function AdminParticipantes() {
                 </td>
 
                 {/* Acciones */}
-                <td>
-                  {editando === p.cedula ? (
-                    <>
-                      <button
-                        onClick={guardarCambios}
-                        disabled={loading}
-                        style={boton("green")}
-                      >
-                        Guardar
-                      </button>
-                      <button
-                        onClick={cancelarEdicion}
-                        disabled={loading}
-                        style={boton("gray")}
-                      >
-                        Cancelar
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        onClick={() => comenzarEdicion(p)}
-                        disabled={loading}
-                        style={boton("blue")}
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => eliminarParticipante(p.cedula)}
-                        disabled={loading}
-                        style={boton("red")}
-                      >
-                        Eliminar
-                      </button>
-                    </>
-                  )}
-                </td>
+<td
+  style={{
+    position: "sticky",
+    right: 0,
+    backgroundColor: "#1c1c1c",
+    textAlign: "center",
+    zIndex: 1,
+  }}
+>
+  {editando === p.cedula ? (
+    <>
+      <button onClick={guardarCambios} disabled={loading} style={boton("green")}>
+        Guardar
+      </button>
+      <button onClick={cancelarEdicion} disabled={loading} style={boton("gray")}>
+        Cancelar
+      </button>
+    </>
+  ) : (
+    <>
+      <button onClick={() => comenzarEdicion(p)} disabled={loading} style={boton("blue")}>
+        Editar
+      </button>
+      <button onClick={() => eliminarParticipante(p.cedula)} disabled={loading} style={boton("red")}>
+        Eliminar
+      </button>
+    </>
+  )}
+</td>
               </tr>
             ))}
 
