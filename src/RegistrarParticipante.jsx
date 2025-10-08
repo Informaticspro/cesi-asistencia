@@ -25,14 +25,39 @@ function RegistrarParticipante() {
   const cedulaInputRef = useRef(null);
   const [mostrarErrorCedula, setMostrarErrorCedula] = useState(false);
   const [errorCedula, setErrorCedula] = useState("");
+  const mensajeRef = useRef(null);
   
-  
+  const [cuposPlan2, setCuposPlan2] = useState(0);
+
+// 🔹 Función para contar cuántos ya están en Plan 2
+async function verificarCupoPlan2() {
+  const { count, error } = await supabase
+    .from("participantes")
+    .select("*", { count: "exact", head: true })
+    .ilike("modalidad", "%Plan 2%");
+
+  if (error) {
+    console.error("Error verificando cupo:", error);
+    return false;
+  }
+
+  return count < 50; // true si aún hay cupo
+}
+
   const qrRef = useRef(null);
   const navigate = useNavigate();
 
    const yaSeleccionado = useRef(false); // 🔑 clave para evitar doble clic
 
   useEffect(() => {
+    async function cargarCupo() {
+    const { count } = await supabase
+      .from("participantes")
+      .select("*", { count: "exact", head: true })
+      .ilike("modalidad", "%Plan 2%");
+    setCuposPlan2(count);
+  }
+  cargarCupo();
     const buscarCedulas = async () => {
       if (cedula.length < 3) {
         setSugerencias([]);
@@ -101,7 +126,18 @@ setMostrarErrorCedula(false);
       setLoading(false);
       return;
     }
-
+// 🧩 Verificar cupo antes de registrar
+if (modalidad.includes("Plan 2")) {
+  const hayCupo = await verificarCupoPlan2();
+  if (!hayCupo) {
+    setMensaje({
+      tipo: "error",
+      texto: "❌ El Plan 2 (todo incluido) ya alcanzó su límite de 50 participantes.",
+    });
+    setLoading(false);
+    return;
+  }
+}
     // Inserta participante en Supabase
    const { data, error: insertError } = await supabase.from("participantes").insert([
   {
@@ -266,6 +302,7 @@ setMostrarErrorCedula(false);
 
   {mensaje && (
     <div
+     ref={mensajeRef} 
       style={{
         padding: "0.75rem 1rem",
         marginBottom: "1.2rem",
@@ -652,7 +689,28 @@ setMostrarErrorCedula(false);
           value={m.value}
           required={i === 0}
           checked={modalidad === m.value}
-          onChange={(e) => setModalidad(e.target.value)}
+          onChange={async (e) => {
+  const seleccion = e.target.value;
+  setModalidad(seleccion);
+
+  if (seleccion.includes("Plan 2")) {
+    const hayCupo = await verificarCupoPlan2();
+    if (!hayCupo) {
+      setMensaje({
+        tipo: "error",
+        texto: "❌ El Plan 2 (todo incluido) ya alcanzó su límite de 50 participantes.",
+      });
+      setModalidad(""); // 👈 Desmarca la opción automáticamente
+   setTimeout(() => {
+        if (mensajeRef.current) {
+          mensajeRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 100);
+    }  else {
+      setMensaje(null); // limpia el mensaje si hay cupo
+    }
+  }
+}}
           disabled={qrVisible}
         />
         {m.value}
