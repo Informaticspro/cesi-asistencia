@@ -22,7 +22,9 @@ function AsistenciaHoy() {
       const { data, error } = await supabase
         .from("asistencias")
         .select("cedula, fecha, hora, participantes(nombre, apellido, correo)")
-       
+               .gte("fecha", inicioIso)
+        .lte("fecha", finIso)
+
         .order("fecha", { ascending: true });
 
       if (error) {
