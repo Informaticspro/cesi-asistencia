@@ -673,7 +673,7 @@ if (modalidad.includes("Plan 2")) {
     }}
   >
     {[
-      { value: "Estudiante-Plan 1: $20.00 (congreso presencial y virtual, talleres, refrigerios, certificados, otros)" },
+      { value: "Estudiante-Plan 1: $15.00 (congreso presencial y virtual, talleres, refrigerios, certificados, otros)" },
       { value: "Estudiante-Plan 2: $25.00 (congreso todo incluido + cena)" },
       { value: "Administrativo: $30.00" },
       { value: "Estudiante de postgrado: $25.00" },
