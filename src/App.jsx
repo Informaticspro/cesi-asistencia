@@ -61,7 +61,11 @@ export async function exportarAsistenciasExcel() {
       Correo: p.correo || "No encontrado",
       Sexo: p.sexo || "No encontrado",
       Categoría: p.categoria || "No encontrado",
-      Fecha: a.fecha ? new Date(a.fecha).toLocaleDateString("es-PA") : "",
+      Fecha: a.fecha
+  ? new Date(
+      new Date(a.fecha).getTime() + 5 * 60 * 60 * 1000 // 👈 corrige desfase UTC-5
+    ).toLocaleDateString("es-PA")
+  : "",
       Hora: a.hora ? new Date(`1970-01-01T${a.hora}`).toLocaleTimeString("es-PA") : "",
     };
   });
@@ -381,6 +385,7 @@ const handleLogin = async (e) => {
 
 function App() {
   const location = useLocation(); 
+    const [asistenciasHoy, setAsistenciasHoy] = useState([]);
 
     useEffect(() => {
     window.scrollTo(0, 0);
