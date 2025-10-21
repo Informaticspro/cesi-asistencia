@@ -8,11 +8,20 @@ function AsistenciaHoy({ onDataChange }) {
   const [error, setError] = useState(null);
 
   // 🕓 Función para ajustar la fecha al huso de Panamá
-  function ajustarFechaPanama(fecha) {
-    if (!fecha) return "";
-    const local = new Date(fecha);
-    return local.toLocaleDateString("es-PA", { timeZone: "America/Panama" });
-  }
+function ajustarFechaPanama(fecha) {
+  if (!fecha) return "";
+  // Evita la conversión errónea a UTC restando el desfase manualmente
+  const partes = fecha.split("-"); // ejemplo: "2025-10-21"
+  const fechaLocal = new Date(
+    parseInt(partes[0]), // año
+    parseInt(partes[1]) - 1, // mes (base 0)
+    parseInt(partes[2]) // día
+  );
+  return fechaLocal.toLocaleDateString("es-PA", {
+    timeZone: "America/Panama",
+  });
+}
+
 
     // 📤 Exportar exactamente lo que ves (sin modificar formato)
   function exportarAsistenciasExcel() {
