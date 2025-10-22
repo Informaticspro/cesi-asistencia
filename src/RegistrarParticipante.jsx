@@ -41,7 +41,7 @@ async function verificarCupoPlan2() {
     return false;
   }
 
-  return count < 50; // true si aún hay cupo
+  return count < 80; // true si aún hay cupo
 }
 
   const qrRef = useRef(null);
