@@ -125,8 +125,41 @@ function Bienvenida({ onLogin }) {
             marginTop: "1rem",
           }}
         />
-        
+
+    
         <h1 className="titulo-cesi">Bienvenido a CESI 2025</h1>
+              </div>
+{/* 🔍 Buscar mi Código QR */}
+<div style={{ marginTop: "1rem" }}>
+  <Link to="/buscar-qr" style={{ textDecoration: "none" }}>
+    <button
+      style={{
+        padding: "1rem 2rem",
+        background: "linear-gradient(to right, #00796b, #004d40)",
+        border: "none",
+        borderRadius: "10px",
+        fontWeight: "bold",
+        fontSize: "1.2rem",
+        color: "#fff",
+        cursor: "pointer",
+        boxShadow: "0 6px 14px rgba(0, 121, 107, 0.6)",
+        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+      }}
+      onMouseOver={(e) => {
+        e.currentTarget.style.transform = "scale(1.05)";
+        e.currentTarget.style.boxShadow =
+          "0 8px 18px rgba(0, 121, 107, 0.7)";
+      }}
+      onMouseOut={(e) => {
+        e.currentTarget.style.transform = "scale(1)";
+        e.currentTarget.style.boxShadow =
+          "0 6px 14px rgba(0, 121, 107, 0.6)";
+      }}
+    >
+      🔍 Buscar mi Código QR
+    </button>
+  </Link>
+</div>
        {/* 🔹 Mensaje de cierre de inscripción */}
 <div
   style={{
@@ -208,38 +241,7 @@ function Bienvenida({ onLogin }) {
 </div>
 
 
-      </div>
-{/* 🔍 Buscar mi Código QR */}
-<div style={{ marginTop: "1rem" }}>
-  <Link to="/buscar-qr" style={{ textDecoration: "none" }}>
-    <button
-      style={{
-        padding: "1rem 2rem",
-        background: "linear-gradient(to right, #00796b, #004d40)",
-        border: "none",
-        borderRadius: "10px",
-        fontWeight: "bold",
-        fontSize: "1.2rem",
-        color: "#fff",
-        cursor: "pointer",
-        boxShadow: "0 6px 14px rgba(0, 121, 107, 0.6)",
-        transition: "transform 0.2s ease, box-shadow 0.2s ease",
-      }}
-      onMouseOver={(e) => {
-        e.currentTarget.style.transform = "scale(1.05)";
-        e.currentTarget.style.boxShadow =
-          "0 8px 18px rgba(0, 121, 107, 0.7)";
-      }}
-      onMouseOut={(e) => {
-        e.currentTarget.style.transform = "scale(1)";
-        e.currentTarget.style.boxShadow =
-          "0 6px 14px rgba(0, 121, 107, 0.6)";
-      }}
-    >
-      🔍 Buscar mi Código QR
-    </button>
-  </Link>
-</div>
+
       
       {/* Sección de Actualizaciones */}
       <div
