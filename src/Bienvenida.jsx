@@ -127,37 +127,87 @@ function Bienvenida({ onLogin }) {
         />
         
         <h1 className="titulo-cesi">Bienvenido a CESI 2025</h1>
-        <p style={{ color: "#ffffff", fontSize: "1.1rem", marginBottom: "1rem" }}>
-          ¿Aún no estás registrado?
-        </p>
-        <Link to="/registrar" style={{ textDecoration: "none" }}>
-          <button
-            style={{
-              padding: "1rem 2rem",
-              background: "linear-gradient(to right, #007bff, #00bfff)",
-              border: "none",
-              borderRadius: "10px",
-              fontWeight: "bold",
-              fontSize: "1.2rem",
-              color: "#fff",
-              cursor: "pointer",
-              boxShadow: "0 6px 14px rgba(0, 123, 255, 0.6)",
-              transition: "transform 0.2s ease, box-shadow 0.2s ease",
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = "scale(1.05)";
-              e.currentTarget.style.boxShadow =
-                "0 8px 18px rgba(0, 123, 255, 0.7)";
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = "scale(1)";
-              e.currentTarget.style.boxShadow =
-                "0 6px 14px rgba(0, 123, 255, 0.6)";
-            }}
-          >
-            Registro de Participante
-          </button>
-        </Link>
+       {/* 🔹 Mensaje de cierre de inscripción */}
+<div
+  style={{
+    background: "rgba(255, 255, 255, 0.1)",
+    borderRadius: "16px",
+    padding: "2rem",
+    boxShadow: "0 4px 25px rgba(0, 191, 255, 0.25)",
+    textAlign: "center",
+    color: "#e0f7fa",
+    backdropFilter: "blur(10px)",
+    maxWidth: "600px",
+    margin: "2rem auto",
+    border: "1px solid rgba(0,191,255,0.3)",
+  }}
+>
+  <h2
+    style={{
+      color: "#00bfff",
+      fontSize: "1.6rem",
+      marginBottom: "1rem",
+      fontWeight: "700",
+      textShadow: "0 0 10px rgba(0,191,255,0.7)",
+    }}
+  >
+    El proceso de inscripción a CESI 2025 ha finalizado
+  </h2>
+
+  <p
+    style={{
+      fontSize: "1.1rem",
+      lineHeight: "1.8",
+      marginBottom: "1.5rem",
+      color: "#f0faff",
+    }}
+  >
+    Puede pasar a la{" "}
+    <span style={{ color: "#00e5ff", fontWeight: "600" }}>Biblioteca</span>{" "}
+    a formalizar su inscripción o escribir al correo:
+  </p>
+
+  <a
+    href="mailto:cesi@unachi.ac.pa"
+    style={{
+      display: "inline-block",
+      padding: "0.8rem 1.6rem",
+      borderRadius: "12px",
+      background: "linear-gradient(90deg, #007bff, #00bfff)",
+      color: "#fff",
+      textDecoration: "none",
+      fontWeight: "600",
+      boxShadow: "0 4px 12px rgba(0,123,255,0.5)",
+      transition: "transform 0.2s, box-shadow 0.2s",
+    }}
+    onMouseOver={(e) => {
+      e.currentTarget.style.transform = "scale(1.05)";
+      e.currentTarget.style.boxShadow =
+        "0 6px 16px rgba(0,191,255,0.6)";
+    }}
+    onMouseOut={(e) => {
+      e.currentTarget.style.transform = "scale(1)";
+      e.currentTarget.style.boxShadow =
+        "0 4px 12px rgba(0,123,255,0.5)";
+    }}
+  >
+    cesi.unachi@unachi.ac.pa
+  </a>
+
+  <p
+    style={{
+      marginTop: "2rem",
+      fontWeight: "600",
+      color: "#80eaff",
+      fontSize: "1.1rem",
+      textShadow: "0 0 8px rgba(0,191,255,0.6)",
+    }}
+  >
+    ¡Gracias por ser parte de <span style={{ color: "#00bfff" }}>CESI 2025</span>!
+  </p>
+</div>
+
+
       </div>
 {/* 🔍 Buscar mi Código QR */}
 <div style={{ marginTop: "1rem" }}>
