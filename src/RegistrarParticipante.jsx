@@ -165,27 +165,64 @@ if (modalidad.includes("Plan 2")) {
     if (insertError) throw insertError;
 
         const API_URL = import.meta.env.VITE_API_URL;
-    // Enviar QR al backend Express
-  console.log("🚀 Enviando al backend:", { cedula, nombre, correo, categoria, modalidad });
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/registro`, {
+
+ /* ===========================================================
+   🚀 ENVÍO AL BACKEND EXPRESS (DESACTIVADO TEMPORALMENTE)
+   ===========================================================
+   Antes: este bloque enviaba los datos al servidor en DigitalOcean
+   para generar y enviar el correo con el código QR.
+   Ya que el backend fue eliminado, lo dejamos comentado para evitar
+   errores de red ("Failed to fetch").
+   Si más adelante reactivas tu backend, solo descomenta este bloque.
+*/
+
+/*
+console.log("🚀 Enviando al backend:", {
+  cedula,
+  nombre,
+  correo,
+  categoria,
+  modalidad,
+});
+
+const response = await fetch(`${import.meta.env.VITE_API_URL}/registro`, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ cedula, nombre, correo, categoria, modalidad }),
 });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      setMensaje({
-        tipo: "error",
-        texto: `❌ Error en el servidor: ${errorData.error || "desconocido"}`,
-      });
-    } else {
-      setMensaje({
-        tipo: "success",
-        texto: "✅ Participante registrado exitosamente",
-      });
-      setQrVisible(true);
-    }
+if (!response.ok) {
+  const errorData = await response.json();
+  setMensaje({
+    tipo: "error",
+    texto: `❌ Error en el servidor: ${errorData.error || "desconocido"}`,
+  });
+  return; // salir si hubo error real del backend
+}
+*/
+
+/* ===========================================================
+   🧾 MODO LOCAL (SIN BACKEND)
+   ===========================================================
+   Aquí simulamos la respuesta exitosa para que la app siga funcionando.
+   No se envía correo, pero muestra el mensaje y genera el QR localmente.
+*/
+
+console.log("🧾 Registro local de participante:", {
+  cedula,
+  nombre,
+  correo,
+  categoria,
+  modalidad,
+});
+
+setMensaje({
+  tipo: "success",
+  texto: "✅ Participante registrado exitosamente (modo sin backend)",
+});
+
+setQrVisible(true);
+
   } catch (err) {
     console.error(err);
     setMensaje({
