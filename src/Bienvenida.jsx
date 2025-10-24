@@ -115,18 +115,17 @@ function Bienvenida({ onLogin }) {
     >
        {/* Header con logo, título y botón de registro */}
       <div style={{ width: "100%", textAlign: "center", marginBottom: "2rem" }}>
-        {/* Logo CESI */}
+        {/* Logo CESI 
         <img
           src="/logocesiblanco.png"
           alt="Logo CESI 2025"
           style={{
-            width: "300px",
-            marginBottom: "1rem",
-            marginTop: "1rem",
-          }}
+            width: "200px",
+            marginBottom: "0.01rem",
+            marginTop: "0.01rem",
+          }} 
         />
-
-    
+*/}
         <h1 className="titulo-cesi">Bienvenido a CESI 2025</h1>
               </div>
 {/* 🔍 Buscar mi Código QR */}
@@ -160,7 +159,31 @@ function Bienvenida({ onLogin }) {
     </button>
   </Link>
 </div>
-       {/* 🔹 Mensaje de cierre de inscripción */}
+   
+
+      
+      {/* Sección de Actualizaciones */}
+      <div
+        style={{
+          backgroundColor: "#2a2a2a",
+          padding: "1rem 2rem",
+          maxWidth: "100vw",
+          marginTop: "2rem",
+        }}
+      >
+        <h2
+          style={{
+            textAlign: "center",
+            fontSize: "1.5rem",
+            marginBottom: "1rem",
+            color: "#ffffff",
+          }}
+        >
+          Boletín CESI 2025
+        </h2>
+        <ActualizacionesEvento />
+      </div>
+          {/* 🔹 Mensaje de cierre de inscripción */}
 <div
   style={{
     background: "rgba(255, 255, 255, 0.1)",
@@ -241,30 +264,8 @@ function Bienvenida({ onLogin }) {
 </div>
 
 
-
-      
-      {/* Sección de Actualizaciones */}
-      <div
-        style={{
-          backgroundColor: "#2a2a2a",
-          padding: "1rem 2rem",
-          maxWidth: "100vw",
-          marginTop: "2rem",
-        }}
-      >
-        <h2
-          style={{
-            textAlign: "center",
-            fontSize: "1.5rem",
-            marginBottom: "1rem",
-            color: "#ffffff",
-          }}
-        >
-          Boletín CESI 2025
-        </h2>
-        <ActualizacionesEvento />
-      </div>
     </div>
+    
   );
 }
 
